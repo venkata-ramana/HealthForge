@@ -1,0 +1,28 @@
+{
+  "gate_id": "mvp-retrieval-quality-gate-v1",
+  "approved_on": "2026-07-24",
+  "dataset": "evals/datasets/cms-0057-f-mvp-evaluation-cases.json",
+  "approved_baseline_report": "evals/reports/2026-07-24-expanded-web-core-v4.json",
+  "approved_metrics": {
+    "retrieval_recall": 0.4166666666666667,
+    "citation_coverage_rate": 1.0,
+    "unsupported_answer_pass_rate": 0.0
+  },
+  "minimum_metrics": {
+    "retrieval_recall": 0.4166666666666667,
+    "citation_coverage_rate": 1.0,
+    "unsupported_answer_pass_rate": 0.0
+  },
+  "material_regression_thresholds": {
+    "retrieval_recall": 0.05,
+    "citation_coverage_rate": 0.0,
+    "unsupported_answer_pass_rate": 0.0
+  },
+  "review_policy": {
+    "human_review_required_on_material_regression": true,
+    "notes": [
+      "This baseline intentionally preserves current known failures so future corpus or retrieval work cannot silently regress.",
+      "Unsupported-answer handling remains a known gap and is tracked separately from this baseline gate."
+    ]
+  }
+}
