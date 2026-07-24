@@ -21,6 +21,10 @@ management:
         enabled: true
 
 healthforge:
+  model:
+    enabled: ${HEALTHFORGE_MODEL_ENABLED:false}
+    provider: ${HEALTHFORGE_MODEL_PROVIDER:disabled}
+    prompt-template-version: evidence-packet-v1
   storage:
     artifact-directory: ${HEALTHFORGE_ARTIFACT_DIRECTORY:${user.home}/.healthforge/artifacts}
   mvp:
