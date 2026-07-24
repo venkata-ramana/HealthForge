@@ -1,0 +1,237 @@
+openapi: 3.1.0
+info:
+  title: HealthForge Knowledge Ingestion and Retrieval API
+  version: 0.1.0
+  description: >-
+    Administrative ingestion and citeable evidence retrieval for curated, public,
+    versioned healthcare-interoperability sources. This API does not accept PHI,
+    arbitrary uploads, or requests for generated compliance conclusions.
+servers:
+  - url: http://localhost:8080
+    description: Local development
+paths:
+  /v1/ingestions:
+    post:
+      operationId: requestIngestion
+      summary: Request ingestion of a manifest-approved source version
+      tags: [administration]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestionRequest'
+      responses:
+        '202':
+          description: Ingestion job accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionJob'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '403':
+          description: Source is not allowed by the active manifest or data policy
+  /v1/ingestions/{ingestionId}:
+    get:
+      operationId: getIngestionJob
+      summary: Get ingestion job state and provenance validation result
+      tags: [administration]
+      parameters:
+        - $ref: '#/components/parameters/IngestionId'
+      responses:
+        '200':
+          description: Ingestion job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionJob'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/retrieval/search:
+    post:
+      operationId: searchEvidence
+      summary: Retrieve citeable passages from an exact corpus snapshot
+      tags: [retrieval]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrievalRequest'
+      responses:
+        '200':
+          description: Ranked citeable passage results; no generated answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievalResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          description: Corpus snapshot not found
+components:
+  parameters:
+    IngestionId:
+      name: ingestionId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^ing_[a-zA-Z0-9_-]+$'
+  responses:
+    NotFound:
+      description: Requested record was not found
+    ValidationError:
+      description: Request violates contract or data-policy validation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    IngestionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - manifest_source_id
+        - source_version
+        - canonical_url
+        - expected_content_type
+      properties:
+        manifest_source_id:
+          type: string
+          description: ID selected in the approved corpus manifest
+        source_version:
+          type: string
+          description: Publisher document/package version; never an unpinned continuous build
+        canonical_url:
+          type: string
+          format: uri
+        expected_content_type:
+          type: string
+          enum: [application/pdf, text/html, application/fhir+json, application/json]
+        requested_by:
+          type: string
+          description: Non-sensitive local administrator identity
+    IngestionJob:
+      type: object
+      additionalProperties: false
+      required:
+        - ingestion_id
+        - status
+        - manifest_source_id
+        - requested_at
+      properties:
+        ingestion_id:
+          type: string
+          pattern: '^ing_[a-zA-Z0-9_-]+$'
+        status:
+          enum: [requested, fetching, validating, indexed, active, superseded, withdrawn, rejected]
+        manifest_source_id:
+          type: string
+        requested_at:
+          type: string
+          format: date-time
+        source_version_id:
+          type: string
+          pattern: '^srcver_[a-zA-Z0-9_-]+$'
+        artifact_sha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+        parser_version:
+          type: string
+        chunking_version:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+    RetrievalRequest:
+      type: object
+      additionalProperties: false
+      required: [corpus_id, corpus_version, query]
+      properties:
+        corpus_id:
+          type: string
+        corpus_version:
+          type: string
+        query:
+          type: string
+          minLength: 1
+          description: Non-sensitive engineering question
+        source_types:
+          type: array
+          uniqueItems: true
+          items:
+            enum: [governing_regulation, authoritative_implementation_guidance, candidate_technical_guidance, internal_project_material]
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 8
+    RetrievalResponse:
+      type: object
+      additionalProperties: false
+      required: [corpus_id, corpus_version, index_generation_id, results]
+      properties:
+        corpus_id:
+          type: string
+        corpus_version:
+          type: string
+        index_generation_id:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RetrievalResult'
+    RetrievalResult:
+      type: object
+      additionalProperties: false
+      required:
+        - passage_id
+        - excerpt
+        - rank
+        - score
+        - source
+      properties:
+        passage_id:
+          type: string
+          pattern: '^passage_[a-zA-Z0-9_-]+$'
+        excerpt:
+          type: string
+        rank:
+          type: integer
+          minimum: 1
+        score:
+          type: number
+          description: Diagnostic ranking score; not evidence strength or compliance confidence
+        source:
+          $ref: '#/components/schemas/CiteableSource'
+    CiteableSource:
+      type: object
+      additionalProperties: false
+      required: [source_id, source_version, source_type, title, canonical_url, locator]
+      properties:
+        source_id:
+          type: string
+        source_version:
+          type: string
+        source_type:
+          enum: [governing_regulation, authoritative_implementation_guidance, candidate_technical_guidance, internal_project_material]
+        title:
+          type: string
+        canonical_url:
+          type: string
+          format: uri
+        locator:
+          type: string
+          description: Stable page/section, artifact/anchor, or immutable snapshot locator
+    Error:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
