@@ -27,4 +27,5 @@ This deliberately precedes code generation, automated compliance claims, and pro
 - [`docs/04-first-90-days.md`](docs/04-first-90-days.md)
 - [`docs/05-decision-log.md`](docs/05-decision-log.md)
 - [`docs/06-mvp-source-corpus.md`](docs/06-mvp-source-corpus.md)
+- [`docs/07-electronic-prior-authorization-workflow.md`](docs/07-electronic-prior-authorization-workflow.md)
 - [`knowledge/manifests/mvp-source-corpus.yaml`](knowledge/manifests/mvp-source-corpus.yaml)
