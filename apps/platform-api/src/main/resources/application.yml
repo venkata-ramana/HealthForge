@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: healthforge-platform-api
+  datasource:
+    url: ${HEALTHFORGE_DB_URL:jdbc:postgresql://localhost:5433/healthforge}
+    username: ${HEALTHFORGE_DB_USERNAME:healthforge}
+    password: ${HEALTHFORGE_DB_PASSWORD:healthforge}
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+healthforge:
+  mvp:
+    sources:
+      cms-0057-f-final-rule:
+        canonical-url: https://www.cms.gov/files/document/cms-0057-f.pdf
+        content-types:
+          - application/pdf
+      cms-prior-auth-api-workflow:
+        canonical-url: https://www.cms.gov/files/document/prior-authorization-api-workflow-cms-0057-f.pdf
+        content-types:
+          - application/pdf
