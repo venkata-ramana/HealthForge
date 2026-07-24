@@ -28,4 +28,7 @@ This deliberately precedes code generation, automated compliance claims, and pro
 - [`docs/05-decision-log.md`](docs/05-decision-log.md)
 - [`docs/06-mvp-source-corpus.md`](docs/06-mvp-source-corpus.md)
 - [`docs/07-electronic-prior-authorization-workflow.md`](docs/07-electronic-prior-authorization-workflow.md)
+- [`docs/08-regulation-to-engineering-brief-contract.md`](docs/08-regulation-to-engineering-brief-contract.md)
 - [`knowledge/manifests/mvp-source-corpus.yaml`](knowledge/manifests/mvp-source-corpus.yaml)
+- [`knowledge/fixtures/regulation-to-engineering-brief.example.json`](knowledge/fixtures/regulation-to-engineering-brief.example.json)
+- [`packages/contracts/regulation-to-engineering-brief.schema.json`](packages/contracts/regulation-to-engineering-brief.schema.json)

@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://healthforge.dev/contracts/regulation-to-engineering-brief.schema.json",
+  "title": "HealthForge Regulation-to-Engineering Brief",
+  "description": "A human-reviewable, evidence-backed engineering analysis. This schema validates structure; application rules validate cross-references and approval policy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "brief_id",
+    "status",
+    "created_at",
+    "input",
+    "sources",
+    "applicability",
+    "summary",
+    "findings",
+    "review",
+    "run_record"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "brief_id": { "type": "string", "pattern": "^brief_[a-zA-Z0-9_-]+$" },
+    "status": { "enum": ["draft", "in_review", "changes_requested", "approved", "superseded"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question", "project_context", "corpus"],
+      "properties": {
+        "question": { "type": "string", "minLength": 1 },
+        "project_context": { "type": "string", "minLength": 1, "description": "Non-sensitive project context only." },
+        "corpus": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["corpus_id", "corpus_version"],
+          "properties": {
+            "corpus_id": { "type": "string", "minLength": 1 },
+            "corpus_version": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/source" }
+    },
+    "applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assessment", "assumptions", "exclusions", "open_questions"],
+      "properties": {
+        "assessment": { "enum": ["in_scope", "partially_in_scope", "out_of_scope", "needs_information"] },
+        "rationale": { "type": "string" },
+        "assumptions": { "type": "array", "items": { "$ref": "#/$defs/assumption" } },
+        "exclusions": { "type": "array", "items": { "type": "string" } },
+        "open_questions": { "type": "array", "items": { "$ref": "#/$defs/openQuestion" } }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plain_language", "limitations"],
+      "properties": {
+        "plain_language": { "type": "string", "minLength": 1 },
+        "limitations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "fhir_implications": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/fhirImplication" }
+    },
+    "proposed_work_items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/workItem" }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requires_human_review", "decisions"],
+      "properties": {
+        "requires_human_review": { "const": true },
+        "decisions": { "type": "array", "items": { "$ref": "#/$defs/reviewDecision" } }
+      }
+    },
+    "run_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_at", "retrieval_configuration", "model_configuration"],
+      "properties": {
+        "generated_at": { "type": "string", "format": "date-time" },
+        "retrieval_configuration": { "type": "string", "minLength": 1 },
+        "model_configuration": { "type": "string", "minLength": 1 },
+        "prompt_template_version": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "source_version", "source_type", "title", "canonical_url"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "source_version": { "type": "string", "minLength": 1 },
+        "source_type": { "enum": ["governing_regulation", "authoritative_implementation_guidance", "candidate_technical_guidance", "internal_project_material"] },
+        "title": { "type": "string", "minLength": 1 },
+        "canonical_url": { "type": "string", "format": "uri" }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "source_version", "locator", "support"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "source_version": { "type": "string", "minLength": 1 },
+        "locator": { "type": "string", "minLength": 1 },
+        "support": { "type": "string", "minLength": 1, "description": "Brief explanation of how this specific passage supports the finding." }
+      }
+    },
+    "assumption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "validation_needed"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^asm_[a-zA-Z0-9_-]+$" },
+        "statement": { "type": "string", "minLength": 1 },
+        "validation_needed": { "type": "string", "minLength": 1 }
+      }
+    },
+    "openQuestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question", "severity"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^oq_[a-zA-Z0-9_-]+$" },
+        "question": { "type": "string", "minLength": 1 },
+        "severity": { "enum": ["information", "blocker"] }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "statement", "confidence", "citations"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^find_[a-zA-Z0-9_-]+$" },
+        "kind": { "enum": ["requirement", "interpretation", "recommendation", "scope"] },
+        "statement": { "type": "string", "minLength": 1 },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "citations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/citation" } },
+        "uncertainties": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "fhirImplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["area", "candidate_artifacts", "guidance_status", "citations"],
+      "properties": {
+        "area": { "type": "string", "minLength": 1 },
+        "candidate_artifacts": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "guidance_status": { "enum": ["candidate", "requires_profile_validation"] },
+        "citations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/citation" } }
+      }
+    },
+    "workItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "rationale", "acceptance_criteria", "related_finding_ids"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^work_[a-zA-Z0-9_-]+$" },
+        "title": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 },
+        "acceptance_criteria": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "related_finding_ids": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    },
+    "reviewDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "finding_id", "decision", "reviewer", "decided_at", "rationale"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^review_[a-zA-Z0-9_-]+$" },
+        "finding_id": { "type": "string", "pattern": "^find_[a-zA-Z0-9_-]+$" },
+        "decision": { "enum": ["accept", "reject", "correct", "needs_information"] },
+        "reviewer": { "type": "string", "minLength": 1 },
+        "decided_at": { "type": "string", "format": "date-time" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "corrected_statement": { "type": "string" }
+      }
+    }
+  }
+}
