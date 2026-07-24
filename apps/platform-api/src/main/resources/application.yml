@@ -41,3 +41,15 @@ healthforge:
         source-type: authoritative_implementation_guidance
         content-types:
           - application/pdf
+      hl7-fhir-r4:
+        canonical-url: https://hl7.org/fhir/R4/
+        title: HL7 FHIR Release 4
+        source-type: candidate_technical_guidance
+        content-types:
+          - text/html
+      davinci-pas-stu-2-1:
+        canonical-url: https://hl7.org/fhir/us/davinci-pas/STU2.1/
+        title: Da Vinci Prior Authorization Support (PAS) STU 2.1
+        source-type: candidate_technical_guidance
+        content-types:
+          - text/html
