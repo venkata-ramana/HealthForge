@@ -24,6 +24,7 @@ public class IngestionService {
     private final SourcePolicyValidator sourcePolicyValidator;
     private final SourceArtifactFetcher sourceArtifactFetcher;
     private final PdfPassageExtractor pdfPassageExtractor;
+    private final HtmlPassageExtractor htmlPassageExtractor;
     private final ArtifactStorageProperties artifactStorageProperties;
     private final Clock clock;
 
@@ -32,12 +33,14 @@ public class IngestionService {
             SourcePolicyValidator sourcePolicyValidator,
             SourceArtifactFetcher sourceArtifactFetcher,
             PdfPassageExtractor pdfPassageExtractor,
+            HtmlPassageExtractor htmlPassageExtractor,
             ArtifactStorageProperties artifactStorageProperties
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.sourcePolicyValidator = sourcePolicyValidator;
         this.sourceArtifactFetcher = sourceArtifactFetcher;
         this.pdfPassageExtractor = pdfPassageExtractor;
+        this.htmlPassageExtractor = htmlPassageExtractor;
         this.artifactStorageProperties = artifactStorageProperties;
         this.clock = Clock.systemUTC();
     }
@@ -70,10 +73,13 @@ public class IngestionService {
         try {
             var artifact = sourceArtifactFetcher.fetch(request);
             var checksum = sha256(artifact.bytes());
+            var isPdf = "application/pdf".equalsIgnoreCase(artifact.contentType());
             var sourceVersionId = findExistingSourceVersion(request.manifestSourceId(), checksum);
             if (sourceVersionId == null) {
-                var passages = pdfPassageExtractor.extract(artifact.bytes());
-                var artifactUri = storeArtifact(checksum, artifact.bytes());
+                var passages = isPdf ? pdfPassageExtractor.extract(artifact.bytes()) : htmlPassageExtractor.extract(artifact.bytes());
+                var parserVersion = isPdf ? PdfPassageExtractor.PARSER_VERSION : HtmlPassageExtractor.PARSER_VERSION;
+                var chunkingVersion = isPdf ? PdfPassageExtractor.CHUNKING_VERSION : HtmlPassageExtractor.CHUNKING_VERSION;
+                var artifactUri = storeArtifact(checksum, artifact.bytes(), isPdf ? "pdf" : "html");
                 sourceVersionId = "srcver_" + UUID.randomUUID();
                 var sourcePolicy = sourcePolicyValidator.sourcePolicyFor(request.manifestSourceId());
                 jdbcTemplate.update(
@@ -86,8 +92,7 @@ public class IngestionService {
                         """,
                         sourceVersionId, request.manifestSourceId(), request.sourceVersion(), sourcePolicy.sourceType(),
                         sourcePolicy.title(), artifact.finalUri().toString(), artifactUri, checksum, artifact.contentType(),
-                        Timestamp.from(Instant.now(clock)), PdfPassageExtractor.PARSER_VERSION,
-                        PdfPassageExtractor.CHUNKING_VERSION, "indexed"
+                        Timestamp.from(Instant.now(clock)), parserVersion, chunkingVersion, "indexed"
                 );
                 for (var passage : passages) {
                     jdbcTemplate.update(
@@ -101,7 +106,8 @@ public class IngestionService {
             }
             jdbcTemplate.update("update ingestion_job set status = ?, source_version_id = ? where ingestion_id = ?", "indexed", sourceVersionId, job.ingestionId());
             return new IngestionJob(job.ingestionId(), "indexed", job.manifestSourceId(), job.requestedAt(), sourceVersionId,
-                    checksum, PdfPassageExtractor.PARSER_VERSION, PdfPassageExtractor.CHUNKING_VERSION, null);
+                    checksum, isPdf ? PdfPassageExtractor.PARSER_VERSION : HtmlPassageExtractor.PARSER_VERSION,
+                    isPdf ? PdfPassageExtractor.CHUNKING_VERSION : HtmlPassageExtractor.CHUNKING_VERSION, null);
         } catch (ResponseStatusException exception) {
             jdbcTemplate.update("update ingestion_job set status = ?, error_message = ? where ingestion_id = ?", "rejected", exception.getReason(), job.ingestionId());
             throw exception;
@@ -143,10 +149,10 @@ public class IngestionService {
         return sourceVersionIds.isEmpty() ? null : sourceVersionIds.getFirst();
     }
 
-    private String storeArtifact(String checksum, byte[] bytes) {
+    private String storeArtifact(String checksum, byte[] bytes, String extension) {
         try {
             Files.createDirectories(artifactStorageProperties.artifactDirectory());
-            var artifactPath = artifactStorageProperties.artifactDirectory().resolve(checksum + ".pdf");
+            var artifactPath = artifactStorageProperties.artifactDirectory().resolve(checksum + "." + extension);
             if (Files.notExists(artifactPath)) {
                 Files.write(artifactPath, bytes, StandardOpenOption.CREATE_NEW);
             }
