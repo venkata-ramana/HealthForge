@@ -104,5 +104,12 @@ public class BriefService {
                 List.of("This local MVP does not make a legal, regulatory, clinical, or compliance determination."), decisions, true);
     }
 
+    public List<BriefSummary> list() {
+        return jdbcTemplate.query("""
+                select brief_id, status, created_at, question from engineering_brief order by created_at desc
+                """, (rs, row) -> new BriefSummary(rs.getString("brief_id"), rs.getString("status"),
+                rs.getTimestamp("created_at").toInstant(), rs.getString("question")));
+    }
+
     private record BriefRow(String id, String status, Instant createdAt, String question, String context, String corpusId, String corpusVersion) {}
 }

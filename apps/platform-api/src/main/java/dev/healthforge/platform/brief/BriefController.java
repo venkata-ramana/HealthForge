@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/briefs")
 public class BriefController {
@@ -16,6 +18,9 @@ public class BriefController {
 
     @PostMapping
     public BriefResponse create(@Valid @RequestBody BriefRequest request) { return briefService.create(request); }
+
+    @GetMapping
+    public List<BriefSummary> list() { return briefService.list(); }
 
     @GetMapping("/{briefId}")
     public BriefResponse get(@PathVariable String briefId) { return briefService.get(briefId); }
