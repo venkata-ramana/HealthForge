@@ -39,6 +39,6 @@ This deliberately precedes code generation, automated compliance claims, and pro
 
 ## Local evidence service
 
-The first executable vertical slice lives in [`apps/platform-api`](apps/platform-api/). It accepts manifest-approved, public source-ingestion requests, records their provenance metadata in PostgreSQL, and exposes a contract-shaped retrieval endpoint while indexing is still to be implemented.
+The first executable vertical slice lives in [`apps/platform-api`](apps/platform-api/). It accepts manifest-approved, public source-ingestion requests, records immutable provenance metadata in PostgreSQL, indexes page-level PDF passages, and exposes retrieval plus deterministic cited evidence packets.
 
 See its [local setup guide](apps/platform-api/README.md).
