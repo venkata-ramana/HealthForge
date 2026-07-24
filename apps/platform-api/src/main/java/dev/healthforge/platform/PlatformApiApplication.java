@@ -1,6 +1,7 @@
 package dev.healthforge.platform;
 
 import dev.healthforge.platform.ingestion.MvpSourceProperties;
+import dev.healthforge.platform.ingestion.WorkspaceProperties;
 import dev.healthforge.platform.model.ModelProperties;
 import dev.healthforge.platform.ingestion.ArtifactStorageProperties;
 import org.springframework.boot.SpringApplication;
@@ -8,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties({MvpSourceProperties.class, ArtifactStorageProperties.class, ModelProperties.class})
+@EnableConfigurationProperties({MvpSourceProperties.class, ArtifactStorageProperties.class, WorkspaceProperties.class, ModelProperties.class})
 public class PlatformApiApplication {
 
     public static void main(String[] args) {

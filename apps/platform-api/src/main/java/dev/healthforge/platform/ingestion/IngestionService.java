@@ -25,6 +25,7 @@ public class IngestionService {
     private final SourceArtifactFetcher sourceArtifactFetcher;
     private final PdfPassageExtractor pdfPassageExtractor;
     private final HtmlPassageExtractor htmlPassageExtractor;
+    private final MarkdownPassageExtractor markdownPassageExtractor;
     private final ArtifactStorageProperties artifactStorageProperties;
     private final Clock clock;
 
@@ -34,6 +35,7 @@ public class IngestionService {
             SourceArtifactFetcher sourceArtifactFetcher,
             PdfPassageExtractor pdfPassageExtractor,
             HtmlPassageExtractor htmlPassageExtractor,
+            MarkdownPassageExtractor markdownPassageExtractor,
             ArtifactStorageProperties artifactStorageProperties
     ) {
         this.jdbcTemplate = jdbcTemplate;
@@ -41,6 +43,7 @@ public class IngestionService {
         this.sourceArtifactFetcher = sourceArtifactFetcher;
         this.pdfPassageExtractor = pdfPassageExtractor;
         this.htmlPassageExtractor = htmlPassageExtractor;
+        this.markdownPassageExtractor = markdownPassageExtractor;
         this.artifactStorageProperties = artifactStorageProperties;
         this.clock = Clock.systemUTC();
     }
@@ -74,12 +77,13 @@ public class IngestionService {
             var artifact = sourceArtifactFetcher.fetch(request);
             var checksum = sha256(artifact.bytes());
             var isPdf = "application/pdf".equalsIgnoreCase(artifact.contentType());
-            var parserVersion = isPdf ? PdfPassageExtractor.PARSER_VERSION : HtmlPassageExtractor.PARSER_VERSION;
-            var chunkingVersion = isPdf ? PdfPassageExtractor.CHUNKING_VERSION : HtmlPassageExtractor.CHUNKING_VERSION;
+            var isMarkdown = "text/markdown".equalsIgnoreCase(artifact.contentType());
+            var parserVersion = isPdf ? PdfPassageExtractor.PARSER_VERSION : isMarkdown ? MarkdownPassageExtractor.PARSER_VERSION : HtmlPassageExtractor.PARSER_VERSION;
+            var chunkingVersion = isPdf ? PdfPassageExtractor.CHUNKING_VERSION : isMarkdown ? MarkdownPassageExtractor.CHUNKING_VERSION : HtmlPassageExtractor.CHUNKING_VERSION;
             var sourceVersionId = findExistingSourceVersion(request.manifestSourceId(), checksum, parserVersion, chunkingVersion);
             if (sourceVersionId == null) {
-                var passages = isPdf ? pdfPassageExtractor.extract(artifact.bytes()) : htmlPassageExtractor.extract(artifact.bytes());
-                var artifactUri = storeArtifact(checksum, artifact.bytes(), isPdf ? "pdf" : "html");
+                var passages = isPdf ? pdfPassageExtractor.extract(artifact.bytes()) : isMarkdown ? markdownPassageExtractor.extract(artifact.bytes()) : htmlPassageExtractor.extract(artifact.bytes());
+                var artifactUri = storeArtifact(checksum, artifact.bytes(), isPdf ? "pdf" : isMarkdown ? "md" : "html");
                 sourceVersionId = "srcver_" + UUID.randomUUID();
                 var sourcePolicy = sourcePolicyValidator.sourcePolicyFor(request.manifestSourceId());
                 jdbcTemplate.update(

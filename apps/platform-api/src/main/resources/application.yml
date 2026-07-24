@@ -21,6 +21,8 @@ management:
         enabled: true
 
 healthforge:
+  workspace:
+    root-directory: ${HEALTHFORGE_WORKSPACE_ROOT:${user.dir}/../..}
   model:
     enabled: ${HEALTHFORGE_MODEL_ENABLED:false}
     provider: ${HEALTHFORGE_MODEL_PROVIDER:disabled}
@@ -47,6 +49,24 @@ healthforge:
         source-type: authoritative_implementation_guidance
         content-types:
           - text/html
+      healthforge-mvp-corpus-policy:
+        canonical-url: hf-local:///docs/06-mvp-source-corpus.md
+        title: HealthForge MVP Corpus Policy
+        source-type: internal_project_material
+        content-types:
+          - text/markdown
+      healthforge-prior-auth-workflow:
+        canonical-url: hf-local:///docs/07-electronic-prior-authorization-workflow.md
+        title: HealthForge Prior Authorization Workflow
+        source-type: internal_project_material
+        content-types:
+          - text/markdown
+      healthforge-engineering-brief-contract:
+        canonical-url: hf-local:///docs/08-regulation-to-engineering-brief-contract.md
+        title: HealthForge Engineering Brief Contract
+        source-type: internal_project_material
+        content-types:
+          - text/markdown
       hl7-fhir-r4:
         canonical-url: https://hl7.org/fhir/R4/
         title: HL7 FHIR Release 4
