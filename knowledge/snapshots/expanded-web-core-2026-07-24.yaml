@@ -1,0 +1,40 @@
+corpus_id: mvp-regulatory-corpus
+corpus_version: 2026-07-24-expanded-web-core
+retrieval_configuration: postgres-fts-v1
+data_classification: public sources only; no PHI
+sources:
+  - source_id: cms-0057-f-final-rule
+    source_version: 2024-final
+    artifact_sha256: cd0f70ea248242af8a566c038639e782ada244c461a97149a574005dd50da421
+    canonical_url: https://www.cms.gov/files/document/cms-0057-f.pdf
+  - source_id: cms-prior-auth-api-workflow
+    source_version: 2024-workflow-aid
+    artifact_sha256: 036251d26e32401abbd44bea72546cd8460131826b002c54adba4cdb73165646
+    canonical_url: https://www.cms.gov/files/document/prior-authorization-api-workflow-cms-0057-f.pdf
+  - source_id: hl7-fhir-r4
+    source_version: 4.0.1
+    artifact_sha256: e6e6c88cce751664da1f53d0e17972d4224800749ab3d7f80473bc998a9b1b88
+    canonical_url: https://hl7.org/fhir/R4/
+  - source_id: davinci-pas-stu-2-1
+    source_version: 2.1.0
+    artifact_sha256: 012161e7aa74bcbdf8e027c572e0c95b6545892c034fb3a78ee46c3598bc5630
+    canonical_url: https://hl7.org/fhir/us/davinci-pas/STU2.1/
+  - source_id: davinci-crd-stu-2-1
+    source_version: 2.1.0
+    artifact_sha256: 1ef88c4f15ba12cabc063efa48f0a117223fc111e90a1a5679eb3371713ed647
+    canonical_url: https://hl7.org/fhir/us/davinci-crd/STU2.1/
+  - source_id: davinci-dtr-stu-2-1
+    source_version: 2.1.0
+    artifact_sha256: 8a6570ffb4b1b01ab21a7037f595f36c395a7744c7013dbaf7d9dcc26e5c35a1
+    canonical_url: https://hl7.org/fhir/us/davinci-dtr/
+evaluation:
+  command: scripts/evaluate-retrieval.sh mvp-regulatory-corpus 2026-07-24-expanded-web-core
+  metrics:
+    total_cases: 26
+    eligible_cases: 24
+    retrieval_hits: 0
+    retrieval_recall: 0
+    citation_coverage: 26
+notes:
+  - The corpus now spans CMS PDFs plus published HL7 and Da Vinci HTML pages.
+  - Exact expected-source recall remains zero, indicating retrieval tuning and finer passage chunking are still required.
