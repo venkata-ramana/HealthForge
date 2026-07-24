@@ -1,0 +1,44 @@
+corpus_id: mvp-regulatory-corpus
+corpus_version: 2026-07-24-expanded-web-core-v3
+retrieval_configuration: postgres-fts-v1
+data_classification: public sources only; no PHI
+sources:
+  - source_id: cms-0057-f-final-rule
+    source_version: 2024-final
+    artifact_sha256: cd0f70ea248242af8a566c038639e782ada244c461a97149a574005dd50da421
+    canonical_url: https://www.cms.gov/files/document/cms-0057-f.pdf
+  - source_id: cms-prior-auth-api-workflow
+    source_version: 2024-workflow-aid
+    artifact_sha256: 036251d26e32401abbd44bea72546cd8460131826b002c54adba4cdb73165646
+    canonical_url: https://www.cms.gov/files/document/prior-authorization-api-workflow-cms-0057-f.pdf
+  - source_id: cms-0057-f-faqs
+    source_version: 2026-07-24
+    artifact_sha256: db89c030dc9750648aca5d5e579977f7d1534508ac9fb00cbcda08b824850a27
+    canonical_url: https://www.cms.gov/priorities/key-initiatives/burden-reduction/interoperability/faqs
+  - source_id: hl7-fhir-r4
+    source_version: 4.0.1
+    artifact_sha256: e6e6c88cce751664da1f53d0e17972d4224800749ab3d7f80473bc998a9b1b88
+    canonical_url: https://hl7.org/fhir/R4/
+  - source_id: davinci-pas-stu-2-1
+    source_version: 2.1.0
+    artifact_sha256: 012161e7aa74bcbdf8e027c572e0c95b6545892c034fb3a78ee46c3598bc5630
+    canonical_url: https://hl7.org/fhir/us/davinci-pas/STU2.1/
+  - source_id: davinci-crd-stu-2-1
+    source_version: 2.1.0
+    artifact_sha256: 1ef88c4f15ba12cabc063efa48f0a117223fc111e90a1a5679eb3371713ed647
+    canonical_url: https://hl7.org/fhir/us/davinci-crd/STU2.1/
+  - source_id: davinci-dtr-stu-2-1
+    source_version: 2.1.0
+    artifact_sha256: 8a6570ffb4b1b01ab21a7037f595f36c395a7744c7013dbaf7d9dcc26e5c35a1
+    canonical_url: https://hl7.org/fhir/us/davinci-dtr/
+evaluation:
+  command: scripts/evaluate-retrieval.sh mvp-regulatory-corpus 2026-07-24-expanded-web-core-v3
+  metrics:
+    total_cases: 26
+    eligible_cases: 24
+    retrieval_hits: 10
+    retrieval_recall: 0.4166666666666667
+    citation_coverage: 26
+notes:
+  - Adds the CMS FAQ guidance page on top of the expanded web-core-v2 snapshot.
+  - Recall held flat after this addition, indicating the next uplift likely depends on internal project-policy sources or further retrieval tuning rather than more public CMS guidance alone.

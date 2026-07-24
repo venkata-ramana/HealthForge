@@ -41,6 +41,12 @@ healthforge:
         source-type: authoritative_implementation_guidance
         content-types:
           - application/pdf
+      cms-0057-f-faqs:
+        canonical-url: https://www.cms.gov/priorities/key-initiatives/burden-reduction/interoperability/faqs
+        title: CMS Interoperability FAQs
+        source-type: authoritative_implementation_guidance
+        content-types:
+          - text/html
       hl7-fhir-r4:
         canonical-url: https://hl7.org/fhir/R4/
         title: HL7 FHIR Release 4
