@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class IngestionService {
                 ) values (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 job.ingestionId(), request.manifestSourceId(), request.sourceVersion(), request.canonicalUrl(),
-                request.expectedContentType(), request.requestedBy(), job.status(), job.requestedAt()
+                request.expectedContentType(), request.requestedBy(), job.status(), Timestamp.from(job.requestedAt())
         );
         return job;
     }

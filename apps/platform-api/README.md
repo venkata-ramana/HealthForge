@@ -19,6 +19,7 @@ mvn spring-boot:run
 ```
 
 The API starts on `http://localhost:8080`; health is available at `http://localhost:8080/actuator/health`.
+The Docker database maps to host port `5433` by default to avoid colliding with a local PostgreSQL instance; set `HEALTHFORGE_DB_PORT` and `HEALTHFORGE_DB_URL` together if a different port is needed.
 
 ## Current endpoints
 

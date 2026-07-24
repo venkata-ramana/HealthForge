@@ -2,7 +2,7 @@ spring:
   application:
     name: healthforge-platform-api
   datasource:
-    url: ${HEALTHFORGE_DB_URL:jdbc:postgresql://localhost:5432/healthforge}
+    url: ${HEALTHFORGE_DB_URL:jdbc:postgresql://localhost:5433/healthforge}
     username: ${HEALTHFORGE_DB_USERNAME:healthforge}
     password: ${HEALTHFORGE_DB_PASSWORD:healthforge}
   jackson:
