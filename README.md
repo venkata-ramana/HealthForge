@@ -41,4 +41,8 @@ This deliberately precedes code generation, automated compliance claims, and pro
 
 The first executable vertical slice lives in [`apps/platform-api`](apps/platform-api/). It accepts manifest-approved, public source-ingestion requests, records immutable provenance metadata in PostgreSQL, indexes page-level PDF passages, and exposes retrieval plus deterministic cited evidence packets.
 
+## Evaluation
+
+Run [`scripts/evaluate-retrieval.sh`](scripts/evaluate-retrieval.sh) against a pinned local corpus snapshot to produce retrieval-recall and citation-coverage baseline reports.
+
 See its [local setup guide](apps/platform-api/README.md).
