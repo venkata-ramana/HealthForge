@@ -1,0 +1,22 @@
+# Local publication record for the first expanded CMS-only snapshot.
+# The runtime snapshot references generated source_version IDs; this file records
+# reproducible source identity and artifact checksums instead of local database IDs.
+corpus_id: mvp-regulatory-corpus
+corpus_version: 2026-07-24-cms-core
+retrieval_configuration: postgres-fts-v1
+data_classification: public sources only; no PHI
+sources:
+  - source_id: cms-0057-f-final-rule
+    source_version: 2024-final
+    artifact_sha256: cd0f70ea248242af8a566c038639e782ada244c461a97149a574005dd50da421
+    canonical_url: https://www.cms.gov/files/document/cms-0057-f.pdf
+  - source_id: cms-prior-auth-api-workflow
+    source_version: 2024-workflow-aid
+    artifact_sha256: 036251d26e32401abbd44bea72546cd8460131826b002c54adba4cdb73165646
+    canonical_url: https://www.cms.gov/files/document/prior-authorization-api-workflow-cms-0057-f.pdf
+coverage:
+  included: CMS final rule and CMS prior-authorization API workflow aid
+  excluded_pending_dedicated_ingestion: CMS FAQs, HL7 FHIR R4, Da Vinci PAS, CRD, and DTR
+evaluation:
+  command: scripts/evaluate-retrieval.sh mvp-regulatory-corpus 2026-07-24-cms-core
+  result: baseline preserved; exact expected-source recall requires retrieval tuning and broader source ingestion
