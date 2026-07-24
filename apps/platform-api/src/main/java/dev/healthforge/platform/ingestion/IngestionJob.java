@@ -10,6 +10,7 @@ public record IngestionJob(
         String sourceVersionId,
         String artifactSha256,
         String parserVersion,
-        String chunkingVersion
+        String chunkingVersion,
+        String errorMessage
 ) {
 }

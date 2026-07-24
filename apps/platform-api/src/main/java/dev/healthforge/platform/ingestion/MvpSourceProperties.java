@@ -8,6 +8,6 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "healthforge.mvp")
 public record MvpSourceProperties(Map<String, SourcePolicy> sources) {
 
-    public record SourcePolicy(String canonicalUrl, Set<String> contentTypes) {
+    public record SourcePolicy(String canonicalUrl, String title, String sourceType, Set<String> contentTypes) {
     }
 }

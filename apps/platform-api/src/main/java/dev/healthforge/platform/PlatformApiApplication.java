@@ -1,12 +1,13 @@
 package dev.healthforge.platform;
 
 import dev.healthforge.platform.ingestion.MvpSourceProperties;
+import dev.healthforge.platform.ingestion.ArtifactStorageProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties(MvpSourceProperties.class)
+@EnableConfigurationProperties({MvpSourceProperties.class, ArtifactStorageProperties.class})
 public class PlatformApiApplication {
 
     public static void main(String[] args) {

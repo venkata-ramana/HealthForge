@@ -14,16 +14,21 @@ public class SourcePolicyValidator {
     }
 
     public void validate(IngestionRequest request) {
-        var sourcePolicy = sourceProperties.sources().get(request.manifestSourceId());
-        if (sourcePolicy == null) {
-            throw forbidden("Source is not approved by the MVP manifest");
-        }
+        var sourcePolicy = sourcePolicyFor(request.manifestSourceId());
         if (!sourcePolicy.canonicalUrl().equals(request.canonicalUrl())) {
             throw forbidden("Canonical URL does not match the approved source");
         }
         if (!sourcePolicy.contentTypes().contains(request.expectedContentType())) {
             throw forbidden("Content type is not approved for this source");
         }
+    }
+
+    public MvpSourceProperties.SourcePolicy sourcePolicyFor(String manifestSourceId) {
+        var sourcePolicy = sourceProperties.sources().get(manifestSourceId);
+        if (sourcePolicy == null) {
+            throw forbidden("Source is not approved by the MVP manifest");
+        }
+        return sourcePolicy;
     }
 
     private ResponseStatusException forbidden(String reason) {
