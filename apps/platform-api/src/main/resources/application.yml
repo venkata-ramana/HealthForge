@@ -53,3 +53,15 @@ healthforge:
         source-type: candidate_technical_guidance
         content-types:
           - text/html
+      davinci-crd-stu-2-1:
+        canonical-url: https://hl7.org/fhir/us/davinci-crd/STU2.1/
+        title: Da Vinci Coverage Requirements Discovery (CRD) STU 2.1
+        source-type: candidate_technical_guidance
+        content-types:
+          - text/html
+      davinci-dtr-stu-2-1:
+        canonical-url: https://hl7.org/fhir/us/davinci-dtr/
+        title: Da Vinci Documentation Templates and Rules (DTR)
+        source-type: candidate_technical_guidance
+        content-types:
+          - text/html
