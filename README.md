@@ -36,3 +36,9 @@ This deliberately precedes code generation, automated compliance claims, and pro
 - [`packages/contracts/regulation-to-engineering-brief.schema.json`](packages/contracts/regulation-to-engineering-brief.schema.json)
 - [`packages/contracts/knowledge-ingestion-retrieval.openapi.yaml`](packages/contracts/knowledge-ingestion-retrieval.openapi.yaml)
 - [`evals/datasets/cms-0057-f-mvp-evaluation-cases.json`](evals/datasets/cms-0057-f-mvp-evaluation-cases.json)
+
+## Local evidence service
+
+The first executable vertical slice lives in [`apps/platform-api`](apps/platform-api/). It accepts manifest-approved, public source-ingestion requests, records their provenance metadata in PostgreSQL, and exposes a contract-shaped retrieval endpoint while indexing is still to be implemented.
+
+See its [local setup guide](apps/platform-api/README.md).

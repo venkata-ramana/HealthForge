@@ -1,0 +1,15 @@
+package dev.healthforge.platform;
+
+import dev.healthforge.platform.ingestion.MvpSourceProperties;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
+@SpringBootApplication
+@EnableConfigurationProperties(MvpSourceProperties.class)
+public class PlatformApiApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(PlatformApiApplication.class, args);
+    }
+}
