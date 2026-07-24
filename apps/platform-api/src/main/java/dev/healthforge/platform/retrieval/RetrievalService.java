@@ -24,7 +24,10 @@ public class RetrievalService {
                        v.manifest_source_id, v.source_version, v.source_type, v.title, v.canonical_url
                 from source_passage p
                 join source_version v on v.source_version_id = p.source_version_id
-                where v.status = 'indexed'
+                join corpus_snapshot_source css on css.source_version_id = v.source_version_id
+                join corpus_snapshot cs on cs.corpus_id = css.corpus_id and cs.corpus_version = css.corpus_version
+                where cs.corpus_id = ? and cs.corpus_version = ?
+                  and v.status = 'indexed'
                   and to_tsvector('english', p.normalized_text) @@ websearch_to_tsquery('english', ?)
                 order by ts_rank(to_tsvector('english', p.normalized_text), websearch_to_tsquery('english', ?)) desc
                 limit ?
@@ -43,7 +46,7 @@ public class RetrievalService {
                                 resultSet.getString("locator")
                         )
                 ),
-                request.query(), request.query(), candidateLimit
+                request.corpusId(), request.corpusVersion(), request.query(), request.query(), candidateLimit
         );
         var results = candidates.stream()
                 .filter(result -> sourceTypes.isEmpty() || sourceTypes.contains(result.source().sourceType()))
