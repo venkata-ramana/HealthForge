@@ -74,11 +74,11 @@ public class IngestionService {
             var artifact = sourceArtifactFetcher.fetch(request);
             var checksum = sha256(artifact.bytes());
             var isPdf = "application/pdf".equalsIgnoreCase(artifact.contentType());
-            var sourceVersionId = findExistingSourceVersion(request.manifestSourceId(), checksum);
+            var parserVersion = isPdf ? PdfPassageExtractor.PARSER_VERSION : HtmlPassageExtractor.PARSER_VERSION;
+            var chunkingVersion = isPdf ? PdfPassageExtractor.CHUNKING_VERSION : HtmlPassageExtractor.CHUNKING_VERSION;
+            var sourceVersionId = findExistingSourceVersion(request.manifestSourceId(), checksum, parserVersion, chunkingVersion);
             if (sourceVersionId == null) {
                 var passages = isPdf ? pdfPassageExtractor.extract(artifact.bytes()) : htmlPassageExtractor.extract(artifact.bytes());
-                var parserVersion = isPdf ? PdfPassageExtractor.PARSER_VERSION : HtmlPassageExtractor.PARSER_VERSION;
-                var chunkingVersion = isPdf ? PdfPassageExtractor.CHUNKING_VERSION : HtmlPassageExtractor.CHUNKING_VERSION;
                 var artifactUri = storeArtifact(checksum, artifact.bytes(), isPdf ? "pdf" : "html");
                 sourceVersionId = "srcver_" + UUID.randomUUID();
                 var sourcePolicy = sourcePolicyValidator.sourcePolicyFor(request.manifestSourceId());
@@ -106,8 +106,7 @@ public class IngestionService {
             }
             jdbcTemplate.update("update ingestion_job set status = ?, source_version_id = ? where ingestion_id = ?", "indexed", sourceVersionId, job.ingestionId());
             return new IngestionJob(job.ingestionId(), "indexed", job.manifestSourceId(), job.requestedAt(), sourceVersionId,
-                    checksum, isPdf ? PdfPassageExtractor.PARSER_VERSION : HtmlPassageExtractor.PARSER_VERSION,
-                    isPdf ? PdfPassageExtractor.CHUNKING_VERSION : HtmlPassageExtractor.CHUNKING_VERSION, null);
+                    checksum, parserVersion, chunkingVersion, null);
         } catch (ResponseStatusException exception) {
             jdbcTemplate.update("update ingestion_job set status = ?, error_message = ? where ingestion_id = ?", "rejected", exception.getReason(), job.ingestionId());
             throw exception;
@@ -141,10 +140,14 @@ public class IngestionService {
         return jobs.getFirst();
     }
 
-    private String findExistingSourceVersion(String manifestSourceId, String checksum) {
+    private String findExistingSourceVersion(String manifestSourceId, String checksum, String parserVersion, String chunkingVersion) {
         var sourceVersionIds = jdbcTemplate.query(
-                "select source_version_id from source_version where manifest_source_id = ? and artifact_sha256 = ?",
-                (resultSet, rowNumber) -> resultSet.getString("source_version_id"), manifestSourceId, checksum
+                """
+                select source_version_id from source_version
+                where manifest_source_id = ? and artifact_sha256 = ? and parser_version = ? and chunking_version = ?
+                """,
+                (resultSet, rowNumber) -> resultSet.getString("source_version_id"),
+                manifestSourceId, checksum, parserVersion, chunkingVersion
         );
         return sourceVersionIds.isEmpty() ? null : sourceVersionIds.getFirst();
     }
