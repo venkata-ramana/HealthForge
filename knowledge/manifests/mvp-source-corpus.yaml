@@ -1,0 +1,130 @@
+# HealthForge MVP corpus manifest
+#
+# This manifest selects sources. Ingestion must add artifact SHA-256, retrieval
+# timestamp, and a stable storage URI before a source becomes retrieval-eligible.
+manifest_version: 1
+corpus_id: healthforge-cms-0057-f-prior-auth-mvp
+title: CMS-0057-F electronic prior-authorization starter corpus
+status: proposed
+last_reviewed: 2026-07-23
+scope:
+  jurisdiction: United States
+  primary_use_case: CMS-0057-F electronic prior authorization for non-drug medical items and services
+  data_boundary: public sources and synthetic examples only; no PHI
+  base_fhir_release: 4.0.1
+  excluded:
+    - drug prior authorization
+    - legal advice, compliance determinations, or certification
+    - unpinned continuous builds and non-public sources
+    - production patient data and payer-specific policy content
+
+ingestion_requirements:
+  required_metadata:
+    - canonical_url
+    - publisher
+    - document_or_package_version
+    - publication_or_effective_date
+    - retrieved_at
+    - sha256
+    - license_or_terms_review
+    - stable_citation_locator
+  source_change_requires: pull request review and evaluation-baseline decision
+
+sources:
+  - id: cms-0057-f-final-rule
+    role: governing_regulation
+    title: Medicare and Medicaid Programs; Patient Protection and Affordable Care Act; Advancing Interoperability and Improving Prior Authorization Processes
+    short_name: CMS-0057-F
+    publisher: Centers for Medicare & Medicaid Services
+    canonical_url: https://www.cms.gov/files/document/cms-0057-f.pdf
+    document_version: final rule published January 2024
+    source_format: pdf
+    citation_locator: PDF page and section heading
+    use: primary authority for requirements and applicability analysis
+    update_cadence: quarterly
+    source_status: active
+
+  - id: cms-0057-f-faqs
+    role: authoritative_implementation_guidance
+    title: Interoperability FAQs
+    short_name: CMS-0057-F FAQs
+    publisher: Centers for Medicare & Medicaid Services
+    canonical_url: https://www.cms.gov/priorities/key-initiatives/burden-reduction/interoperability/faqs
+    document_version: capture page update date at ingestion
+    source_format: html
+    citation_locator: FAQ heading, anchor, and retrieved snapshot
+    use: clarifies CMS implementation and standards guidance; never supersedes the final rule
+    update_cadence: monthly
+    source_status: active
+
+  - id: cms-prior-auth-api-workflow
+    role: authoritative_implementation_guidance
+    title: Prior Authorization Application Programming Interface Workflow
+    publisher: Centers for Medicare & Medicaid Services
+    canonical_url: https://www.cms.gov/files/document/prior-authorization-api-workflow-cms-0057-f.pdf
+    document_version: capture document date and checksum at ingestion
+    source_format: pdf
+    citation_locator: PDF page and workflow label
+    use: workflow orientation and source-backed engineering discussion
+    update_cadence: monthly
+    source_status: active
+
+  - id: hl7-fhir-r4
+    role: base_standard
+    title: HL7 FHIR Release 4
+    short_name: FHIR R4
+    publisher: HL7 International
+    canonical_url: https://hl7.org/fhir/R4/
+    package: hl7.fhir.r4.core#4.0.1
+    document_version: 4.0.1
+    source_format: html and NPM package
+    citation_locator: canonical specification URL, artifact id, and package version
+    use: base resource and REST semantics reference
+    update_cadence: quarterly
+    source_status: active
+
+  - id: davinci-pas-stu-2-1
+    role: candidate_technical_guidance
+    title: Da Vinci Prior Authorization Support (PAS)
+    publisher: HL7 International / Da Vinci Project
+    canonical_url: https://hl7.org/fhir/us/davinci-pas/STU2.1/
+    package: hl7.fhir.us.davinci-pas#2.1.0
+    document_version: 2.1.0 (STU 2.1)
+    source_format: html and NPM package
+    citation_locator: canonical published IG URL, artifact id, and package version
+    use: candidate technical mapping for prior-authorization request and response exchange
+    update_cadence: quarterly
+    source_status: active
+
+  - id: davinci-crd-stu-2-1
+    role: candidate_technical_guidance
+    title: Da Vinci Coverage Requirements Discovery (CRD)
+    publisher: HL7 International / Da Vinci Project
+    canonical_url: https://hl7.org/fhir/us/davinci-crd/STU2.1/
+    package: hl7.fhir.us.davinci-crd#2.1.0
+    document_version: 2.1.0 (STU 2.1)
+    source_format: html and NPM package
+    citation_locator: canonical published IG URL, artifact id, and package version
+    use: candidate technical mapping for coverage and documentation-requirement discovery
+    update_cadence: quarterly
+    source_status: active
+
+  - id: davinci-dtr-stu-2-1
+    role: candidate_technical_guidance
+    title: Da Vinci Documentation Templates and Rules (DTR)
+    publisher: HL7 International / Da Vinci Project
+    canonical_url: https://hl7.org/fhir/us/davinci-dtr/
+    package: hl7.fhir.us.davinci-dtr#2.1.0
+    document_version: 2.1.0 (STU 2.1)
+    source_format: html and NPM package
+    citation_locator: canonical published IG URL, artifact id, and package version
+    use: candidate technical mapping for documentation-questionnaire workflows
+    update_cadence: quarterly
+    source_status: active
+
+non_retrieval_references:
+  - id: cms-standards-and-igs-guidance
+    title: Standards and Implementation Guides guidance
+    publisher: Centers for Medicare & Medicaid Services
+    canonical_url: https://www.cms.gov/priorities/burden-reduction/overview/interoperability/frequently-asked-questions/standards-implementation-guides
+    use: review whether a CMS guidance update changes the supported technical boundary
