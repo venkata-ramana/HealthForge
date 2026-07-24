@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "brief_id": "brief_example_scope_001",
+  "status": "draft",
+  "created_at": "2026-07-23T00:00:00Z",
+  "input": {
+    "question": "What must the first HealthForge prototype preserve when analyzing a public CMS prior-authorization source?",
+    "project_context": "Illustrative local-development scenario. No patient, payer, provider, or customer information is included.",
+    "corpus": {
+      "corpus_id": "healthforge-cms-0057-f-prior-auth-mvp",
+      "corpus_version": "manifest-v1-proposed"
+    }
+  },
+  "sources": [
+    {
+      "source_id": "healthforge-mvp-corpus-policy",
+      "source_version": "docs-06-v1",
+      "source_type": "internal_project_material",
+      "title": "MVP source corpus and support boundaries",
+      "canonical_url": "https://github.com/venkata-ramana/HealthForge/blob/main/docs/06-mvp-source-corpus.md"
+    }
+  ],
+  "applicability": {
+    "assessment": "in_scope",
+    "rationale": "The question concerns public source analysis and local-development controls described by the MVP corpus policy.",
+    "assumptions": [
+      {
+        "id": "asm_public_only",
+        "statement": "The prototype uses only public source material and synthetic examples.",
+        "validation_needed": "Confirm local test fixtures contain no customer or patient data."
+      }
+    ],
+    "exclusions": [
+      "This example does not interpret CMS-0057-F or make a payer-specific recommendation.",
+      "PHI and production payloads are outside the MVP boundary."
+    ],
+    "open_questions": []
+  },
+  "summary": {
+    "plain_language": "The prototype should retain source provenance and stable citation locators while remaining inside the public, no-PHI MVP boundary.",
+    "limitations": [
+      "This is a contract example, not a regulatory analysis.",
+      "A real Brief must use an ingested, versioned corpus snapshot."
+    ]
+  },
+  "findings": [
+    {
+      "id": "find_provenance_required",
+      "kind": "scope",
+      "statement": "A source is not retrieval-eligible until its artifact, checksum, retrieval timestamp, and citation metadata are recorded.",
+      "confidence": "high",
+      "citations": [
+        {
+          "source_id": "healthforge-mvp-corpus-policy",
+          "source_version": "docs-06-v1",
+          "locator": "Definition of ready for the MVP",
+          "support": "The project policy defines the controls required before a source may be used in the first corpus release."
+        }
+      ],
+      "uncertainties": []
+    }
+  ],
+  "fhir_implications": [],
+  "proposed_work_items": [
+    {
+      "id": "work_provenance_contract",
+      "title": "Capture provenance fields during local source ingestion",
+      "rationale": "A future ingestion path needs the evidence controls described in the scoped corpus policy.",
+      "acceptance_criteria": [
+        "A local source record stores a canonical URL, source version, retrieval timestamp, checksum, and stable locator strategy.",
+        "The record can be linked to a cited passage without storing PHI."
+      ],
+      "related_finding_ids": ["find_provenance_required"]
+    }
+  ],
+  "review": {
+    "requires_human_review": true,
+    "decisions": []
+  },
+  "run_record": {
+    "generated_at": "2026-07-23T00:00:00Z",
+    "retrieval_configuration": "Illustrative fixture; no retrieval was executed.",
+    "model_configuration": "Illustrative fixture; no model was invoked.",
+    "prompt_template_version": "not-applicable"
+  }
+}
