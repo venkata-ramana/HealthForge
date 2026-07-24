@@ -14,8 +14,8 @@ To compare a candidate run against the approved non-regression baseline, execute
 
 ```bash
 scripts/check-evaluation-gate.sh \
-  evals/baselines/mvp-retrieval-quality-gate-v1.json \
-  evals/reports/2026-07-24-expanded-web-core-v4.json
+  evals/baselines/mvp-retrieval-quality-gate-v2.json \
+  evals/reports/2026-07-24-expanded-web-core-v4-unsupported-guard.json
 ```
 
 The gate returns:
