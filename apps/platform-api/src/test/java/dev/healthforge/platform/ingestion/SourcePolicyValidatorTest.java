@@ -15,6 +15,8 @@ class SourcePolicyValidatorTest {
             "cms-0057-f-final-rule",
             new MvpSourceProperties.SourcePolicy(
                     "https://www.cms.gov/files/document/cms-0057-f.pdf",
+                    "CMS Interoperability and Prior Authorization Final Rule (CMS-0057-F)",
+                    "governing_regulation",
                     Set.of("application/pdf")
             )
     )));

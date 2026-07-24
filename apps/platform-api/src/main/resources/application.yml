@@ -21,13 +21,19 @@ management:
         enabled: true
 
 healthforge:
+  storage:
+    artifact-directory: ${HEALTHFORGE_ARTIFACT_DIRECTORY:${user.home}/.healthforge/artifacts}
   mvp:
     sources:
       cms-0057-f-final-rule:
         canonical-url: https://www.cms.gov/files/document/cms-0057-f.pdf
+        title: CMS Interoperability and Prior Authorization Final Rule (CMS-0057-F)
+        source-type: governing_regulation
         content-types:
           - application/pdf
       cms-prior-auth-api-workflow:
         canonical-url: https://www.cms.gov/files/document/prior-authorization-api-workflow-cms-0057-f.pdf
+        title: Prior Authorization Application Programming Interface Workflow
+        source-type: authoritative_implementation_guidance
         content-types:
           - application/pdf
