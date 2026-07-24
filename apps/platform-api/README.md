@@ -26,5 +26,8 @@ The Docker database maps to host port `5433` by default to avoid colliding with 
 - `POST /v1/ingestions` accepts only a configured public CMS source/version/content type, captures an immutable artifact checksum, and creates page-level passages.
 - `GET /v1/ingestions/{ingestionId}` returns the persisted job.
 - `POST /v1/retrieval/search` performs PostgreSQL full-text retrieval and returns citeable source/version/page metadata.
+- `POST /v1/answers` builds a deterministic, cited evidence packet from retrieval results. It returns `insufficient_evidence` rather than an unsupported answer when no source passage matches.
+
+The answer endpoint does not call an external model or persist question/context input. Its findings reproduce retrieved source excerpts with source/version/page citations, and always require human review before a regulatory, clinical, or implementation conclusion.
 
 Artifacts are stored outside the repository at `~/.healthforge/artifacts` by default. Set `HEALTHFORGE_ARTIFACT_DIRECTORY` to use a different local path.
