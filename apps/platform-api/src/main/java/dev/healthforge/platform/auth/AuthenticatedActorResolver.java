@@ -14,14 +14,30 @@ public class AuthenticatedActorResolver {
     public AuthenticatedActor requireWriteActor(HttpServletRequest request) {
         var actorId = header(request, ACTOR_ID_HEADER);
         var roleHeader = header(request, ACTOR_ROLE_HEADER);
-        final ActorRole role;
+        var role = parseRole(roleHeader);
+        return new AuthenticatedActor(actorId, role);
+    }
+
+    public AuthenticatedActor requireReviewerOrAdministrator(HttpServletRequest request) {
+        return requireWriteActor(request);
+    }
+
+    public AuthenticatedActor requireAdministrator(HttpServletRequest request) {
+        var actor = requireWriteActor(request);
+        if (actor.role() != ActorRole.ADMINISTRATOR) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "This action requires an administrator role.");
+        }
+        return actor;
+    }
+
+    private ActorRole parseRole(String roleHeader) {
         try {
-            role = ActorRole.parse(roleHeader);
+            return ActorRole.parse(roleHeader);
         } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Unsupported actor role. Allowed roles are reviewer and administrator.");
         }
-        return new AuthenticatedActor(actorId, role);
     }
 
     private String header(HttpServletRequest request, String name) {

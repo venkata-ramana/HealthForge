@@ -1,5 +1,7 @@
 package dev.healthforge.platform.ingestion;
 
+import dev.healthforge.platform.auth.AuthenticatedActorResolver;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,14 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class IngestionController {
 
     private final IngestionService ingestionService;
+    private final AuthenticatedActorResolver actorResolver;
 
-    public IngestionController(IngestionService ingestionService) {
+    public IngestionController(IngestionService ingestionService, AuthenticatedActorResolver actorResolver) {
         this.ingestionService = ingestionService;
+        this.actorResolver = actorResolver;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public IngestionJob request(@Valid @RequestBody IngestionRequest request) {
+    public IngestionJob request(@Valid @RequestBody IngestionRequest request, HttpServletRequest httpRequest) {
+        actorResolver.requireAdministrator(httpRequest);
         return ingestionService.request(request);
     }
 
