@@ -1,8 +1,8 @@
 package dev.healthforge.platform.brief;
 
 import dev.healthforge.platform.answer.GroundedAnswerRequest;
-import dev.healthforge.platform.answer.GroundedAnswerResponse;
 import dev.healthforge.platform.answer.GroundedAnswerService;
+import dev.healthforge.platform.auth.AuthenticatedActor;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -18,14 +18,20 @@ import java.util.UUID;
 public class BriefService {
     private final JdbcTemplate jdbcTemplate;
     private final GroundedAnswerService groundedAnswerService;
+    private final BriefAuditEventService auditEventService;
     private final Clock clock = Clock.systemUTC();
 
-    public BriefService(JdbcTemplate jdbcTemplate, GroundedAnswerService groundedAnswerService) {
+    public BriefService(
+            JdbcTemplate jdbcTemplate,
+            GroundedAnswerService groundedAnswerService,
+            BriefAuditEventService auditEventService
+    ) {
         this.jdbcTemplate = jdbcTemplate;
         this.groundedAnswerService = groundedAnswerService;
+        this.auditEventService = auditEventService;
     }
 
-    public BriefResponse create(BriefRequest request) {
+    public BriefResponse create(BriefRequest request, AuthenticatedActor actor) {
         var packet = groundedAnswerService.answer(new GroundedAnswerRequest(
                 request.corpusId(), request.corpusVersion(), request.question(), request.projectContext(), request.sourceTypes()
         ));
@@ -54,27 +60,40 @@ public class BriefService {
                     """, findingId, briefId, "interpretation", finding.statement(), "medium",
                     finding.citation().sourceId(), finding.citation().sourceVersion(), finding.citation().locator(), finding.citation().support());
         }
+        auditEventService.record(briefId, actor, "brief_created",
+                "Created a draft Brief from grounded evidence.",
+                "corpus=" + request.corpusId() + "/" + request.corpusVersion());
+        auditEventService.record(briefId, actor, "evidence_selected",
+                "Selected cited evidence for the Brief draft.",
+                "findings=" + packet.findings().size() + ", sources=" + packet.findings().stream().map(f -> f.citation().sourceId()).distinct().count());
         return get(briefId);
     }
 
-    public BriefResponse recordDecision(String briefId, ReviewDecisionRequest request) {
+    public BriefResponse recordDecision(String briefId, ReviewDecisionRequest request, AuthenticatedActor actor) {
         get(briefId);
         var count = jdbcTemplate.queryForObject(
                 "select count(*) from brief_finding where brief_id = ? and finding_id = ?", Integer.class, briefId, request.findingId());
         if (count == null || count == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Finding does not belong to this Brief");
         }
+        if (request.reviewer() != null && !request.reviewer().isBlank() && !actor.actorId().equals(request.reviewer().trim())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Reviewer in the request body must match the authenticated actor.");
+        }
         var decidedAt = Instant.now(clock);
         jdbcTemplate.update("""
                 insert into brief_review_decision (review_id, brief_id, finding_id, decision, reviewer, decided_at, rationale, corrected_statement)
                 values (?, ?, ?, ?, ?, ?, ?, ?)
-                """, "review_" + UUID.randomUUID(), briefId, request.findingId(), request.decision(), request.reviewer(),
+                """, "review_" + UUID.randomUUID(), briefId, request.findingId(), request.decision(), actor.actorId(),
                 Timestamp.from(decidedAt), request.rationale(), request.correctedStatement());
         var status = switch (request.decision()) {
             case "reject", "correct", "needs_information" -> "changes_requested";
             default -> "in_review";
         };
         jdbcTemplate.update("update engineering_brief set status = ? where brief_id = ?", status, briefId);
+        auditEventService.record(briefId, actor, "review_decision_recorded",
+                "Recorded review decision '" + request.decision() + "' for a Brief finding.",
+                "finding_id=" + request.findingId() + ", status=" + status);
         return get(briefId);
     }
 
@@ -99,9 +118,10 @@ public class BriefService {
                 from brief_review_decision where brief_id = ? order by decided_at
                 """, (rs, row) -> new BriefResponse.ReviewDecision(rs.getString("review_id"), rs.getString("finding_id"), rs.getString("decision"),
                 rs.getString("reviewer"), rs.getTimestamp("decided_at").toInstant(), rs.getString("rationale"), rs.getString("corrected_statement")), briefId);
+        var auditEvents = auditEventService.listForBrief(briefId);
         return new BriefResponse(brief.id(), brief.status(), brief.createdAt(), new BriefResponse.Input(brief.question(), brief.context(), brief.corpusId(), brief.corpusVersion()),
                 sources, findings, "Draft assembled from cited evidence excerpts; human review is required.",
-                List.of("This local MVP does not make a legal, regulatory, clinical, or compliance determination."), decisions, true);
+                List.of("This local MVP does not make a legal, regulatory, clinical, or compliance determination."), decisions, auditEvents, true);
     }
 
     public List<BriefSummary> list() {
