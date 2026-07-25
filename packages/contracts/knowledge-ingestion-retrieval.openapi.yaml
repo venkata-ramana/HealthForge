@@ -371,6 +371,30 @@ paths:
                 $ref: '#/components/schemas/ArchitectureReviewResponse'
         '400':
           $ref: '#/components/responses/ValidationError'
+  /v1/codegen/starter-artifacts:
+    post:
+      operationId: generateStarterArtifact
+      summary: Generate example-only starter code from an approved work-item export
+      tags: [codegen]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StarterCodeGenerationRequest'
+      responses:
+        '200':
+          description: Example starter code artifact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StarterCodeGenerationResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Upstream work-item export is not approved or not eligible for starter generation
 components:
   parameters:
     BriefId:
@@ -1256,6 +1280,78 @@ components:
           type: boolean
         review_notice:
           type: string
+    StarterCodeGenerationRequest:
+      type: object
+      additionalProperties: false
+      required: [brief_id, work_item_id, artifact_type]
+      properties:
+        brief_id:
+          type: string
+        work_item_id:
+          type: string
+        artifact_type:
+          type: string
+          enum: [spring_boot_endpoint_stub, spring_service_stub]
+    StarterCodeGenerationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - generation_id
+        - status
+        - created_at
+        - artifact_type
+        - file_name
+        - media_type
+        - code
+        - disclaimer
+        - traceability
+      properties:
+        generation_id:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        artifact_type:
+          type: string
+        file_name:
+          type: string
+        media_type:
+          type: string
+        code:
+          type: string
+        disclaimer:
+          type: string
+        traceability:
+          type: object
+          additionalProperties: false
+          required:
+            - brief_id
+            - work_item_id
+            - related_finding_ids
+            - standards_touchpoints
+            - human_review_status
+            - validation_notes
+          properties:
+            brief_id:
+              type: string
+            work_item_id:
+              type: string
+            related_finding_ids:
+              type: array
+              items:
+                type: string
+            standards_touchpoints:
+              type: array
+              items:
+                type: string
+            human_review_status:
+              type: string
+            validation_notes:
+              type: array
+              items:
+                type: string
     RetrievalRequest:
       type: object
       additionalProperties: false

@@ -6,7 +6,7 @@ HealthForge translates authoritative healthcare regulations and implementation g
 
 ## Current phase
 
-**Active Phase 3 implementation.** HealthForge now has working application code, a local review UI, a Spring Boot API, persisted Brief review workflows, deterministic FHIR validation, standards artifact lookup, architecture-review artifacts, and approved work-item export.
+**Phase 3 completed.** HealthForge now has working application code, a local review UI, a Spring Boot API, persisted Brief review workflows, deterministic FHIR validation, standards artifact lookup, architecture-review artifacts, approved work-item export, and guarded example-only starter code generation from approved work items.
 
 The platform remains intentionally bounded:
 
@@ -38,11 +38,8 @@ This deliberately precedes code generation, automated compliance claims, and pro
 - Synthetic FHIR fixture scenarios for repeatable prior-authorization validation tests
 - Architecture review assistant for bounded prior-authorization solution design
 - Approved Brief work-item export for downstream engineering planning
+- Guarded example-only starter code generation from approved work items
 - Client-facing OpenAPI contract and local API usage guide
-
-One remaining Phase 3 item is still in progress as of July 25, 2026:
-
-- guarded example-only code generation from approved work items
 
 ## Roadmap by phase
 
@@ -52,7 +49,7 @@ This project is being built in deliberate phases so we can keep the platform rev
 | --- | --- | --- |
 | Phase 1 | Completed | Problem framing, MVP scope, source-corpus definition, Brief schema, evaluation rubric, security/data boundaries, and open-source project foundations |
 | Phase 2 | Completed | Executable local platform slice: corpus ingestion, snapshots, retrieval, local Brief UI, guarded Brief synthesis, review identity, approvals, audit, observability, and evaluation baselines |
-| Phase 3 | In progress | Standards-aware engineering workflows: pinned FHIR validation catalog, standards artifact registry, synthetic FHIR fixtures, approved work-item export, architecture review assistant, client-facing API surface, and guarded example-only code generation |
+| Phase 3 | Completed | Standards-aware engineering workflows: pinned FHIR validation catalog, standards artifact registry, synthetic FHIR fixtures, approved work-item export, architecture review assistant, client-facing API surface, and guarded example-only code generation |
 | Phase 4 | Planned | Product growth workflows: FHIR knowledge assistant, AI regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready exports, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
 | Phase 5 | Planned | Enterprise and product hardening: tenant isolation, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
 
@@ -79,17 +76,15 @@ This project is being built in deliberate phases so we can keep the platform rev
 - FHIR validation workspace prototype
 - Source lifecycle governance and terms-review metadata
 
-### Phase 3 current status
+### Phase 3 completed
 
-- Completed
-  - pinned FHIR validation package and catalog workflow
-  - standards artifact registry
-  - synthetic FHIR fixtures and evaluator scenarios
-  - approved Brief work-item export
-  - architecture review assistant
-  - client-facing API surface
-- In progress
-  - guarded example-only code generation from approved work items
+- pinned FHIR validation package and catalog workflow
+- standards artifact registry
+- synthetic FHIR fixtures and evaluator scenarios
+- approved Brief work-item export
+- architecture review assistant
+- client-facing API surface
+- guarded example-only code generation from approved work items
 
 ### Phase 4 planned
 

@@ -58,6 +58,7 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 - `POST /v1/source-versions/{sourceVersionId}/lifecycle` lets an administrator mark a source version active or withdrawn.
 - `GET /v1/standards-artifacts` returns the curated standards artifact registry and supports lookup by canonical URL or artifact name.
 - `POST /v1/architecture-reviews` returns a bounded architecture-review artifact for a non-sensitive scenario using grounded evidence and curated standards touchpoints.
+- `POST /v1/codegen/starter-artifacts` generates example-only starter code from an approved work-item export and preserves traceability back to the reviewed artifact.
 - `POST /v1/retrieval/search` performs PostgreSQL full-text retrieval and returns citeable source/version/page metadata.
 - `POST /v1/answers` builds a deterministic, cited evidence packet from retrieval results. It returns `insufficient_evidence` rather than an unsupported answer when no source passage matches.
 - `POST /v1/briefs` persists a cited Brief draft, while `POST /v1/briefs/{briefId}/review-decisions` records append-only human review decisions.
