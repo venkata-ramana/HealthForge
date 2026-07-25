@@ -37,4 +37,14 @@ public class BriefController {
     public BriefResponse decide(@PathVariable String briefId, @Valid @RequestBody ReviewDecisionRequest request, HttpServletRequest httpRequest) {
         return briefService.recordDecision(briefId, request, actorResolver.requireReviewerOrAdministrator(httpRequest));
     }
+
+    @PostMapping("/{briefId}/approvals")
+    public BriefResponse approve(@PathVariable String briefId, @Valid @RequestBody ApprovalRequest request, HttpServletRequest httpRequest) {
+        return briefService.approve(briefId, request, actorResolver.requireAdministrator(httpRequest));
+    }
+
+    @GetMapping("/{briefId}/audit-export")
+    public BriefAuditExportResponse exportAudit(@PathVariable String briefId) {
+        return briefService.exportAudit(briefId);
+    }
 }

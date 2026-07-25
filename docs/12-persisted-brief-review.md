@@ -6,4 +6,6 @@
 
 For the local shared-review preparation slice, authenticated write actions must include a local actor ID and role header. The service appends immutable audit events for Brief creation, evidence selection, and review decisions so a future shared deployment can replace header-based identity with stronger authentication without losing workflow traceability.
 
-This is intentionally not an approval endpoint. Approval requires the broader contract controls: qualified reviewer authorization, corpus-snapshot validation, and no unresolved blocker questions.
+`POST /v1/briefs/{briefId}/approvals` is the explicit approval endpoint. It is restricted to the administrator role, requires the Brief to be in `in_review`, and requires at least one accepted review decision before it can transition the Brief to `approved`.
+
+`GET /v1/briefs/{briefId}/audit-export` returns a non-sensitive machine-readable export of review decisions, approvals, and audit events for external inspection.
