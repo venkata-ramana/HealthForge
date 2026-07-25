@@ -221,6 +221,26 @@ paths:
           $ref: '#/components/responses/NotFound'
         '422':
           description: Brief is not approved for export
+  /v1/architecture-reviews:
+    post:
+      operationId: createArchitectureReview
+      summary: Create a bounded architecture-review artifact for a non-sensitive scenario
+      tags: [architecture]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArchitectureReviewRequest'
+      responses:
+        '200':
+          description: Architecture review artifact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchitectureReviewResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
 components:
   parameters:
     IngestionId:
@@ -684,6 +704,141 @@ components:
           type: array
           items:
             type: object
+    ArchitectureReviewRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - corpus_id
+        - corpus_version
+        - question
+        - project_context
+      properties:
+        corpus_id:
+          type: string
+        corpus_version:
+          type: string
+        question:
+          type: string
+        project_context:
+          type: string
+        source_types:
+          type: array
+          items:
+            type: string
+    ArchitectureReviewResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - review_id
+        - status
+        - created_at
+        - input
+        - summary
+        - components
+        - integrations
+        - standards_touchpoints
+        - assumptions
+        - risks
+        - review_checkpoints
+        - evidence_findings
+        - human_review_required
+        - review_notice
+      properties:
+        review_id:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        input:
+          type: object
+          additionalProperties: false
+          required: [corpus_id, corpus_version, question, project_context]
+          properties:
+            corpus_id:
+              type: string
+            corpus_version:
+              type: string
+            question:
+              type: string
+            project_context:
+              type: string
+        summary:
+          type: string
+        components:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [name, role, rationale]
+            properties:
+              name:
+                type: string
+              role:
+                type: string
+              rationale:
+                type: string
+        integrations:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [system, interaction, rationale]
+            properties:
+              system:
+                type: string
+              interaction:
+                type: string
+              rationale:
+                type: string
+        standards_touchpoints:
+          type: array
+          items:
+            type: string
+        assumptions:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [statement, validation_needed]
+            properties:
+              statement:
+                type: string
+              validation_needed:
+                type: string
+        risks:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [name, why_it_matters, mitigation_focus]
+            properties:
+              name:
+                type: string
+              why_it_matters:
+                type: string
+              mitigation_focus:
+                type: string
+        review_checkpoints:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [checkpoint, reason]
+            properties:
+              checkpoint:
+                type: string
+              reason:
+                type: string
+        evidence_findings:
+          type: array
+          items:
+            type: object
+        human_review_required:
+          type: boolean
+        review_notice:
+          type: string
     RetrievalRequest:
       type: object
       additionalProperties: false
