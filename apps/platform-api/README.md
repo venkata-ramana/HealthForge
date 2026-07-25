@@ -68,6 +68,8 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 
 Synthetic prior-authorization validation fixtures live under `knowledge/fixtures/fhir-validation/`, with scenario metadata under `evals/datasets/fhir-validation/`. They are useful for repeatable non-sensitive evaluation, but they do not prove payer-specific interoperability or production-ready conformance.
 
+See [`docs/23-client-api-surface.md`](../docs/23-client-api-surface.md) for the supported local client workflows, auth headers, structured error format, and example calls.
+
 The answer endpoint does not call an external model or persist question/context input. Its findings reproduce retrieved source excerpts with source/version/page citations, and always require human review before a regulatory, clinical, or implementation conclusion.
 
 Artifacts are stored outside the repository at `~/.healthforge/artifacts` by default. Set `HEALTHFORGE_ARTIFACT_DIRECTORY` to use a different local path.

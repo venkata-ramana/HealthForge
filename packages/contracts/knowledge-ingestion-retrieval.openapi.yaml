@@ -10,6 +10,136 @@ servers:
   - url: http://localhost:8080
     description: Local development
 paths:
+  /v1/briefs:
+    get:
+      operationId: listBriefs
+      summary: List persisted Brief summaries for local review clients
+      tags: [briefs]
+      responses:
+        '200':
+          description: Brief summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BriefSummary'
+    post:
+      operationId: createBrief
+      summary: Create a cited Brief draft from grounded evidence
+      tags: [briefs]
+      parameters:
+        - $ref: '#/components/parameters/HealthForgeActor'
+        - $ref: '#/components/parameters/HealthForgeRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BriefRequest'
+      responses:
+        '200':
+          description: Persisted Brief draft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BriefResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '403':
+          description: Reviewer or administrator role required
+        '422':
+          description: Brief cannot be created without grounded evidence
+  /v1/briefs/{briefId}:
+    get:
+      operationId: getBrief
+      summary: Get a persisted Brief with findings, review history, approvals, and audit trail
+      tags: [briefs]
+      parameters:
+        - $ref: '#/components/parameters/BriefId'
+      responses:
+        '200':
+          description: Full Brief
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BriefResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/briefs/{briefId}/review-decisions:
+    post:
+      operationId: recordBriefReviewDecision
+      summary: Record a reviewer decision for a Brief finding
+      tags: [briefs]
+      parameters:
+        - $ref: '#/components/parameters/BriefId'
+        - $ref: '#/components/parameters/HealthForgeActor'
+        - $ref: '#/components/parameters/HealthForgeRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewDecisionRequest'
+      responses:
+        '200':
+          description: Updated Brief
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BriefResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '403':
+          description: Reviewer or administrator role required
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/briefs/{briefId}/approvals:
+    post:
+      operationId: approveBrief
+      summary: Approve a Brief for downstream export
+      tags: [briefs]
+      parameters:
+        - $ref: '#/components/parameters/BriefId'
+        - $ref: '#/components/parameters/HealthForgeActor'
+        - $ref: '#/components/parameters/HealthForgeRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+      responses:
+        '200':
+          description: Approved Brief
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BriefResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '403':
+          description: Administrator role required
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Brief is not in an approvable state
+  /v1/briefs/{briefId}/audit-export:
+    get:
+      operationId: exportBriefAudit
+      summary: Export Brief review, approval, and audit history as non-sensitive JSON
+      tags: [briefs]
+      parameters:
+        - $ref: '#/components/parameters/BriefId'
+      responses:
+        '200':
+          description: Audit export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BriefAuditExportResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /v1/ingestions:
     post:
       operationId: requestIngestion
@@ -243,6 +373,28 @@ paths:
           $ref: '#/components/responses/ValidationError'
 components:
   parameters:
+    BriefId:
+      name: briefId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^brief_[a-zA-Z0-9_-]+$'
+    HealthForgeActor:
+      name: X-HealthForge-Actor
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Local actor ID used for review, approval, and audit events in non-production flows.
+    HealthForgeRole:
+      name: X-HealthForge-Role
+      in: header
+      required: false
+      schema:
+        type: string
+        enum: [reviewer, administrator]
+      description: Local role header used for non-production review and approval flows.
     IngestionId:
       name: ingestionId
       in: path
@@ -256,10 +408,275 @@ components:
     ValidationError:
       description: Request violates contract or data-policy validation
       content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
   schemas:
+    BriefRequest:
+      type: object
+      additionalProperties: false
+      required: [corpus_id, corpus_version, question, project_context]
+      properties:
+        corpus_id:
+          type: string
+        corpus_version:
+          type: string
+        question:
+          type: string
+          maxLength: 2000
+        project_context:
+          type: string
+          maxLength: 2000
+        source_types:
+          type: array
+          items:
+            type: string
+    ReviewDecisionRequest:
+      type: object
+      additionalProperties: false
+      required: [finding_id, decision, rationale]
+      properties:
+        finding_id:
+          type: string
+        decision:
+          type: string
+          enum: [accept, reject, correct, needs_information]
+        reviewer:
+          type: string
+          maxLength: 255
+        rationale:
+          type: string
+          maxLength: 2000
+        corrected_statement:
+          type: string
+          maxLength: 4000
+    ApprovalRequest:
+      type: object
+      additionalProperties: false
+      required: [rationale]
+      properties:
+        rationale:
+          type: string
+          maxLength: 2000
+    BriefSummary:
+      type: object
+      additionalProperties: false
+      required: [brief_id, status, created_at, question]
+      properties:
+        brief_id:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        question:
+          type: string
+    BriefResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - brief_id
+        - status
+        - created_at
+        - input
+        - sources
+        - findings
+        - summary
+        - limitations
+        - review_decisions
+        - approvals
+        - audit_events
+        - requires_human_review
+      properties:
+        brief_id:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        input:
+          type: object
+          additionalProperties: false
+          required: [question, project_context, corpus_id, corpus_version]
+          properties:
+            question:
+              type: string
+            project_context:
+              type: string
+            corpus_id:
+              type: string
+            corpus_version:
+              type: string
+        sources:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [source_id, source_version, source_type, title, canonical_url]
+            properties:
+              source_id:
+                type: string
+              source_version:
+                type: string
+              source_type:
+                type: string
+              title:
+                type: string
+              canonical_url:
+                type: string
+        findings:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [finding_id, kind, statement, confidence, citation]
+            properties:
+              finding_id:
+                type: string
+              kind:
+                type: string
+              statement:
+                type: string
+              confidence:
+                type: string
+              citation:
+                type: object
+                additionalProperties: false
+                required: [source_id, source_version, locator, support]
+                properties:
+                  source_id:
+                    type: string
+                  source_version:
+                    type: string
+                  locator:
+                    type: string
+                  support:
+                    type: string
+        summary:
+          type: string
+        limitations:
+          type: array
+          items:
+            type: string
+        review_decisions:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [review_id, finding_id, decision, reviewer, decided_at, rationale]
+            properties:
+              review_id:
+                type: string
+              finding_id:
+                type: string
+              decision:
+                type: string
+              reviewer:
+                type: string
+              decided_at:
+                type: string
+                format: date-time
+              rationale:
+                type: string
+              corrected_statement:
+                type: string
+                nullable: true
+        approvals:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [approval_id, approver, approver_role, approved_at, rationale]
+            properties:
+              approval_id:
+                type: string
+              approver:
+                type: string
+              approver_role:
+                type: string
+              approved_at:
+                type: string
+                format: date-time
+              rationale:
+                type: string
+        audit_events:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [audit_event_id, actor_id, actor_role, event_type, occurred_at, summary]
+            properties:
+              audit_event_id:
+                type: string
+              actor_id:
+                type: string
+              actor_role:
+                type: string
+              event_type:
+                type: string
+              occurred_at:
+                type: string
+                format: date-time
+              summary:
+                type: string
+              details:
+                type: string
+                nullable: true
+        requires_human_review:
+          type: boolean
+    BriefAuditExportResponse:
+      type: object
+      additionalProperties: false
+      required: [brief_id, status, created_at, corpus_id, corpus_version, review_decisions, approvals, audit_events]
+      properties:
+        brief_id:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        corpus_id:
+          type: string
+        corpus_version:
+          type: string
+        review_decisions:
+          type: array
+          items:
+            type: object
+        approvals:
+          type: array
+          items:
+            type: object
+        audit_events:
+          type: array
+          items:
+            type: object
+    Error:
+      type: object
+      additionalProperties: false
+      required: [timestamp, status, error, detail, path, request_id, errors]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        detail:
+          type: string
+        path:
+          type: string
+        request_id:
+          type: string
+          nullable: true
+        errors:
+          type: array
+          items:
+            type: string
     IngestionRequest:
       type: object
       additionalProperties: false
