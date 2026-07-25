@@ -43,6 +43,60 @@ logging:
     console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%X{requestId:-none}] %logger{36} - %msg%n"
 
 healthforge:
+  fhir:
+    validation:
+      packages:
+        - package-id: hl7.fhir.r4.core
+          package-version: 4.0.1
+          package-title: HL7 FHIR R4 Core
+          package-kind: base_specification
+          support-status: supported
+          validation-boundary: Deterministic base-profile validation against pinned HL7 FHIR R4 core artifacts only.
+          package-evidence-link: https://hl7.org/fhir/R4/downloads.html
+          profiles:
+            - profile-url: http://hl7.org/fhir/StructureDefinition/Patient
+              profile-title: FHIR R4 Patient
+              support-status: supported
+              validation-scope: base_profile_validation
+              profile-evidence-link: https://hl7.org/fhir/R4/patient.html
+            - profile-url: http://hl7.org/fhir/StructureDefinition/Observation
+              profile-title: FHIR R4 Observation
+              support-status: supported
+              validation-scope: base_profile_validation
+              profile-evidence-link: https://hl7.org/fhir/R4/observation.html
+            - profile-url: http://hl7.org/fhir/StructureDefinition/Claim
+              profile-title: FHIR R4 Claim
+              support-status: supported
+              validation-scope: base_profile_validation
+              profile-evidence-link: https://hl7.org/fhir/R4/claim.html
+            - profile-url: http://hl7.org/fhir/StructureDefinition/ClaimResponse
+              profile-title: FHIR R4 ClaimResponse
+              support-status: supported
+              validation-scope: base_profile_validation
+              profile-evidence-link: https://hl7.org/fhir/R4/claimresponse.html
+            - profile-url: http://hl7.org/fhir/StructureDefinition/Coverage
+              profile-title: FHIR R4 Coverage
+              support-status: supported
+              validation-scope: base_profile_validation
+              profile-evidence-link: https://hl7.org/fhir/R4/coverage.html
+            - profile-url: http://hl7.org/fhir/StructureDefinition/Bundle
+              profile-title: FHIR R4 Bundle
+              support-status: supported
+              validation-scope: base_profile_validation
+              profile-evidence-link: https://hl7.org/fhir/R4/bundle.html
+        - package-id: hl7.fhir.us.davinci-pas
+          package-version: 2.1.0
+          package-title: Da Vinci Prior Authorization Support (PAS) STU 2.1
+          package-kind: implementation_guide
+          support-status: planned
+          validation-boundary: Implementation-guide validation requires pinned IG package artifacts and explicit review before deterministic support is enabled.
+          package-evidence-link: https://hl7.org/fhir/us/davinci-pas/STU2.1/
+          profiles:
+            - profile-url: http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-claim
+              profile-title: PAS Claim Profile
+              support-status: planned
+              validation-scope: implementation_guide_validation
+              profile-evidence-link: https://hl7.org/fhir/us/davinci-pas/STU2.1/StructureDefinition-profile-claim.html
   workspace:
     root-directory: ${HEALTHFORGE_WORKSPACE_ROOT:${user.dir}/../..}
   model:

@@ -15,8 +15,12 @@ public record FhirValidationResponse(
     public record PackageSelection(
             String packageId,
             String packageVersion,
+            String packageTitle,
+            String packageKind,
             String profileUrl,
-            String profileTitle
+            String profileTitle,
+            String validationBoundary,
+            String validationScope
     ) {
     }
 
