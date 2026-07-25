@@ -9,3 +9,5 @@ For the local shared-review preparation slice, authenticated write actions must 
 `POST /v1/briefs/{briefId}/approvals` is the explicit approval endpoint. It is restricted to the administrator role, requires the Brief to be in `in_review`, and requires at least one accepted review decision before it can transition the Brief to `approved`.
 
 `GET /v1/briefs/{briefId}/audit-export` returns a non-sensitive machine-readable export of review decisions, approvals, and audit events for external inspection.
+
+`GET /v1/briefs/{briefId}/work-item-export` returns a non-sensitive JSON export of implementation work items derived only from accepted findings on an approved Brief. It is an export artifact, not direct tracker writeback.

@@ -199,6 +199,28 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '404':
           description: Corpus snapshot not found
+  /v1/briefs/{briefId}/work-item-export:
+    get:
+      operationId: exportBriefWorkItems
+      summary: Export approved Brief findings as structured implementation work items
+      tags: [briefs]
+      parameters:
+        - name: briefId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Non-sensitive work-item export derived from an approved Brief
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BriefWorkItemExportResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Brief is not approved for export
 components:
   parameters:
     IngestionId:
@@ -553,6 +575,115 @@ components:
                 type: array
                 items:
                   type: string
+    BriefWorkItemExportResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - brief_id
+        - brief_status
+        - created_at
+        - exported_at
+        - approval_status
+        - export_boundary
+        - work_items
+        - approvals
+        - audit_events
+      properties:
+        brief_id:
+          type: string
+        brief_status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        exported_at:
+          type: string
+          format: date-time
+        approval_status:
+          type: string
+        export_boundary:
+          type: string
+        work_items:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - work_item_id
+              - title
+              - rationale
+              - affected_capability
+              - standards_touchpoints
+              - validation_notes
+              - human_review_status
+              - related_finding_ids
+              - evidence
+            properties:
+              work_item_id:
+                type: string
+              title:
+                type: string
+              rationale:
+                type: string
+              affected_capability:
+                type: string
+              standards_touchpoints:
+                type: array
+                items:
+                  type: string
+              validation_notes:
+                type: array
+                items:
+                  type: string
+              human_review_status:
+                type: string
+              related_finding_ids:
+                type: array
+                items:
+                  type: string
+              evidence:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - source_id
+                    - source_version
+                    - title
+                    - locator
+                    - support
+                    - accepted_by
+                    - accepted_at
+                    - review_rationale
+                  properties:
+                    source_id:
+                      type: string
+                    source_version:
+                      type: string
+                    title:
+                      type: string
+                    canonical_url:
+                      type: string
+                      nullable: true
+                    locator:
+                      type: string
+                    support:
+                      type: string
+                    accepted_by:
+                      type: string
+                    accepted_at:
+                      type: string
+                      format: date-time
+                    review_rationale:
+                      type: string
+        approvals:
+          type: array
+          items:
+            type: object
+        audit_events:
+          type: array
+          items:
+            type: object
     RetrievalRequest:
       type: object
       additionalProperties: false
