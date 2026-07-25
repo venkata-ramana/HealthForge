@@ -1,0 +1,67 @@
+{
+  "name": "healthforge-vscode",
+  "displayName": "HealthForge",
+  "description": "Local VS Code prototype for HealthForge review, standards, and validation workflows.",
+  "version": "0.0.1",
+  "publisher": "healthforge-local",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:healthforge.createBriefDraft",
+    "onCommand:healthforge.validateFhirExample",
+    "onCommand:healthforge.fhirStandardsAssistant"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "healthforge.createBriefDraft",
+        "title": "HealthForge: Create Brief Draft"
+      },
+      {
+        "command": "healthforge.validateFhirExample",
+        "title": "HealthForge: Validate FHIR Example"
+      },
+      {
+        "command": "healthforge.fhirStandardsAssistant",
+        "title": "HealthForge: FHIR Standards Assistant"
+      }
+    ],
+    "configuration": {
+      "title": "HealthForge",
+      "properties": {
+        "healthforge.apiBaseUrl": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "description": "Base URL for the local HealthForge API."
+        },
+        "healthforge.actorId": {
+          "type": "string",
+          "default": "vscode.reviewer",
+          "description": "Actor ID sent to reviewer/admin workflow endpoints."
+        },
+        "healthforge.actorRole": {
+          "type": "string",
+          "enum": [
+            "reviewer",
+            "administrator"
+          ],
+          "default": "reviewer",
+          "description": "Actor role sent to reviewer/admin workflow endpoints."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.95.0",
+    "typescript": "^5.6.3"
+  }
+}
