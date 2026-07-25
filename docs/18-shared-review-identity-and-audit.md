@@ -14,6 +14,7 @@ Current authenticated write actions:
 
 - `POST /v1/briefs`
 - `POST /v1/briefs/{briefId}/review-decisions`
+- `POST /v1/briefs/{briefId}/approvals` (`administrator` only)
 - `POST /v1/ingestions` (`administrator` only)
 
 Every authenticated write action appends immutable audit events to the Brief record:
@@ -21,7 +22,10 @@ Every authenticated write action appends immutable audit events to the Brief rec
 - `brief_created`
 - `evidence_selected`
 - `review_decision_recorded`
+- `brief_approved`
 
 The local UI surfaces the actor identity and role for write actions and renders the audit trail in the Brief detail view. This preserves no-PHI boundaries while preparing the workflow for future SSO/RBAC replacement in shared deployment.
 
 This makes the least-privilege boundary explicit even in local development: reviewers can assemble and review Briefs, but they cannot start new ingestion jobs.
+
+For machine-readable inspection outside the local UI, `GET /v1/briefs/{briefId}/audit-export` returns the Brief review decisions, approval history, and audit events as a non-sensitive JSON export.
