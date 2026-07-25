@@ -1,5 +1,7 @@
 package dev.healthforge.platform.brief;
 
+import dev.healthforge.platform.auth.AuthenticatedActorResolver;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,10 +16,16 @@ import java.util.List;
 @RequestMapping("/v1/briefs")
 public class BriefController {
     private final BriefService briefService;
-    public BriefController(BriefService briefService) { this.briefService = briefService; }
+    private final AuthenticatedActorResolver actorResolver;
+    public BriefController(BriefService briefService, AuthenticatedActorResolver actorResolver) {
+        this.briefService = briefService;
+        this.actorResolver = actorResolver;
+    }
 
     @PostMapping
-    public BriefResponse create(@Valid @RequestBody BriefRequest request) { return briefService.create(request); }
+    public BriefResponse create(@Valid @RequestBody BriefRequest request, HttpServletRequest httpRequest) {
+        return briefService.create(request, actorResolver.requireWriteActor(httpRequest));
+    }
 
     @GetMapping
     public List<BriefSummary> list() { return briefService.list(); }
@@ -26,7 +34,7 @@ public class BriefController {
     public BriefResponse get(@PathVariable String briefId) { return briefService.get(briefId); }
 
     @PostMapping("/{briefId}/review-decisions")
-    public BriefResponse decide(@PathVariable String briefId, @Valid @RequestBody ReviewDecisionRequest request) {
-        return briefService.recordDecision(briefId, request);
+    public BriefResponse decide(@PathVariable String briefId, @Valid @RequestBody ReviewDecisionRequest request, HttpServletRequest httpRequest) {
+        return briefService.recordDecision(briefId, request, actorResolver.requireWriteActor(httpRequest));
     }
 }
