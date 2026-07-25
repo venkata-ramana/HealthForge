@@ -64,6 +64,8 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 - `GET /v1/fhir-validation/catalog` returns the pinned package/profile catalog, package metadata, and support status for deterministic validation.
 - `POST /v1/fhir-validation/validate` validates a synthetic or explicitly non-sensitive FHIR example against a pinned R4 profile selection and returns structured findings plus evidence links.
 
+Synthetic prior-authorization validation fixtures live under `knowledge/fixtures/fhir-validation/`, with scenario metadata under `evals/datasets/fhir-validation/`. They are useful for repeatable non-sensitive evaluation, but they do not prove payer-specific interoperability or production-ready conformance.
+
 The answer endpoint does not call an external model or persist question/context input. Its findings reproduce retrieved source excerpts with source/version/page citations, and always require human review before a regulatory, clinical, or implementation conclusion.
 
 Artifacts are stored outside the repository at `~/.healthforge/artifacts` by default. Set `HEALTHFORGE_ARTIFACT_DIRECTORY` to use a different local path.
