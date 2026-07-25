@@ -48,6 +48,78 @@ paths:
                 $ref: '#/components/schemas/IngestionJob'
         '404':
           $ref: '#/components/responses/NotFound'
+  /v1/source-versions/{sourceVersionId}:
+    get:
+      operationId: getSourceVersion
+      summary: Get lifecycle and terms-review metadata for an ingested source version
+      tags: [administration]
+      parameters:
+        - name: sourceVersionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Source version metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceVersion'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/source-versions/{sourceVersionId}/lifecycle:
+    post:
+      operationId: updateSourceLifecycle
+      summary: Mark a source version active or withdrawn
+      tags: [administration]
+      parameters:
+        - name: sourceVersionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [active, withdrawn]
+      responses:
+        '200':
+          description: Updated source version metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceVersion'
+        '403':
+          description: Administrator role required
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/corpus-snapshots:
+    post:
+      operationId: createCorpusSnapshot
+      summary: Create an immutable current or historical corpus snapshot
+      tags: [administration]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorpusSnapshotRequest'
+      responses:
+        '200':
+          description: Snapshot created
+        '409':
+          description: Snapshot already exists
+        '422':
+          description: Selected source versions are not eligible for the requested snapshot mode
   /v1/retrieval/search:
     post:
       operationId: searchEvidence
@@ -97,6 +169,9 @@ components:
         - source_version
         - canonical_url
         - expected_content_type
+        - allowed_use
+        - terms_review_decision
+        - terms_reviewed_by
       properties:
         manifest_source_id:
           type: string
@@ -113,6 +188,15 @@ components:
         requested_by:
           type: string
           description: Non-sensitive local administrator identity
+        allowed_use:
+          type: string
+          description: Approved use classification for the stored artifact
+        terms_review_decision:
+          type: string
+          enum: [approved, restricted, rejected]
+        terms_reviewed_by:
+          type: string
+          description: Non-sensitive reviewer identity for the use/terms decision
     IngestionJob:
       type: object
       additionalProperties: false
@@ -146,6 +230,85 @@ components:
           type: array
           items:
             type: string
+    CorpusSnapshotRequest:
+      type: object
+      additionalProperties: false
+      required: [corpus_id, corpus_version, source_version_ids]
+      properties:
+        corpus_id:
+          type: string
+        corpus_version:
+          type: string
+        source_version_ids:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        include_historical_sources:
+          type: boolean
+          default: false
+          description: Explicitly allow superseded or withdrawn source versions for historical reconstruction
+    SourceVersion:
+      type: object
+      additionalProperties: false
+      required:
+        - source_version_id
+        - manifest_source_id
+        - source_version
+        - source_type
+        - title
+        - canonical_url
+        - artifact_sha256
+        - content_type
+        - retrieved_at
+        - parser_version
+        - chunking_version
+        - status
+        - allowed_use
+        - terms_review_decision
+        - terms_reviewed_by
+        - terms_reviewed_at
+        - eligible_for_current_snapshot
+      properties:
+        source_version_id:
+          type: string
+        manifest_source_id:
+          type: string
+        source_version:
+          type: string
+        source_type:
+          type: string
+        title:
+          type: string
+        canonical_url:
+          type: string
+          format: uri
+        artifact_sha256:
+          type: string
+        content_type:
+          type: string
+        retrieved_at:
+          type: string
+          format: date-time
+        parser_version:
+          type: string
+        chunking_version:
+          type: string
+        status:
+          enum: [indexed, active, superseded, withdrawn, rejected]
+        allowed_use:
+          type: string
+        terms_review_decision:
+          enum: [approved, restricted, rejected]
+        terms_reviewed_by:
+          type: string
+        terms_reviewed_at:
+          type: string
+          format: date-time
+        superseded_by_source_version_id:
+          type: string
+        eligible_for_current_snapshot:
+          type: boolean
     RetrievalRequest:
       type: object
       additionalProperties: false

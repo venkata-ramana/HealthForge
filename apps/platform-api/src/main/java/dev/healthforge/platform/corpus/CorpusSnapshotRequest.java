@@ -8,5 +8,6 @@ import java.util.List;
 public record CorpusSnapshotRequest(
         @NotBlank String corpusId,
         @NotBlank String corpusVersion,
-        @NotEmpty List<@NotBlank String> sourceVersionIds
+        @NotEmpty List<@NotBlank String> sourceVersionIds,
+        Boolean includeHistoricalSources
 ) {}
