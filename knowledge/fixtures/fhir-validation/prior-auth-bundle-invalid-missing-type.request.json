@@ -1,0 +1,42 @@
+{
+  "package_id": "hl7.fhir.r4.core",
+  "package_version": "4.0.1",
+  "profile_url": "http://hl7.org/fhir/StructureDefinition/Bundle",
+  "data_classification": "synthetic",
+  "resource": {
+    "resourceType": "Bundle",
+    "id": "synthetic-prior-auth-bundle-invalid",
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Claim",
+          "status": "active",
+          "use": "preauthorization",
+          "type": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                "code": "professional"
+              }
+            ]
+          },
+          "patient": {
+            "reference": "Patient/example"
+          },
+          "created": "2026-07-25",
+          "provider": {
+            "reference": "Organization/example-provider"
+          },
+          "priority": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/processpriority",
+                "code": "normal"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

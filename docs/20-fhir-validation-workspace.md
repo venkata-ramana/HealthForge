@@ -20,6 +20,8 @@ The catalog may also contain known implementation-guide packages in a `planned` 
 
 The standards artifact registry complements this validation catalog. Validation answers “can this payload be checked against a pinned profile yet?” while the standards registry answers “which FHIR or implementation-guide artifacts should HealthForge point to when discussing technical impact?” The registry remains descriptive and evidence-linked; it is not itself a conformance claim.
 
+The repository also includes a starter synthetic fixture library under `knowledge/fixtures/fhir-validation/` and scenario metadata under `evals/datasets/fhir-validation/`. These fixtures are intended for repeatable non-sensitive evaluation of the local validation workflow. They help reviewers and engineers confirm expected machine-readable findings, but they still do not substitute for real trading-partner interoperability testing, terminology alignment, or payer-specific implementation review.
+
 This workspace is for deterministic conformance checking, not for proving payer-specific interoperability support. A passing validation result means the example conforms to the selected pinned profile as checked by the local validator; it does not replace implementation review, terminology review, integration testing, or regulatory interpretation.
 
 Pinned package support is governed as follows:

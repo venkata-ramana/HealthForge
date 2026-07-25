@@ -1,0 +1,40 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "claim-valid",
+      "title": "Synthetic prior-authorization Claim passes base R4 validation",
+      "fixture_path": "knowledge/fixtures/fhir-validation/prior-auth-claim-valid.request.json",
+      "expected_status": "valid",
+      "reviewer_note": "Starter synthetic request example for prior-authorization modeling. Passing validation does not imply payer-specific PAS support."
+    },
+    {
+      "scenario_id": "claim-missing-status",
+      "title": "Synthetic prior-authorization Claim fails when status is omitted",
+      "fixture_path": "knowledge/fixtures/fhir-validation/prior-auth-claim-invalid-missing-status.request.json",
+      "expected_status": "invalid",
+      "expected_finding_substrings": [
+        "Claim.status",
+        "minimum required"
+      ],
+      "reviewer_note": "Negative case to confirm machine-readable findings are preserved for missing mandatory elements."
+    },
+    {
+      "scenario_id": "coverage-valid",
+      "title": "Synthetic coverage reference passes base R4 validation",
+      "fixture_path": "knowledge/fixtures/fhir-validation/prior-auth-coverage-valid.request.json",
+      "expected_status": "valid",
+      "reviewer_note": "Coverage is included because prior-authorization request assembly often depends on coverage context."
+    },
+    {
+      "scenario_id": "bundle-missing-type",
+      "title": "Synthetic prior-authorization bundle fails when Bundle.type is missing",
+      "fixture_path": "knowledge/fixtures/fhir-validation/prior-auth-bundle-invalid-missing-type.request.json",
+      "expected_status": "invalid",
+      "expected_finding_substrings": [
+        "Bundle.type",
+        "minimum required"
+      ],
+      "reviewer_note": "Negative bundle case confirms the starter library covers workflow packaging, not only individual resources."
+    }
+  ]
+}
