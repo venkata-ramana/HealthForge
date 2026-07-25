@@ -97,6 +97,83 @@ healthforge:
               support-status: planned
               validation-scope: implementation_guide_validation
               profile-evidence-link: https://hl7.org/fhir/us/davinci-pas/STU2.1/StructureDefinition-profile-claim.html
+  standards:
+    artifacts:
+      - artifact-id: fhir-r4-claim
+        canonical-url: http://hl7.org/fhir/StructureDefinition/Claim
+        title: FHIR R4 Claim
+        version: 4.0.1
+        artifact-type: resource
+        package-id: hl7.fhir.r4.core
+        source-id: hl7-fhir-r4
+        source-version: 4.0.1
+        support-boundary: Base FHIR resource reference for prior-authorization request modeling; implementation details still require guide and deployment review.
+        evidence-links:
+          - https://hl7.org/fhir/R4/claim.html
+        keywords:
+          - claim
+          - prior authorization
+          - resource
+      - artifact-id: fhir-r4-claimresponse
+        canonical-url: http://hl7.org/fhir/StructureDefinition/ClaimResponse
+        title: FHIR R4 ClaimResponse
+        version: 4.0.1
+        artifact-type: resource
+        package-id: hl7.fhir.r4.core
+        source-id: hl7-fhir-r4
+        source-version: 4.0.1
+        support-boundary: Base FHIR response resource reference for review of authorization decisions and status updates.
+        evidence-links:
+          - https://hl7.org/fhir/R4/claimresponse.html
+        keywords:
+          - claimresponse
+          - prior authorization
+          - response
+      - artifact-id: pas-claim-profile
+        canonical-url: http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-claim
+        title: PAS Claim Profile
+        version: 2.1.0
+        artifact-type: profile
+        package-id: hl7.fhir.us.davinci-pas
+        source-id: davinci-pas-stu-2-1
+        source-version: STU2.1
+        support-boundary: Candidate PAS implementation-guide profile; applicability and trading-partner support must be reviewed per deployment.
+        evidence-links:
+          - https://hl7.org/fhir/us/davinci-pas/STU2.1/StructureDefinition-profile-claim.html
+        keywords:
+          - pas
+          - claim
+          - prior authorization support
+      - artifact-id: crd-implementation-guide
+        canonical-url: https://hl7.org/fhir/us/davinci-crd/STU2.1/
+        title: Da Vinci Coverage Requirements Discovery (CRD) STU 2.1
+        version: 2.1.0
+        artifact-type: implementation_guide
+        package-id: hl7.fhir.us.davinci-crd
+        source-id: davinci-crd-stu-2-1
+        source-version: STU2.1
+        support-boundary: Candidate workflow guidance for coverage and documentation discovery; not a universal deployment requirement.
+        evidence-links:
+          - https://hl7.org/fhir/us/davinci-crd/STU2.1/
+        keywords:
+          - crd
+          - coverage requirements discovery
+          - cds hooks
+      - artifact-id: dtr-implementation-guide
+        canonical-url: https://hl7.org/fhir/us/davinci-dtr/
+        title: Da Vinci Documentation Templates and Rules (DTR)
+        version: 2.1.0
+        artifact-type: implementation_guide
+        package-id: hl7.fhir.us.davinci-dtr
+        source-id: davinci-dtr-stu-2-1
+        source-version: STU2.1
+        support-boundary: Candidate documentation workflow guidance; local persistence, user edits, and deployment applicability still require review.
+        evidence-links:
+          - https://hl7.org/fhir/us/davinci-dtr/
+        keywords:
+          - dtr
+          - documentation templates and rules
+          - questionnaire
   workspace:
     root-directory: ${HEALTHFORGE_WORKSPACE_ROOT:${user.dir}/../..}
   model:

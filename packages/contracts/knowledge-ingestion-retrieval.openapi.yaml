@@ -154,6 +154,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FhirValidationCatalogResponse'
+  /v1/standards-artifacts:
+    get:
+      operationId: listStandardsArtifacts
+      summary: List curated FHIR and implementation-guide artifacts by canonical URL or artifact name
+      tags: [validation]
+      parameters:
+        - name: canonical_url
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: artifact_name
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching standards artifacts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardsArtifactResponse'
   /v1/retrieval/search:
     post:
       operationId: searchEvidence
@@ -489,6 +512,47 @@ components:
                     profile_evidence_link:
                       type: string
                       format: uri
+    StandardsArtifactResponse:
+      type: object
+      additionalProperties: false
+      required: [artifacts]
+      properties:
+        artifacts:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [artifact_id, canonical_url, title, version, artifact_type, package_id, source_id, source_version, support_boundary, evidence_links, keywords]
+            properties:
+              artifact_id:
+                type: string
+              canonical_url:
+                type: string
+                format: uri
+              title:
+                type: string
+              version:
+                type: string
+              artifact_type:
+                type: string
+                enum: [resource, profile, operation, value_set, implementation_guide]
+              package_id:
+                type: string
+              source_id:
+                type: string
+              source_version:
+                type: string
+              support_boundary:
+                type: string
+              evidence_links:
+                type: array
+                items:
+                  type: string
+                  format: uri
+              keywords:
+                type: array
+                items:
+                  type: string
     RetrievalRequest:
       type: object
       additionalProperties: false

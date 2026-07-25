@@ -18,6 +18,8 @@ The first actively supported package is `hl7.fhir.r4.core|4.0.1`, using a starte
 
 The catalog may also contain known implementation-guide packages in a `planned` state. That means HealthForge knows the package metadata and profile inventory, but deterministic validation support is not yet enabled. This makes the package boundary visible without pretending support exists before the pinned artifacts and review workflow are ready.
 
+The standards artifact registry complements this validation catalog. Validation answers “can this payload be checked against a pinned profile yet?” while the standards registry answers “which FHIR or implementation-guide artifacts should HealthForge point to when discussing technical impact?” The registry remains descriptive and evidence-linked; it is not itself a conformance claim.
+
 This workspace is for deterministic conformance checking, not for proving payer-specific interoperability support. A passing validation result means the example conforms to the selected pinned profile as checked by the local validator; it does not replace implementation review, terminology review, integration testing, or regulatory interpretation.
 
 Pinned package support is governed as follows:
