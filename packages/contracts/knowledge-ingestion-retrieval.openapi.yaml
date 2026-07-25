@@ -142,6 +142,18 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '422':
           description: Requested package/profile selection is not supported in the pinned catalog
+  /v1/fhir-validation/catalog:
+    get:
+      operationId: getFhirValidationCatalog
+      summary: Get the pinned FHIR package and profile catalog for deterministic validation
+      tags: [validation]
+      responses:
+        '200':
+          description: Supported and planned FHIR package/profile inventory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirValidationCatalogResponse'
   /v1/retrieval/search:
     post:
       operationId: searchEvidence
@@ -373,16 +385,25 @@ components:
         selected_package:
           type: object
           additionalProperties: false
-          required: [package_id, package_version, profile_url, profile_title]
+          required: [package_id, package_version, package_title, package_kind, profile_url, profile_title, validation_boundary, validation_scope]
           properties:
             package_id:
               type: string
             package_version:
               type: string
+            package_title:
+              type: string
+            package_kind:
+              type: string
+              enum: [base_specification, implementation_guide]
             profile_url:
               type: string
               format: uri
             profile_title:
+              type: string
+            validation_boundary:
+              type: string
+            validation_scope:
               type: string
         data_classification:
           type: string
@@ -419,6 +440,55 @@ components:
           items:
             type: string
             format: uri
+    FhirValidationCatalogResponse:
+      type: object
+      additionalProperties: false
+      required: [packages]
+      properties:
+        packages:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [package_id, package_version, package_title, package_kind, support_status, validation_boundary, package_evidence_link, profiles]
+            properties:
+              package_id:
+                type: string
+              package_version:
+                type: string
+              package_title:
+                type: string
+              package_kind:
+                type: string
+                enum: [base_specification, implementation_guide]
+              support_status:
+                type: string
+                enum: [supported, planned]
+              validation_boundary:
+                type: string
+              package_evidence_link:
+                type: string
+                format: uri
+              profiles:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: [profile_url, profile_title, support_status, validation_scope, profile_evidence_link]
+                  properties:
+                    profile_url:
+                      type: string
+                      format: uri
+                    profile_title:
+                      type: string
+                    support_status:
+                      type: string
+                      enum: [supported, planned]
+                    validation_scope:
+                      type: string
+                    profile_evidence_link:
+                      type: string
+                      format: uri
     RetrievalRequest:
       type: object
       additionalProperties: false

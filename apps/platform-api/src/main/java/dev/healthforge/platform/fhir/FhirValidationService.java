@@ -46,6 +46,10 @@ public class FhirValidationService {
         this.validator.registerValidatorModule(instanceValidator);
     }
 
+    public FhirValidationCatalogResponse catalog() {
+        return catalog.catalog();
+    }
+
     public FhirValidationResponse validate(FhirValidationRequest request) {
         var profile = catalog.resolve(request.packageId(), request.packageVersion(), request.profileUrl());
         var serializedResource = serialize(request);
@@ -69,8 +73,12 @@ public class FhirValidationService {
                 new FhirValidationResponse.PackageSelection(
                         profile.packageId(),
                         profile.packageVersion(),
+                        profile.packageTitle(),
+                        profile.packageKind(),
                         profile.profileUrl(),
-                        profile.profileTitle()
+                        profile.profileTitle(),
+                        profile.validationBoundary(),
+                        profile.validationScope()
                 ),
                 request.dataClassification(),
                 true,

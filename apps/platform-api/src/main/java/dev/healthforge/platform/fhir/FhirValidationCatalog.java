@@ -4,50 +4,89 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
+import java.util.Comparator;
+import java.util.List;
 
 @Component
 public class FhirValidationCatalog {
 
-    private final Map<String, PinnedProfile> profiles = Map.of(
-            key("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Patient"),
-            new PinnedProfile("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Patient", "FHIR R4 Patient", "https://hl7.org/fhir/R4/patient.html"),
-            key("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Observation"),
-            new PinnedProfile("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Observation", "FHIR R4 Observation", "https://hl7.org/fhir/R4/observation.html"),
-            key("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Claim"),
-            new PinnedProfile("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Claim", "FHIR R4 Claim", "https://hl7.org/fhir/R4/claim.html"),
-            key("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/ClaimResponse"),
-            new PinnedProfile("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/ClaimResponse", "FHIR R4 ClaimResponse", "https://hl7.org/fhir/R4/claimresponse.html"),
-            key("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Coverage"),
-            new PinnedProfile("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Coverage", "FHIR R4 Coverage", "https://hl7.org/fhir/R4/coverage.html"),
-            key("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Bundle"),
-            new PinnedProfile("hl7.fhir.r4.core", "4.0.1", "http://hl7.org/fhir/StructureDefinition/Bundle", "FHIR R4 Bundle", "https://hl7.org/fhir/R4/bundle.html")
-    );
+    private final FhirValidationCatalogProperties properties;
 
-    public PinnedProfile resolve(String packageId, String packageVersion, String profileUrl) {
-        var profile = profiles.get(key(packageId, packageVersion, profileUrl));
-        if (profile == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNPROCESSABLE_ENTITY,
-                    "The requested FHIR package/profile is not in the pinned validation catalog"
-            );
-        }
-        return profile;
+    public FhirValidationCatalog(FhirValidationCatalogProperties properties) {
+        this.properties = properties;
     }
 
-    private static String key(String packageId, String packageVersion, String profileUrl) {
-        return packageId + "|" + packageVersion + "|" + profileUrl;
+    public FhirValidationCatalogResponse catalog() {
+        var packages = properties.getPackages().stream()
+                .sorted(Comparator.comparing(FhirValidationCatalogProperties.FhirPackage::getPackageId)
+                        .thenComparing(FhirValidationCatalogProperties.FhirPackage::getPackageVersion))
+                .map(pkg -> new FhirValidationCatalogResponse.FhirPackage(
+                        pkg.getPackageId(),
+                        pkg.getPackageVersion(),
+                        pkg.getPackageTitle(),
+                        pkg.getPackageKind(),
+                        pkg.getSupportStatus(),
+                        pkg.getValidationBoundary(),
+                        pkg.getPackageEvidenceLink(),
+                        pkg.getProfiles().stream()
+                                .map(profile -> new FhirValidationCatalogResponse.FhirProfile(
+                                        profile.getProfileUrl(),
+                                        profile.getProfileTitle(),
+                                        profile.getSupportStatus(),
+                                        profile.getValidationScope(),
+                                        profile.getProfileEvidenceLink()
+                                ))
+                                .toList()
+                ))
+                .toList();
+        return new FhirValidationCatalogResponse(packages);
+    }
+
+    public PinnedProfile resolve(String packageId, String packageVersion, String profileUrl) {
+        var selectedPackage = properties.getPackages().stream()
+                .filter(pkg -> packageId.equals(pkg.getPackageId()) && packageVersion.equals(pkg.getPackageVersion()))
+                .findFirst()
+                .orElseThrow(() -> unsupported("The requested FHIR package is not in the pinned validation catalog"));
+
+        var selectedProfile = selectedPackage.getProfiles().stream()
+                .filter(profile -> profileUrl.equals(profile.getProfileUrl()))
+                .findFirst()
+                .orElseThrow(() -> unsupported("The requested FHIR profile is not in the pinned validation catalog"));
+
+        if (!"supported".equalsIgnoreCase(selectedPackage.getSupportStatus())
+                || !"supported".equalsIgnoreCase(selectedProfile.getSupportStatus())) {
+            throw unsupported("The requested FHIR package/profile is cataloged but not yet supported for deterministic validation");
+        }
+
+        return new PinnedProfile(
+                selectedPackage.getPackageId(),
+                selectedPackage.getPackageVersion(),
+                selectedPackage.getPackageTitle(),
+                selectedPackage.getPackageKind(),
+                selectedPackage.getValidationBoundary(),
+                selectedPackage.getPackageEvidenceLink(),
+                selectedProfile.getProfileUrl(),
+                selectedProfile.getProfileTitle(),
+                selectedProfile.getValidationScope(),
+                selectedProfile.getProfileEvidenceLink()
+        );
+    }
+
+    private ResponseStatusException unsupported(String detail) {
+        return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, detail);
     }
 
     public record PinnedProfile(
             String packageId,
             String packageVersion,
+            String packageTitle,
+            String packageKind,
+            String validationBoundary,
+            String packageEvidenceLink,
             String profileUrl,
             String profileTitle,
+            String validationScope,
             String profileEvidenceLink
     ) {
-        public String packageEvidenceLink() {
-            return "https://hl7.org/fhir/R4/downloads.html";
-        }
     }
 }
