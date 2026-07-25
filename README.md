@@ -6,18 +6,54 @@ HealthForge translates authoritative healthcare regulations and implementation g
 
 ## Current phase
 
-**Discovery and architecture.** No application code has been started. The initial product boundary and proposed architecture are documented in [`docs/`](docs/).
+**Active Phase 3 implementation.** HealthForge now has working application code, a local review UI, a Spring Boot API, persisted Brief review workflows, deterministic FHIR validation, standards artifact lookup, architecture-review artifacts, and approved work-item export.
+
+The platform remains intentionally bounded:
+
+- public, non-sensitive sources only;
+- synthetic or non-sensitive FHIR examples only;
+- human review required for recommendations and exports; and
+- no production PHI handling or direct external tracker writeback.
 
 ## Starting point
 
-The first usable vertical slice is a **Regulation-to-Engineering Brief**:
+The first usable vertical slice is a **Regulation-to-Engineering Brief and review workflow**:
 
 1. An authorized source document is ingested with provenance.
 2. A user asks a bounded engineering question.
 3. The platform returns cited findings, affected personas/capabilities, FHIR and workflow implications, and proposed work items.
 4. A human reviewer accepts, corrects, or rejects each recommendation.
+5. An administrator can approve the Brief and export approved work items for downstream engineering review.
 
 This deliberately precedes code generation, automated compliance claims, and production PHI handling.
+
+## What is implemented today
+
+- A local Spring Boot platform API in [`apps/platform-api`](apps/platform-api/)
+- Source-ingestion governance with provenance, lifecycle, and corpus snapshots
+- Grounded evidence retrieval and persisted Brief generation
+- Shared review identity, review decisions, approvals, and audit export
+- Deterministic FHIR validation with a pinned package/profile catalog
+- Standards artifact registry for base FHIR and candidate implementation-guide references
+- Synthetic FHIR fixture scenarios for repeatable prior-authorization validation tests
+- Architecture review assistant for bounded prior-authorization solution design
+- Approved Brief work-item export for downstream engineering planning
+- Client-facing OpenAPI contract and local API usage guide
+
+One remaining Phase 3 item is still in progress as of July 25, 2026:
+
+- guarded example-only code generation from approved work items
+
+## Core local workflows
+
+Today the repo supports these main local workflows:
+
+1. Ingest approved public source material and pin it into a controlled corpus.
+2. Ask a bounded engineering question and generate a cited Brief draft.
+3. Review, correct, approve, and audit that Brief through the local workflow.
+4. Export approved implementation work items for downstream planning.
+5. Validate synthetic FHIR examples against a pinned validation catalog.
+6. Review architecture implications for prior-authorization scenarios using grounded evidence plus curated standards touchpoints.
 
 ## Documentation
 
@@ -31,18 +67,34 @@ This deliberately precedes code generation, automated compliance claims, and pro
 - [`docs/08-regulation-to-engineering-brief-contract.md`](docs/08-regulation-to-engineering-brief-contract.md)
 - [`docs/09-evaluation-and-review-rubric.md`](docs/09-evaluation-and-review-rubric.md)
 - [`docs/10-ingestion-provenance-and-retrieval-contract.md`](docs/10-ingestion-provenance-and-retrieval-contract.md)
+- [`docs/12-persisted-brief-review.md`](docs/12-persisted-brief-review.md)
+- [`docs/20-fhir-validation-workspace.md`](docs/20-fhir-validation-workspace.md)
+- [`docs/21-brief-work-item-export.md`](docs/21-brief-work-item-export.md)
+- [`docs/22-architecture-review-assistant.md`](docs/22-architecture-review-assistant.md)
+- [`docs/23-client-api-surface.md`](docs/23-client-api-surface.md)
 - [`knowledge/manifests/mvp-source-corpus.yaml`](knowledge/manifests/mvp-source-corpus.yaml)
 - [`knowledge/fixtures/regulation-to-engineering-brief.example.json`](knowledge/fixtures/regulation-to-engineering-brief.example.json)
+- [`knowledge/fixtures/fhir-validation/README.md`](knowledge/fixtures/fhir-validation/README.md)
 - [`packages/contracts/regulation-to-engineering-brief.schema.json`](packages/contracts/regulation-to-engineering-brief.schema.json)
 - [`packages/contracts/knowledge-ingestion-retrieval.openapi.yaml`](packages/contracts/knowledge-ingestion-retrieval.openapi.yaml)
 - [`evals/datasets/cms-0057-f-mvp-evaluation-cases.json`](evals/datasets/cms-0057-f-mvp-evaluation-cases.json)
+- [`evals/datasets/fhir-validation/prior-authorization-scenarios.json`](evals/datasets/fhir-validation/prior-authorization-scenarios.json)
 
-## Local evidence service
+## Local platform surface
 
-The first executable vertical slice lives in [`apps/platform-api`](apps/platform-api/). It accepts manifest-approved, public source-ingestion requests, records immutable provenance metadata in PostgreSQL, indexes page-level PDF passages, and exposes retrieval plus deterministic cited evidence packets.
+The main executable vertical slice lives in [`apps/platform-api`](apps/platform-api/). It provides:
+
+- ingestion and provenance endpoints;
+- grounded retrieval and Brief workflows;
+- review, approval, audit, and work-item export endpoints;
+- standards artifact lookup;
+- architecture review generation; and
+- deterministic FHIR validation endpoints.
+
+See the local setup guide in [apps/platform-api/README.md](apps/platform-api/README.md).
 
 ## Evaluation
 
 Run [`scripts/evaluate-retrieval.sh`](scripts/evaluate-retrieval.sh) against a pinned local corpus snapshot to produce retrieval-recall and citation-coverage baseline reports.
 
-See its [local setup guide](apps/platform-api/README.md).
+Synthetic FHIR validation scenarios are available under [`evals/datasets/fhir-validation`](evals/datasets/fhir-validation).
