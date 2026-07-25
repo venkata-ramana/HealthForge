@@ -11,8 +11,12 @@ import org.springframework.web.server.ResponseStatusException;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BriefService {
@@ -168,6 +172,53 @@ public class BriefService {
         );
     }
 
+    public BriefWorkItemExportResponse exportWorkItems(String briefId) {
+        var brief = get(briefId);
+        if (!"approved".equals(brief.status())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Only approved Briefs can be exported as implementation work items.");
+        }
+
+        var latestAcceptedDecisionsByFinding = brief.reviewDecisions().stream()
+                .filter(decision -> "accept".equals(decision.decision()))
+                .collect(Collectors.toMap(
+                        BriefResponse.ReviewDecision::findingId,
+                        decision -> decision,
+                        (left, right) -> left.decidedAt().isAfter(right.decidedAt()) ? left : right
+                ));
+
+        var sourceByKey = brief.sources().stream()
+                .collect(Collectors.toMap(
+                        source -> source.sourceId() + "|" + source.sourceVersion(),
+                        source -> source
+                ));
+
+        var standardsTouchpoints = brief.sources().stream()
+                .filter(source -> "candidate_technical_guidance".equals(source.sourceType())
+                        || source.canonicalUrl().contains("hl7.org/fhir"))
+                .map(source -> source.title() + " (" + source.sourceVersion() + ")")
+                .sorted()
+                .toList();
+
+        var workItems = brief.findings().stream()
+                .filter(finding -> latestAcceptedDecisionsByFinding.containsKey(finding.findingId()))
+                .sorted(Comparator.comparing(BriefResponse.Finding::findingId))
+                .map(finding -> toWorkItem(finding, latestAcceptedDecisionsByFinding.get(finding.findingId()), sourceByKey, standardsTouchpoints, brief))
+                .toList();
+
+        return new BriefWorkItemExportResponse(
+                brief.briefId(),
+                brief.status(),
+                brief.createdAt(),
+                Instant.now(clock),
+                "approved_for_export",
+                "JSON export only. This artifact excludes unapproved findings and does not perform external tracker writeback.",
+                workItems,
+                brief.approvals(),
+                brief.auditEvents()
+        );
+    }
+
     private BriefRow loadBriefRow(String briefId) {
         var briefs = jdbcTemplate.query("""
                 select brief_id, status, created_at, question, project_context, corpus_id, corpus_version
@@ -184,6 +235,65 @@ public class BriefService {
                 select brief_id, status, created_at, question from engineering_brief order by created_at desc
                 """, (rs, row) -> new BriefSummary(rs.getString("brief_id"), rs.getString("status"),
                 rs.getTimestamp("created_at").toInstant(), rs.getString("question")));
+    }
+
+    private BriefWorkItemExportResponse.WorkItem toWorkItem(
+            BriefResponse.Finding finding,
+            BriefResponse.ReviewDecision acceptedDecision,
+            Map<String, BriefResponse.Source> sourceByKey,
+            List<String> standardsTouchpoints,
+            BriefResponse brief
+    ) {
+        var source = sourceByKey.get(finding.citation().sourceId() + "|" + finding.citation().sourceVersion());
+        var effectiveStatement = acceptedDecision.correctedStatement() != null && !acceptedDecision.correctedStatement().isBlank()
+                ? acceptedDecision.correctedStatement()
+                : finding.statement();
+
+        var evidence = List.of(new BriefWorkItemExportResponse.Evidence(
+                finding.citation().sourceId(),
+                finding.citation().sourceVersion(),
+                source == null ? finding.citation().sourceId() : source.title(),
+                source == null ? null : source.canonicalUrl(),
+                finding.citation().locator(),
+                finding.citation().support(),
+                acceptedDecision.reviewer(),
+                acceptedDecision.decidedAt(),
+                acceptedDecision.rationale()
+        ));
+
+        return new BriefWorkItemExportResponse.WorkItem(
+                "work_" + finding.findingId().replaceFirst("^find_", ""),
+                buildTitle(effectiveStatement),
+                effectiveStatement,
+                inferCapability(brief.input().question(), effectiveStatement),
+                standardsTouchpoints,
+                List.of(
+                        "Derived from an approved Brief and limited to findings with an accepted review decision.",
+                        "Evidence remains non-sensitive and citeable; human implementation review is still required.",
+                        "No direct GitHub, Jira, or external tracker writeback occurs in this phase."
+                ),
+                "approved_brief_human_review_retained",
+                List.of(finding.findingId()),
+                evidence
+        );
+    }
+
+    private String buildTitle(String statement) {
+        var compact = statement.replaceAll("\\s+", " ").trim();
+        if (compact.length() <= 72) {
+            return compact;
+        }
+        return compact.substring(0, 69) + "...";
+    }
+
+    private String inferCapability(String question, String statement) {
+        var text = (question + " " + statement).toLowerCase(Locale.ROOT);
+        if (text.contains("prior authorization")) return "prior_authorization_workflow";
+        if (text.contains("claimresponse") || text.contains("decision")) return "authorization_decision_handling";
+        if (text.contains("claim")) return "authorization_request_submission";
+        if (text.contains("coverage")) return "coverage_and_eligibility_context";
+        if (text.contains("audit")) return "review_and_audit_traceability";
+        return "engineering_review_workflow";
     }
 
     private record BriefRow(String id, String status, Instant createdAt, String question, String context, String corpusId, String corpusVersion) {}

@@ -47,4 +47,9 @@ public class BriefController {
     public BriefAuditExportResponse exportAudit(@PathVariable String briefId) {
         return briefService.exportAudit(briefId);
     }
+
+    @GetMapping("/{briefId}/work-item-export")
+    public BriefWorkItemExportResponse exportWorkItems(@PathVariable String briefId) {
+        return briefService.exportWorkItems(briefId);
+    }
 }
