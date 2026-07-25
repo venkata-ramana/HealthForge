@@ -24,7 +24,7 @@ public class BriefController {
 
     @PostMapping
     public BriefResponse create(@Valid @RequestBody BriefRequest request, HttpServletRequest httpRequest) {
-        return briefService.create(request, actorResolver.requireWriteActor(httpRequest));
+        return briefService.create(request, actorResolver.requireReviewerOrAdministrator(httpRequest));
     }
 
     @GetMapping
@@ -35,6 +35,6 @@ public class BriefController {
 
     @PostMapping("/{briefId}/review-decisions")
     public BriefResponse decide(@PathVariable String briefId, @Valid @RequestBody ReviewDecisionRequest request, HttpServletRequest httpRequest) {
-        return briefService.recordDecision(briefId, request, actorResolver.requireWriteActor(httpRequest));
+        return briefService.recordDecision(briefId, request, actorResolver.requireReviewerOrAdministrator(httpRequest));
     }
 }

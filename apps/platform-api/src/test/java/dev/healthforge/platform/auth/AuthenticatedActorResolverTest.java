@@ -29,4 +29,15 @@ class AuthenticatedActorResolverTest {
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("Authenticated write actions require");
     }
+
+    @Test
+    void rejectsAdministratorOnlyActionForReviewer() {
+        var request = new MockHttpServletRequest();
+        request.addHeader(AuthenticatedActorResolver.ACTOR_ID_HEADER, "local.reviewer");
+        request.addHeader(AuthenticatedActorResolver.ACTOR_ROLE_HEADER, "reviewer");
+
+        assertThatThrownBy(() -> resolver.requireAdministrator(request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("administrator role");
+    }
 }
