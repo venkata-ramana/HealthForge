@@ -44,6 +44,75 @@ One remaining Phase 3 item is still in progress as of July 25, 2026:
 
 - guarded example-only code generation from approved work items
 
+## Roadmap by phase
+
+This project is being built in deliberate phases so we can keep the platform reviewable, traceable, and safe while expanding functionality.
+
+| Phase | Status | What this phase delivers |
+| --- | --- | --- |
+| Phase 1 | Completed | Problem framing, MVP scope, source-corpus definition, Brief schema, evaluation rubric, security/data boundaries, and open-source project foundations |
+| Phase 2 | Completed | Executable local platform slice: corpus ingestion, snapshots, retrieval, local Brief UI, guarded Brief synthesis, review identity, approvals, audit, observability, and evaluation baselines |
+| Phase 3 | In progress | Standards-aware engineering workflows: pinned FHIR validation catalog, standards artifact registry, synthetic FHIR fixtures, approved work-item export, architecture review assistant, client-facing API surface, and guarded example-only code generation |
+| Phase 4 | Planned | Product growth workflows: FHIR knowledge assistant, AI regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready exports, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
+| Phase 5 | Planned | Enterprise and product hardening: tenant isolation, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
+
+### Phase 1 completed
+
+- MVP source corpus and support boundaries
+- Electronic prior-authorization domain workflow model
+- Regulation-to-Engineering Brief schema
+- Evaluation set and reviewer rubric
+- Knowledge ingestion, provenance, and retrieval contracts
+- MVP security, data boundaries, and threat model
+- Open-source governance and contributor foundations
+
+### Phase 2 completed
+
+- Local Brief review interface
+- Immutable corpus snapshots for reproducibility
+- Guarded model orchestration for structured Brief synthesis
+- Retrieval and citation evaluation baseline
+- Expanded approved source corpus
+- Evaluation quality gates and regression baselines
+- Shared-review identity, roles, approvals, and audit records
+- Deployment configuration and operational observability
+- FHIR validation workspace prototype
+- Source lifecycle governance and terms-review metadata
+
+### Phase 3 current status
+
+- Completed
+  - pinned FHIR validation package and catalog workflow
+  - standards artifact registry
+  - synthetic FHIR fixtures and evaluator scenarios
+  - approved Brief work-item export
+  - architecture review assistant
+  - client-facing API surface
+- In progress
+  - guarded example-only code generation from approved work items
+
+### Phase 4 planned
+
+- FHIR knowledge assistant over curated standards artifacts
+- AI regulation explainer workflow
+- VS Code extension prototype for local workflows
+- Tracked export integrations for GitHub and Jira-ready work items
+- Prior-authorization copilot workflow for PAS/CRD/DTR scenarios
+
+### Phase 5 planned
+
+- Tenant isolation and organization boundaries
+- Enterprise RBAC groundwork
+- Compliance dashboard foundation
+- Private deployment and infrastructure-as-code
+- Stronger security, audit export, and evidence-retention controls
+- Synthetic FHIR data generator for safe demos and validation workflows
+
+### Community and adoption roadmap
+
+- Publish a non-sensitive end-to-end demo and contributor onboarding path
+- Establish a repeatable technical content and community growth pipeline
+
 ## Core local workflows
 
 Today the repo supports these main local workflows:
