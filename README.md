@@ -4,64 +4,25 @@ HealthForge is an open-source AI engineering platform for healthcare interoperab
 
 It turns authoritative healthcare regulations and implementation guidance into traceable, reviewable engineering outputs: cited answers, Briefs, architecture guidance, validation results, and downstream implementation artifacts.
 
-## Why this project exists
+HealthForge turns approved public healthcare sources into a local evidence layer that teams can search, review, validate, and turn into engineering-ready outputs.
 
-Healthcare teams often need to answer questions like:
+## Features
 
-- What does a CMS rule require for this workflow?
-- What changes do we need in prior authorization workflows?
-- Which findings are grounded in source evidence versus interpretation?
-- How do we review and approve those findings before engineering starts?
-
-HealthForge is designed to answer those questions with a bounded, evidence-first workflow instead of a generic chatbot experience.
-
-## What HealthForge does today
-
-The current MVP can:
-
-- ingest approved public source documents such as CMS PDFs
-- extract citeable passages and store them in a structured local evidence database
-- organize evidence into reproducible corpus snapshots
-- answer bounded questions using retrieved evidence plus project context
-- create reviewable Briefs with cited findings
-- support reviewer decisions, approvals, and audit history
-- export approved work items for downstream engineering planning
-- validate synthetic or non-sensitive FHIR examples against a pinned R4 validation catalog
-- provide a FHIR knowledge assistant over curated standards artifacts
-- generate regulation explainers from approved corpus sources
-- analyze PAS, CRD, and DTR scenarios through a prior-authorization copilot workflow
-- generate GitHub- and Jira-ready tracked export previews for approved work items
-- generate bounded architecture-review artifacts and guarded example starter artifacts
-- package core workflows into a local VS Code extension prototype
-
-## Current status
-
-Phase 4 is completed.
-
-The working platform now includes:
-
-- a local review UI
-- a Spring Boot API
-- PostgreSQL-backed evidence storage
-- persisted Brief review workflows
-- deterministic FHIR validation
-- standards artifact lookup
-- FHIR knowledge assistant workflow
-- regulation explainer workflow
-- prior-authorization copilot workflow
-- tracked GitHub/Jira-ready export previews
-- architecture-review artifacts
-- approved work-item export
-- guarded example-only starter code generation
-- a local VS Code extension prototype
-
-The MVP is intentionally bounded:
-
-- public, non-sensitive sources only
-- synthetic or non-sensitive FHIR examples only
-- human review required for recommendations and exports
-- no production PHI handling
-- no direct external system writeback in the MVP
+| Feature | Interface | What it does | Status |
+| --- | --- | --- | --- |
+| Regulatory document ingestion | Backend workflow | Ingests approved public documents such as CMS PDFs and stores provenance, versions, and artifacts locally | Available now |
+| Evidence extraction and corpus snapshots | Backend workflow | Splits documents into citeable passages and organizes them into reproducible corpus snapshots | Available now |
+| Web-based evidence search and grounded answers | Web UI + API | Lets users ask questions with project context and returns grounded answers backed by retrieved evidence | Available now |
+| Reviewable Brief workflow | Web UI + API | Creates Briefs with findings, citations, review decisions, approvals, and audit history | Available now |
+| FHIR validation | API + VS Code prototype | Validates synthetic or non-sensitive FHIR examples against a pinned R4 validation catalog | Available now |
+| FHIR knowledge assistant | API + VS Code prototype | Helps developers inspect curated FHIR resources, profiles, guides, and workflow touchpoints | Available now |
+| Regulation explainer | API | Turns an approved source into a plain-English technical explainer with citations, caveats, and implications | Available now |
+| Prior-authorization copilot | API | Analyzes PAS, CRD, and DTR-oriented workflow scenarios with evidence and standards touchpoints | Available now |
+| Tracked export previews | API | Generates GitHub- and Jira-ready preview payloads from approved work items without direct writeback | Available now |
+| Architecture review assistant | API | Produces bounded architecture guidance from grounded evidence and curated standards metadata | Available now |
+| Guarded starter artifacts | API | Generates example-only starter code from approved work-item exports | Available now |
+| VS Code extension prototype | VS Code | Brings Brief creation, FHIR validation, and standards lookup into the developer workflow | Prototype available now |
+| Additional developer and enterprise integrations | Future | Broader IDE integrations, stronger enterprise workflows, private deployment, RBAC, and more product surfaces | Planned |
 
 ## Quick start
 
@@ -90,7 +51,36 @@ cd apps/platform-api
 mvn spring-boot:run
 ```
 
-## First demo flow
+## Current status
+
+Phase 4 is completed.
+
+The working platform includes:
+
+- a local review UI
+- a Spring Boot API
+- PostgreSQL-backed evidence storage
+- persisted Brief review workflows
+- deterministic FHIR validation
+- standards artifact lookup
+- FHIR knowledge assistant workflow
+- regulation explainer workflow
+- prior-authorization copilot workflow
+- tracked GitHub/Jira-ready export previews
+- architecture-review artifacts
+- approved work-item export
+- guarded example-only starter code generation
+- a local VS Code extension prototype
+
+The MVP is intentionally bounded:
+
+- public, non-sensitive sources only
+- synthetic or non-sensitive FHIR examples only
+- human review required for recommendations and exports
+- no production PHI handling
+- no direct external system writeback in the MVP
+
+## Showcase
 
 The first usable vertical slice is the Regulation-to-Engineering Brief workflow:
 
@@ -101,7 +91,7 @@ The first usable vertical slice is the Regulation-to-Engineering Brief workflow:
 5. Accept, correct, reject, and approve findings through a human review workflow.
 6. Export approved implementation work items for downstream engineering planning.
 
-## How to test it
+## Examples
 
 There are two simple ways to test the MVP.
 
@@ -206,6 +196,16 @@ Expected result:
 - a persisted `brief_id`
 - findings, sources, summary, and audit events
 - follow-up review actions available through the UI and API
+
+## Links
+
+- [Platform API guide](apps/platform-api/README.md)
+- [Client API surface](docs/23-client-api-surface.md)
+- [FHIR knowledge assistant](docs/25-fhir-knowledge-assistant.md)
+- [Regulation explainer](docs/26-regulation-explainer.md)
+- [VS Code extension prototype](apps/vscode-extension/README.md)
+- [Prior-authorization copilot](docs/28-prior-auth-copilot.md)
+- [Tracked export integrations](docs/29-tracked-export-integrations.md)
 
 ## Current architecture
 
