@@ -41,6 +41,164 @@ This deliberately precedes code generation, automated compliance claims, and pro
 - Guarded example-only starter code generation from approved work items
 - Client-facing OpenAPI contract and local API usage guide
 
+## Current architecture
+
+Today’s MVP architecture is intentionally simple, local-first, and review-oriented.
+
+```mermaid
+flowchart LR
+    A["Approved public sources<br/>CMS PDFs and curated standards references"] --> B["Ingestion and provenance layer"]
+    B --> C["Artifact store<br/>immutable local source files"]
+    B --> D["Passage extraction and metadata normalization"]
+    D --> E["PostgreSQL evidence store<br/>sources, versions, passages, snapshots"]
+    E --> F["Retrieval service"]
+    F --> G["Grounded answer and Brief generation"]
+    G --> H["Local review UI and API"]
+    H --> I["Human review decisions, approvals, audit trail"]
+    I --> J["Approved exports, architecture review, starter artifacts"]
+```
+
+In practical terms, HealthForge works like this:
+
+1. We ingest approved public healthcare documents such as CMS rule PDFs.
+2. We store the source artifact with provenance and version metadata.
+3. We break documents into citeable passages and save them in a local evidence database.
+4. We group eligible source versions into corpus snapshots so questions run against a known, reproducible dataset.
+5. A user asks a question plus project context.
+6. The platform retrieves the most relevant passages from the selected snapshot.
+7. The system returns a grounded answer or creates a reviewable Brief using only cited evidence.
+8. A human reviewer accepts, corrects, rejects, or approves findings before anything is treated as downstream engineering input.
+
+This means the current system is not a generic chatbot. It is a bounded evidence-and-review platform:
+
+- input: approved public regulatory and standards content
+- processing: structured ingestion, passage extraction, indexing, and retrieval
+- output: cited answers, reviewable Briefs, audit records, and approved downstream artifacts
+
+## How users can test it
+
+There are two easy ways to test the current MVP:
+
+1. Use the local review UI in the browser
+2. Call the API directly with curl
+
+### Test through the local UI
+
+Start the stack:
+
+```bash
+docker compose -f infra/docker/docker-compose.yml up --build -d
+```
+
+Then open:
+
+- `http://localhost:8080`
+
+Try these example questions in the UI:
+
+1. Question:
+   `What changes do we need for CMS prior authorization workflows?`
+
+   Project context:
+   `Synthetic provider EHR planning scenario for prior authorization APIs.`
+
+   Expected result:
+   - grounded evidence should be found
+   - a reviewable Brief can be created
+   - findings should cite CMS source passages
+
+2. Question:
+   `What does CMS-0057-F require for prior authorization APIs?`
+
+   Project context:
+   `Internal product planning for a non-sensitive prior authorization workflow MVP.`
+
+   Expected result:
+   - cited findings tied to the CMS final rule
+   - Brief review and approval workflow available
+
+3. Question:
+   `How should a provider workflow handle documentation and status exchange for prior authorization?`
+
+   Project context:
+   `Synthetic architecture review for a provider-facing utilization management workflow.`
+
+   Expected result:
+   - grounded findings
+   - useful inputs for architecture review and downstream planning
+
+### Test through the API
+
+Check health:
+
+```bash
+curl -s http://localhost:8080/actuator/health
+```
+
+Expected result:
+
+```json
+{"status":"UP","groups":["liveness","readiness"]}
+```
+
+Run grounded answer retrieval:
+
+```bash
+curl -s -X POST http://localhost:8080/v1/answers \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "corpus_id":"mvp-regulatory-corpus",
+    "corpus_version":"2026-07-24-expanded-web-core-v4",
+    "question":"What changes do we need for CMS prior authorization workflows?",
+    "project_context":"Synthetic provider EHR planning scenario for prior authorization APIs."
+  }'
+```
+
+Expected result:
+
+- `status` should be `grounded`
+- the response should include `findings`
+- each finding should include a citation with source, version, and locator
+
+Run direct retrieval search:
+
+```bash
+curl -s -X POST http://localhost:8080/v1/retrieval/search \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "corpus_id":"mvp-regulatory-corpus",
+    "corpus_version":"2026-07-24-expanded-web-core-v4",
+    "query":"CMS prior authorization workflow changes",
+    "limit":5
+  }'
+```
+
+Expected result:
+
+- ranked retrieval results from the current corpus snapshot
+- citeable excerpts from the CMS rule content
+
+Create a reviewable Brief:
+
+```bash
+curl -s -X POST http://localhost:8080/v1/briefs \
+  -H 'Content-Type: application/json' \
+  -H 'X-HealthForge-Actor: local.reviewer' \
+  -H 'X-HealthForge-Role: reviewer' \
+  -d '{
+    "corpus_id":"mvp-regulatory-corpus",
+    "corpus_version":"2026-07-24-expanded-web-core-v4",
+    "question":"What changes do we need for CMS prior authorization workflows?",
+    "project_context":"Synthetic provider EHR planning scenario for prior authorization APIs."
+  }'
+```
+
+Expected result:
+
+- a persisted Brief with a `brief_id`
+- findings, sources, summary, and audit events
+- follow-up review actions available in the UI or API
+
 ## Roadmap by phase
 
 This project is being built in deliberate phases so we can keep the platform reviewable, traceable, and safe while expanding functionality.
