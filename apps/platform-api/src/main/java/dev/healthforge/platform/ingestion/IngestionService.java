@@ -91,12 +91,15 @@ public class IngestionService {
                         insert into source_version (
                             source_version_id, manifest_source_id, source_version, source_type, title,
                             canonical_url, artifact_uri, artifact_sha256, content_type, retrieved_at,
-                            parser_version, chunking_version, status
-                        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            parser_version, chunking_version, status, allowed_use,
+                            terms_review_decision, terms_reviewed_by, terms_reviewed_at
+                        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """,
                         sourceVersionId, request.manifestSourceId(), request.sourceVersion(), sourcePolicy.sourceType(),
                         sourcePolicy.title(), artifact.finalUri().toString(), artifactUri, checksum, artifact.contentType(),
-                        Timestamp.from(Instant.now(clock)), parserVersion, chunkingVersion, "indexed"
+                        Timestamp.from(Instant.now(clock)), parserVersion, chunkingVersion, "indexed",
+                        request.allowedUse(), request.termsReviewDecision(), request.termsReviewedBy(),
+                        Timestamp.from(Instant.now(clock))
                 );
                 for (var passage : passages) {
                     jdbcTemplate.update(

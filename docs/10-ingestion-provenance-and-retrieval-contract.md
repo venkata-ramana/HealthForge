@@ -43,6 +43,8 @@ Every retrieval-eligible `SourceVersion` must preserve:
 - source status (`active`, `superseded`, `withdrawn`, or `rejected`); and
 - links to any superseding/replaced source versions.
 
+The runtime now persists `allowed_use`, `terms_review_decision`, `terms_reviewed_by`, and `terms_reviewed_at` on every ingested source version. A source is current-snapshot eligible only when its lifecycle status is `indexed` or `active` and its terms review decision is `approved`.
+
 A `SourcePassage` must preserve its source-version ID, passage ID, ordinal, stable human locator (for example page plus heading or IG artifact plus anchor), text offsets in the normalized artifact, normalized text, and parser warnings. The service must return the source version and locator with every retrieval result.
 
 ## Ingestion lifecycle
@@ -62,7 +64,7 @@ stateDiagram-v2
   rejected --> [*]
 ```
 
-Only an administrator-controlled manifest source may start an ingestion. The service must reject a request whose canonical URL/version is not selected by the manifest, whose checksum cannot be captured, whose content type is unsupported, or whose data classification is not public/non-sensitive.
+Only an administrator-controlled manifest source may start an ingestion. The service must reject a request whose canonical URL/version is not selected by the manifest, whose checksum cannot be captured, whose content type is unsupported, or whose data classification is not public/non-sensitive. The ingestion request must also declare explicit allowed-use and terms-review metadata so the resulting source version is reviewable without consulting external notes.
 
 ## Normalization and passage rules
 
@@ -91,7 +93,7 @@ Default retrieval must favor citation precision over corpus breadth. A result fr
 
 An update never mutates a prior `SourceVersion`. A new artifact creates a new version, re-runs parsing/indexing, and is introduced by a new corpus snapshot. Existing Briefs and evaluation reports retain the old snapshot/version IDs for reproducibility.
 
-If a publisher withdraws a source, mark the version `withdrawn`, remove it from new active snapshots, and preserve it for audit/history with a visible warning. If a source is merely superseded, retain it for historical Brief reconstruction but prevent it from silently appearing in a current snapshot.
+If a publisher withdraws a source, mark the version `withdrawn`, remove it from new active snapshots, and preserve it for audit/history with a visible warning. If a source is merely superseded, retain it for historical Brief reconstruction but prevent it from silently appearing in a current snapshot. New runtime behavior enforces this at `POST /v1/corpus-snapshots`; callers must opt in with `include_historical_sources: true` to reconstruct a historical snapshot using superseded or withdrawn material.
 
 ## MVP controls and non-goals
 

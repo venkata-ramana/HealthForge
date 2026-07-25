@@ -52,12 +52,14 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 
 ## Current endpoints
 
-- `POST /v1/ingestions` accepts only a configured public CMS source/version/content type, captures an immutable artifact checksum, and creates page-level passages.
+- `POST /v1/ingestions` accepts only a configured public CMS source/version/content type, requires explicit allowed-use and terms-review metadata, captures an immutable artifact checksum, and creates page-level passages.
 - `GET /v1/ingestions/{ingestionId}` returns the persisted job.
+- `GET /v1/source-versions/{sourceVersionId}` returns persisted lifecycle and terms-review metadata for a source version.
+- `POST /v1/source-versions/{sourceVersionId}/lifecycle` lets an administrator mark a source version active or withdrawn.
 - `POST /v1/retrieval/search` performs PostgreSQL full-text retrieval and returns citeable source/version/page metadata.
 - `POST /v1/answers` builds a deterministic, cited evidence packet from retrieval results. It returns `insufficient_evidence` rather than an unsupported answer when no source passage matches.
 - `POST /v1/briefs` persists a cited Brief draft, while `POST /v1/briefs/{briefId}/review-decisions` records append-only human review decisions.
-- `POST /v1/corpus-snapshots` pins an immutable set of indexed source versions; retrieval and Brief creation use the requested snapshot ID/version.
+- `POST /v1/corpus-snapshots` pins an immutable set of current-eligible source versions by default and supports an explicit historical-reconstruction override for withdrawn or superseded versions.
 
 The answer endpoint does not call an external model or persist question/context input. Its findings reproduce retrieved source excerpts with source/version/page citations, and always require human review before a regulatory, clinical, or implementation conclusion.
 

@@ -28,7 +28,10 @@ class SourcePolicyValidatorTest {
                 "2024-final",
                 "https://www.cms.gov/files/document/cms-0057-f.pdf",
                 "application/pdf",
-                "local-developer"
+                "local-developer",
+                "public_reference",
+                "approved",
+                "local.legal"
         ))).doesNotThrowAnyException();
     }
 
@@ -39,7 +42,10 @@ class SourcePolicyValidatorTest {
                 "2024-final",
                 "https://example.test/unapproved.pdf",
                 "application/pdf",
-                "local-developer"
+                "local-developer",
+                "public_reference",
+                "approved",
+                "local.legal"
         )))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("Canonical URL does not match");
