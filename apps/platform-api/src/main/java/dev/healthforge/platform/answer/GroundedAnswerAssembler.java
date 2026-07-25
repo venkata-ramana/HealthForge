@@ -57,4 +57,21 @@ public class GroundedAnswerAssembler {
                 "A qualified human reviewer must assess applicability, context, and any proposed implementation action."
         );
     }
+
+    public GroundedAnswerResponse assembleUnsupported(
+            GroundedAnswerRequest request,
+            UnsupportedQuestionPolicy.UnsupportedDecision decision,
+            Instant createdAt
+    ) {
+        return new GroundedAnswerResponse(
+                "answer_" + UUID.randomUUID(),
+                "insufficient_evidence",
+                createdAt,
+                request.question(),
+                null,
+                List.of(),
+                List.of(decision.limitation()),
+                decision.safeNextStep()
+        );
+    }
 }

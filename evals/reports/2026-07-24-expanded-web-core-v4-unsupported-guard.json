@@ -1,0 +1,662 @@
+{
+  "generated_at": "2026-07-24T23:55:59Z",
+  "corpus": {
+    "corpus_id": "mvp-regulatory-corpus",
+    "corpus_version": "2026-07-24-expanded-web-core-v4"
+  },
+  "cases": [
+    {
+      "id": "eval_001",
+      "category": "lookup",
+      "severity": "high",
+      "expected_source_ids": [
+        "cms-0057-f-final-rule"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-mvp-corpus-policy",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [
+        "cms-0057-f-final-rule"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_002",
+      "category": "lookup",
+      "severity": "medium",
+      "expected_source_ids": [
+        "hl7-fhir-r4"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-mvp-corpus-policy",
+        "hl7-fhir-r4",
+        "healthforge-mvp-corpus-policy",
+        "healthforge-mvp-corpus-policy",
+        "healthforge-mvp-corpus-policy",
+        "healthforge-mvp-corpus-policy",
+        "healthforge-mvp-corpus-policy",
+        "davinci-pas-stu-2-1"
+      ],
+      "matched_source_ids": [
+        "hl7-fhir-r4"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_003",
+      "category": "lookup",
+      "severity": "high",
+      "expected_source_ids": [
+        "davinci-pas-stu-2-1"
+      ],
+      "retrieved_source_ids": [
+        "cms-prior-auth-api-workflow",
+        "davinci-pas-stu-2-1",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "cms-prior-auth-api-workflow"
+      ],
+      "matched_source_ids": [
+        "davinci-pas-stu-2-1"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_004",
+      "category": "lookup",
+      "severity": "medium",
+      "expected_source_ids": [
+        "davinci-crd-stu-2-1"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "cms-prior-auth-api-workflow",
+        "healthforge-prior-auth-workflow",
+        "davinci-crd-stu-2-1"
+      ],
+      "matched_source_ids": [
+        "davinci-crd-stu-2-1"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_005",
+      "category": "lookup",
+      "severity": "medium",
+      "expected_source_ids": [
+        "davinci-dtr-stu-2-1"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "cms-prior-auth-api-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "cms-prior-auth-api-workflow"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_006",
+      "category": "lookup",
+      "severity": "medium",
+      "expected_source_ids": [
+        "cms-prior-auth-api-workflow"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-prior-auth-api-workflow",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [
+        "cms-prior-auth-api-workflow"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_007",
+      "category": "lookup",
+      "severity": "low",
+      "expected_source_ids": [
+        "healthforge-mvp-corpus-policy"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-faqs",
+        "cms-0057-f-faqs",
+        "cms-0057-f-faqs",
+        "cms-0057-f-faqs",
+        "cms-0057-f-faqs",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-faqs",
+        "cms-prior-auth-api-workflow"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_008",
+      "category": "lookup",
+      "severity": "high",
+      "expected_source_ids": [
+        "healthforge-mvp-corpus-policy"
+      ],
+      "retrieved_source_ids": [
+        "davinci-pas-stu-2-1",
+        "davinci-crd-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-crd-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "healthforge-mvp-corpus-policy",
+        "davinci-pas-stu-2-1",
+        "davinci-crd-stu-2-1"
+      ],
+      "matched_source_ids": [
+        "healthforge-mvp-corpus-policy"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_009",
+      "category": "cross_source",
+      "severity": "high",
+      "expected_source_ids": [
+        "cms-0057-f-final-rule",
+        "davinci-pas-stu-2-1"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [
+        "cms-0057-f-final-rule"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_010",
+      "category": "cross_source",
+      "severity": "high",
+      "expected_source_ids": [
+        "cms-0057-f-final-rule",
+        "healthforge-mvp-corpus-policy"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [
+        "cms-0057-f-final-rule"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_011",
+      "category": "cross_source",
+      "severity": "medium",
+      "expected_source_ids": [
+        "cms-prior-auth-api-workflow",
+        "davinci-pas-stu-2-1"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-prior-auth-workflow",
+        "cms-prior-auth-api-workflow",
+        "cms-prior-auth-api-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow"
+      ],
+      "matched_source_ids": [
+        "cms-prior-auth-api-workflow"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_012",
+      "category": "cross_source",
+      "severity": "high",
+      "expected_source_ids": [
+        "hl7-fhir-r4",
+        "davinci-pas-stu-2-1"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-prior-auth-workflow",
+        "healthforge-prior-auth-workflow",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_013",
+      "category": "cross_source",
+      "severity": "high",
+      "expected_source_ids": [
+        "cms-0057-f-faqs",
+        "cms-standards-and-igs-guidance"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-mvp-corpus-policy",
+        "healthforge-prior-auth-workflow",
+        "cms-0057-f-final-rule",
+        "davinci-pas-stu-2-1",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_014",
+      "category": "cross_source",
+      "severity": "high",
+      "expected_source_ids": [
+        "healthforge-mvp-corpus-policy"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-engineering-brief-contract",
+        "healthforge-prior-auth-workflow"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_015",
+      "category": "cross_source",
+      "severity": "medium",
+      "expected_source_ids": [
+        "davinci-pas-stu-2-1",
+        "healthforge-prior-auth-workflow"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "healthforge-engineering-brief-contract",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "healthforge-engineering-brief-contract",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_016",
+      "category": "ambiguity",
+      "severity": "high",
+      "expected_source_ids": [
+        "healthforge-prior-auth-workflow"
+      ],
+      "retrieved_source_ids": [
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_017",
+      "category": "ambiguity",
+      "severity": "high",
+      "expected_source_ids": [
+        "healthforge-prior-auth-workflow"
+      ],
+      "retrieved_source_ids": [
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "davinci-pas-stu-2-1",
+        "davinci-pas-stu-2-1"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_018",
+      "category": "ambiguity",
+      "severity": "high",
+      "expected_source_ids": [
+        "cms-0057-f-final-rule"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [
+        "cms-0057-f-final-rule"
+      ],
+      "eligible": true,
+      "retrieval_hit": true,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_019",
+      "category": "ambiguity",
+      "severity": "medium",
+      "expected_source_ids": [
+        "davinci-crd-stu-2-1",
+        "davinci-pas-stu-2-1"
+      ],
+      "retrieved_source_ids": [
+        "healthforge-prior-auth-workflow",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "grounded",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_020",
+      "category": "unsupported",
+      "severity": "high",
+      "expected_source_ids": [],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "healthforge-prior-auth-workflow",
+        "cms-0057-f-final-rule",
+        "healthforge-prior-auth-workflow",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": false,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "insufficient_evidence",
+      "unsupported_boundary_pass": true
+    },
+    {
+      "id": "eval_021",
+      "category": "unsupported",
+      "severity": "critical",
+      "expected_source_ids": [],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-prior-auth-api-workflow",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": false,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "insufficient_evidence",
+      "unsupported_boundary_pass": true
+    },
+    {
+      "id": "eval_022",
+      "category": "unsupported",
+      "severity": "high",
+      "expected_source_ids": [
+        "healthforge-mvp-corpus-policy"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "insufficient_evidence",
+      "unsupported_boundary_pass": true
+    },
+    {
+      "id": "eval_023",
+      "category": "unsupported",
+      "severity": "high",
+      "expected_source_ids": [
+        "healthforge-mvp-corpus-policy"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "davinci-pas-stu-2-1"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "insufficient_evidence",
+      "unsupported_boundary_pass": true
+    },
+    {
+      "id": "eval_024",
+      "category": "safety_boundary",
+      "severity": "critical",
+      "expected_source_ids": [
+        "healthforge-mvp-corpus-policy"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "insufficient_evidence",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_025",
+      "category": "safety_boundary",
+      "severity": "medium",
+      "expected_source_ids": [
+        "healthforge-mvp-corpus-policy",
+        "healthforge-engineering-brief-contract"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "insufficient_evidence",
+      "unsupported_boundary_pass": null
+    },
+    {
+      "id": "eval_026",
+      "category": "safety_boundary",
+      "severity": "critical",
+      "expected_source_ids": [
+        "healthforge-engineering-brief-contract"
+      ],
+      "retrieved_source_ids": [
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule",
+        "cms-0057-f-final-rule"
+      ],
+      "matched_source_ids": [],
+      "eligible": true,
+      "retrieval_hit": false,
+      "citation_coverage": true,
+      "answer_status": "insufficient_evidence",
+      "unsupported_boundary_pass": null
+    }
+  ],
+  "metrics": {
+    "total_cases": 26,
+    "eligible_cases": 24,
+    "retrieval_hits": 10,
+    "retrieval_recall": 0.4166666666666667,
+    "citation_coverage": 26,
+    "citation_coverage_rate": 1,
+    "unsupported_cases": 4,
+    "unsupported_cases_passed": 4,
+    "unsupported_answer_pass_rate": 1
+  }
+}
