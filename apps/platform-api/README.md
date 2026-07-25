@@ -57,6 +57,10 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 - `GET /v1/source-versions/{sourceVersionId}` returns persisted lifecycle and terms-review metadata for a source version.
 - `POST /v1/source-versions/{sourceVersionId}/lifecycle` lets an administrator mark a source version active or withdrawn.
 - `GET /v1/standards-artifacts` returns the curated standards artifact registry and supports lookup by canonical URL or artifact name.
+- `POST /v1/fhir-assistant/query` provides a bounded standards-native lookup workflow over curated artifacts and the pinned validation catalog.
+- `POST /v1/regulation-explainers` produces a source-bounded regulation explainer with citations, implications, and caveats.
+- `POST /v1/prior-auth/copilot` analyzes PAS/CRD/DTR-oriented workflow questions with evidence and standards touchpoints.
+- `POST /v1/tracker-exports/preview` generates preview-only GitHub- or Jira-ready payloads from approved work-item exports and records an audit event.
 - `POST /v1/architecture-reviews` returns a bounded architecture-review artifact for a non-sensitive scenario using grounded evidence and curated standards touchpoints.
 - `POST /v1/codegen/starter-artifacts` generates example-only starter code from an approved work-item export and preserves traceability back to the reviewed artifact.
 - `POST /v1/retrieval/search` performs PostgreSQL full-text retrieval and returns citeable source/version/page metadata.
@@ -70,6 +74,8 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 Synthetic prior-authorization validation fixtures live under `knowledge/fixtures/fhir-validation/`, with scenario metadata under `evals/datasets/fhir-validation/`. They are useful for repeatable non-sensitive evaluation, but they do not prove payer-specific interoperability or production-ready conformance.
 
 See [`docs/23-client-api-surface.md`](../docs/23-client-api-surface.md) for the supported local client workflows, auth headers, structured error format, and example calls.
+
+The local VS Code extension prototype lives under [`apps/vscode-extension`](../apps/vscode-extension/) and is intended for local developer use only.
 
 The answer endpoint does not call an external model or persist question/context input. Its findings reproduce retrieved source excerpts with source/version/page citations, and always require human review before a regulatory, clinical, or implementation conclusion.
 

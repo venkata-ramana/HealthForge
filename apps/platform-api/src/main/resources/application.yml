@@ -174,6 +174,57 @@ healthforge:
           - dtr
           - documentation templates and rules
           - questionnaire
+      - artifact-id: pas-submit-operation
+        canonical-url: https://hl7.org/fhir/us/davinci-pas/STU2.1/
+        title: PAS $submit workflow touchpoint
+        version: 2.1.0
+        artifact-type: operation
+        package-id: hl7.fhir.us.davinci-pas
+        source-id: davinci-pas-stu-2-1
+        source-version: STU2.1
+        support-boundary: Curated PAS workflow touchpoint for prior-authorization submission review; actual operation support and payload shape must be validated per counterparty.
+        evidence-links:
+          - https://hl7.org/fhir/us/davinci-pas/STU2.1/
+        keywords:
+          - pas
+          - $submit
+          - submit
+          - prior authorization
+          - operation
+      - artifact-id: crd-discovery-workflow
+        canonical-url: https://hl7.org/fhir/us/davinci-crd/STU2.1/
+        title: CRD discovery workflow touchpoint
+        version: 2.1.0
+        artifact-type: operation
+        package-id: hl7.fhir.us.davinci-crd
+        source-id: davinci-crd-stu-2-1
+        source-version: STU2.1
+        support-boundary: Curated CRD workflow touchpoint for coverage-requirements discovery review; payer and deployment applicability remain reviewer decisions.
+        evidence-links:
+          - https://hl7.org/fhir/us/davinci-crd/STU2.1/
+        keywords:
+          - crd
+          - discovery
+          - coverage
+          - workflow
+          - operation
+      - artifact-id: dtr-documentation-workflow
+        canonical-url: https://hl7.org/fhir/us/davinci-dtr/
+        title: DTR documentation workflow touchpoint
+        version: 2.1.0
+        artifact-type: operation
+        package-id: hl7.fhir.us.davinci-dtr
+        source-id: davinci-dtr-stu-2-1
+        source-version: STU2.1
+        support-boundary: Curated DTR workflow touchpoint for documentation/questionnaire review; local persistence and counterparty support remain human-review decisions.
+        evidence-links:
+          - https://hl7.org/fhir/us/davinci-dtr/
+        keywords:
+          - dtr
+          - documentation
+          - questionnaire
+          - workflow
+          - operation
   workspace:
     root-directory: ${HEALTHFORGE_WORKSPACE_ROOT:${user.dir}/../..}
   model:

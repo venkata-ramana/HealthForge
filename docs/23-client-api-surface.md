@@ -1,6 +1,6 @@
 # Client-facing API surface
 
-This document defines the current **supported local client API boundary** for HealthForge as of Phase 3.
+This document defines the current **supported local client API boundary** for HealthForge as of Phase 4.
 
 ## Scope
 
@@ -10,6 +10,10 @@ The supported client-facing workflows are:
 - Architecture review
 - FHIR validation catalog and validation execution
 - Standards artifact lookup
+- FHIR knowledge assistant
+- Regulation explainer
+- Prior-authorization copilot
+- Tracked GitHub/Jira-ready export previews
 
 The current API is intended for:
 
@@ -145,9 +149,62 @@ curl -X POST http://localhost:8080/v1/fhir-validation/validate \
   }'
 ```
 
+Run the FHIR knowledge assistant:
+
+```bash
+curl -X POST http://localhost:8080/v1/fhir-assistant/query \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": "PAS claim profile"
+  }'
+```
+
+Generate a regulation explainer from a selected source:
+
+```bash
+curl -X POST http://localhost:8080/v1/regulation-explainers \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "corpus_id": "mvp-regulatory-corpus",
+    "corpus_version": "2026-07-24-expanded-web-core-v4",
+    "source_id": "cms-0057-f-final-rule",
+    "question": "What does this source imply for prior authorization APIs?",
+    "project_context": "Synthetic provider planning scenario."
+  }'
+```
+
+Analyze a PAS/CRD/DTR scenario through the copilot:
+
+```bash
+curl -X POST http://localhost:8080/v1/prior-auth/copilot \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "corpus_id": "mvp-regulatory-corpus",
+    "corpus_version": "2026-07-24-expanded-web-core-v4",
+    "question": "How should PAS claim submission work in a provider EHR workflow?",
+    "project_context": "Synthetic prior authorization workflow analysis."
+  }'
+```
+
+Generate a tracked export preview from an approved Brief:
+
+```bash
+curl -X POST http://localhost:8080/v1/tracker-exports/preview \
+  -H 'Content-Type: application/json' \
+  -H 'X-HealthForge-Actor: local.admin' \
+  -H 'X-HealthForge-Role: administrator' \
+  -d '{
+    "brief_id": "brief_example",
+    "target_system": "github",
+    "approval_acknowledgement": true,
+    "writeback_requested": false,
+    "export_reason": "Prepare a local engineering backlog preview."
+  }'
+```
+
 ## Boundary statement
 
-This Phase 3 API surface is the supported product boundary for local clients. It is explicit about what remains local/demo only:
+This Phase 4 API surface is the supported product boundary for local clients. It is explicit about what remains local/demo only:
 
 - header-based local identity;
 - non-sensitive and synthetic-only examples;

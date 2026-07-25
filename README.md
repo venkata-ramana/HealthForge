@@ -27,11 +27,16 @@ The current MVP can:
 - support reviewer decisions, approvals, and audit history
 - export approved work items for downstream engineering planning
 - validate synthetic or non-sensitive FHIR examples against a pinned R4 validation catalog
+- provide a FHIR knowledge assistant over curated standards artifacts
+- generate regulation explainers from approved corpus sources
+- analyze PAS, CRD, and DTR scenarios through a prior-authorization copilot workflow
+- generate GitHub- and Jira-ready tracked export previews for approved work items
 - generate bounded architecture-review artifacts and guarded example starter artifacts
+- package core workflows into a local VS Code extension prototype
 
 ## Current status
 
-Phase 3 is completed.
+Phase 4 is completed.
 
 The working platform now includes:
 
@@ -41,9 +46,14 @@ The working platform now includes:
 - persisted Brief review workflows
 - deterministic FHIR validation
 - standards artifact lookup
+- FHIR knowledge assistant workflow
+- regulation explainer workflow
+- prior-authorization copilot workflow
+- tracked GitHub/Jira-ready export previews
 - architecture-review artifacts
 - approved work-item export
 - guarded example-only starter code generation
+- a local VS Code extension prototype
 
 The MVP is intentionally bounded:
 
@@ -323,7 +333,7 @@ HealthForge is being built in deliberate phases so the platform stays reviewable
 | Phase 1 | Completed | Problem framing, MVP scope, source-corpus definition, Brief schema, evaluation rubric, security/data boundaries, and open-source project foundations |
 | Phase 2 | Completed | Executable local platform slice: corpus ingestion, snapshots, retrieval, local Brief UI, guarded Brief synthesis, review identity, approvals, audit, observability, and evaluation baselines |
 | Phase 3 | Completed | Standards-aware engineering workflows: pinned FHIR validation catalog, standards artifact registry, synthetic FHIR fixtures, approved work-item export, architecture review assistant, client-facing API surface, and guarded example-only code generation |
-| Phase 4 | Planned | Product growth workflows: FHIR knowledge assistant, AI regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready exports, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
+| Phase 4 | Completed | Product growth workflows: FHIR knowledge assistant, regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready export previews, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
 | Phase 5 | Planned | Enterprise and product hardening: tenant isolation, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
 
 ### Phase highlights
@@ -361,6 +371,14 @@ Phase 3 completed:
 - client-facing API surface
 - guarded example-only code generation from approved work items
 
+Phase 4 completed:
+
+- FHIR knowledge assistant over curated standards artifacts
+- regulation explainer workflow over approved corpus sources
+- local VS Code extension prototype
+- tracked GitHub- and Jira-ready export preview integration
+- prior-authorization copilot workflow for PAS/CRD/DTR scenarios
+
 ## Documentation map
 
 Core docs:
@@ -383,6 +401,11 @@ Workflow and domain docs:
 - [`docs/21-brief-work-item-export.md`](docs/21-brief-work-item-export.md)
 - [`docs/22-architecture-review-assistant.md`](docs/22-architecture-review-assistant.md)
 - [`docs/23-client-api-surface.md`](docs/23-client-api-surface.md)
+- [`docs/25-fhir-knowledge-assistant.md`](docs/25-fhir-knowledge-assistant.md)
+- [`docs/26-regulation-explainer.md`](docs/26-regulation-explainer.md)
+- [`docs/27-vscode-extension-prototype.md`](docs/27-vscode-extension-prototype.md)
+- [`docs/28-prior-auth-copilot.md`](docs/28-prior-auth-copilot.md)
+- [`docs/29-tracked-export-integrations.md`](docs/29-tracked-export-integrations.md)
 
 Reference artifacts:
 
@@ -393,6 +416,10 @@ Reference artifacts:
 - [`packages/contracts/knowledge-ingestion-retrieval.openapi.yaml`](packages/contracts/knowledge-ingestion-retrieval.openapi.yaml)
 - [`evals/datasets/cms-0057-f-mvp-evaluation-cases.json`](evals/datasets/cms-0057-f-mvp-evaluation-cases.json)
 - [`evals/datasets/fhir-validation/prior-authorization-scenarios.json`](evals/datasets/fhir-validation/prior-authorization-scenarios.json)
+
+Developer tooling:
+
+- [`apps/vscode-extension/README.md`](apps/vscode-extension/README.md)
 
 ## Evaluation
 
