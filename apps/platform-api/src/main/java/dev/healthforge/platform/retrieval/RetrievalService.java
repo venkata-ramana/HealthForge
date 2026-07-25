@@ -60,7 +60,6 @@ public class RetrievalService {
                 join corpus_snapshot_source css on css.source_version_id = v.source_version_id
                 join corpus_snapshot cs on cs.corpus_id = css.corpus_id and cs.corpus_version = css.corpus_version
                 where cs.corpus_id = ? and cs.corpus_version = ?
-                  and v.status = 'indexed'
                   and (
                     setweight(to_tsvector('english', coalesce(v.title, '')), 'A') ||
                     setweight(to_tsvector('simple', coalesce(v.manifest_source_id, '')), 'A') ||
