@@ -21,6 +21,35 @@ mvn spring-boot:run
 The API starts on `http://localhost:8080`; health is available at `http://localhost:8080/actuator/health`.
 The Docker database maps to host port `5433` by default to avoid colliding with a local PostgreSQL instance; set `HEALTHFORGE_DB_PORT` and `HEALTHFORGE_DB_URL` together if a different port is needed.
 
+## Run as non-production containers
+
+From the repository root:
+
+```bash
+docker compose -f infra/docker/docker-compose.yml up --build
+```
+
+This starts PostgreSQL plus the platform API container. The API health endpoints are available at:
+
+- `http://localhost:8080/actuator/health`
+- `http://localhost:8080/actuator/health/readiness`
+- `http://localhost:8080/actuator/health/liveness`
+- `http://localhost:8080/actuator/metrics`
+
+## Environment configuration
+
+Prefer environment variables over committed secrets:
+
+- `HEALTHFORGE_DB_URL`
+- `HEALTHFORGE_DB_USERNAME`
+- `HEALTHFORGE_DB_PASSWORD`
+- `HEALTHFORGE_ARTIFACT_DIRECTORY`
+- `HEALTHFORGE_WORKSPACE_ROOT`
+- `HEALTHFORGE_DB_PORT`
+- `HEALTHFORGE_API_PORT`
+
+Do not place real credentials or PHI in source control, Compose files, or logs.
+
 ## Current endpoints
 
 - `POST /v1/ingestions` accepts only a configured public CMS source/version/content type, captures an immutable artifact checksum, and creates page-level passages.
@@ -33,3 +62,7 @@ The Docker database maps to host port `5433` by default to avoid colliding with 
 The answer endpoint does not call an external model or persist question/context input. Its findings reproduce retrieved source excerpts with source/version/page citations, and always require human review before a regulatory, clinical, or implementation conclusion.
 
 Artifacts are stored outside the repository at `~/.healthforge/artifacts` by default. Set `HEALTHFORGE_ARTIFACT_DIRECTORY` to use a different local path.
+
+## Structured errors and request IDs
+
+The API returns structured JSON error responses and includes an `X-Request-Id` header on every response. You may provide an `X-Request-Id` header in requests to help correlate client-side and server-side debugging.
