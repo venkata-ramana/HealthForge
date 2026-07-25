@@ -120,6 +120,28 @@ paths:
           description: Snapshot already exists
         '422':
           description: Selected source versions are not eligible for the requested snapshot mode
+  /v1/fhir-validation/validate:
+    post:
+      operationId: validateFhirExample
+      summary: Validate a synthetic or explicitly non-sensitive FHIR example against a pinned profile
+      tags: [validation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FhirValidationRequest'
+      responses:
+        '200':
+          description: Validation findings with human-review guardrails
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirValidationResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '422':
+          description: Requested package/profile selection is not supported in the pinned catalog
   /v1/retrieval/search:
     post:
       operationId: searchEvidence
@@ -309,6 +331,94 @@ components:
           type: string
         eligible_for_current_snapshot:
           type: boolean
+    FhirValidationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - package_id
+        - package_version
+        - profile_url
+        - data_classification
+        - resource
+      properties:
+        package_id:
+          type: string
+        package_version:
+          type: string
+        profile_url:
+          type: string
+          format: uri
+        data_classification:
+          type: string
+          enum: [synthetic, non_sensitive]
+        resource:
+          type: object
+          description: FHIR JSON resource payload
+    FhirValidationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - selected_package
+        - data_classification
+        - human_review_required
+        - implementation_guidance_status
+        - summary
+        - findings
+        - evidence_links
+      properties:
+        status:
+          type: string
+          enum: [valid, invalid]
+        selected_package:
+          type: object
+          additionalProperties: false
+          required: [package_id, package_version, profile_url, profile_title]
+          properties:
+            package_id:
+              type: string
+            package_version:
+              type: string
+            profile_url:
+              type: string
+              format: uri
+            profile_title:
+              type: string
+        data_classification:
+          type: string
+          enum: [synthetic, non_sensitive]
+        human_review_required:
+          type: boolean
+        implementation_guidance_status:
+          type: string
+          enum: [human_review_required]
+        summary:
+          type: string
+        findings:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [severity, location, message, message_id, evidence_links]
+            properties:
+              severity:
+                type: string
+              location:
+                type: string
+              message:
+                type: string
+              message_id:
+                type: string
+              evidence_links:
+                type: array
+                items:
+                  type: string
+                  format: uri
+        evidence_links:
+          type: array
+          items:
+            type: string
+            format: uri
     RetrievalRequest:
       type: object
       additionalProperties: false
