@@ -339,6 +339,11 @@ HealthForge is being built in deliberate phases so the platform stays reviewable
 | Phase 3 | Completed | Standards-aware engineering workflows: pinned FHIR validation catalog, standards artifact registry, synthetic FHIR fixtures, approved work-item export, architecture review assistant, client-facing API surface, and guarded example-only code generation |
 | Phase 4 | Completed | Product growth workflows: FHIR knowledge assistant, regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready export previews, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
 | Phase 5 | Completed | Enterprise and product hardening: organization-aware review boundaries, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code starter scaffolding, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
+| Phase 6 | Planned | Production identity, RBAC, tenant administration, and stronger enterprise access controls. See [#88](https://github.com/venkata-ramana/HealthForge/issues/88). |
+| Phase 7 | Planned | Deeper prior-authorization and interoperability workflows including PAS/CRD/DTR journeys, bundle review, and standards crosswalks. See [#89](https://github.com/venkata-ramana/HealthForge/issues/89). |
+| Phase 8 | Planned | Enterprise integrations and delivery automation including governed writeback, collaboration notifications, and webhooks. See [#90](https://github.com/venkata-ramana/HealthForge/issues/90). |
+| Phase 9 | Planned | Trust, evaluation, and governance at scale with dashboards, regression visibility, and policy reporting. See [#91](https://github.com/venkata-ramana/HealthForge/issues/91). |
+| Phase 10 | Planned | Productization, onboarding, showcase UX, and admin experiences for broader adoption. See [#92](https://github.com/venkata-ramana/HealthForge/issues/92). |
 
 ### Phase highlights
 
@@ -393,6 +398,81 @@ Phase 5 completed:
 - synthetic FHIR generator API backed by repository fixtures
 - private deployment Terraform starter scaffolding
 - stronger export retention metadata and audit coverage
+
+Phase 6 planned:
+
+- production-oriented authentication boundary beyond local header identity
+- durable user, organization, membership, and role assignment models
+- RBAC and tenant-aware authorization across UI and APIs
+- stronger operator setup, secret handling, and private deployment hardening
+- audit policy configuration and access-review reporting
+
+Phase 7 planned:
+
+- PAS, CRD, and DTR workflow journeys with explicit state transitions
+- bundle-level scenario review for prior-authorization exchanges
+- standards crosswalks from CMS requirements to FHIR and workflow touchpoints
+- richer payer/provider implementation tracks from approved Briefs
+
+Phase 8 planned:
+
+- governed GitHub and Jira writeback flows with approval gates
+- collaboration notifications and workflow handoffs
+- documentation-system export targets for approved artifacts
+- event and webhook automation framework
+- improved private deployment promotion and environment automation
+
+Phase 9 planned:
+
+- evaluation dashboard for retrieval, citation, and workflow quality
+- source freshness, evidence coverage, and unsupported-output risk tracking
+- reviewer disagreement and decision-consistency analytics
+- policy and safety reporting for enterprise oversight
+- broader regression suites for workflow and artifact quality
+
+Phase 10 planned:
+
+- polished multi-workflow product UX
+- guided onboarding, sandbox mode, and repeatable demo flows
+- deployable product packaging and clearer capability boundaries
+- showcase architecture, solution narratives, and testing paths
+- admin console experience for operators and enterprise evaluators
+
+### Planned backlog by phase
+
+- Phase 6 roadmap: [#88](https://github.com/venkata-ramana/HealthForge/issues/88)
+  - [#93](https://github.com/venkata-ramana/HealthForge/issues/93) authentication boundary
+  - [#94](https://github.com/venkata-ramana/HealthForge/issues/94) user/org/membership model
+  - [#95](https://github.com/venkata-ramana/HealthForge/issues/95) RBAC and tenant-aware authorization
+  - [#96](https://github.com/venkata-ramana/HealthForge/issues/96) private deployment hardening
+  - [#97](https://github.com/venkata-ramana/HealthForge/issues/97) audit policy and access-review reporting
+
+- Phase 7 roadmap: [#89](https://github.com/venkata-ramana/HealthForge/issues/89)
+  - [#98](https://github.com/venkata-ramana/HealthForge/issues/98) PAS/CRD/DTR workflow journeys
+  - [#99](https://github.com/venkata-ramana/HealthForge/issues/99) bundle-level scenario review
+  - [#100](https://github.com/venkata-ramana/HealthForge/issues/100) standards crosswalk generation
+  - [#101](https://github.com/venkata-ramana/HealthForge/issues/101) payer/provider implementation tracks
+
+- Phase 8 roadmap: [#90](https://github.com/venkata-ramana/HealthForge/issues/90)
+  - [#102](https://github.com/venkata-ramana/HealthForge/issues/102) governed GitHub/Jira writeback
+  - [#103](https://github.com/venkata-ramana/HealthForge/issues/103) collaboration notifications and handoffs
+  - [#104](https://github.com/venkata-ramana/HealthForge/issues/104) documentation-system exports
+  - [#105](https://github.com/venkata-ramana/HealthForge/issues/105) event and webhook framework
+  - [#106](https://github.com/venkata-ramana/HealthForge/issues/106) environment promotion automation
+
+- Phase 9 roadmap: [#91](https://github.com/venkata-ramana/HealthForge/issues/91)
+  - [#107](https://github.com/venkata-ramana/HealthForge/issues/107) evaluation dashboard
+  - [#108](https://github.com/venkata-ramana/HealthForge/issues/108) freshness and evidence coverage tracking
+  - [#109](https://github.com/venkata-ramana/HealthForge/issues/109) reviewer disagreement analytics
+  - [#110](https://github.com/venkata-ramana/HealthForge/issues/110) policy and safety reporting
+  - [#111](https://github.com/venkata-ramana/HealthForge/issues/111) broader regression suites
+
+- Phase 10 roadmap: [#92](https://github.com/venkata-ramana/HealthForge/issues/92)
+  - [#112](https://github.com/venkata-ramana/HealthForge/issues/112) polished product UX
+  - [#113](https://github.com/venkata-ramana/HealthForge/issues/113) onboarding and sandbox mode
+  - [#114](https://github.com/venkata-ramana/HealthForge/issues/114) deployable editions and packaging
+  - [#115](https://github.com/venkata-ramana/HealthForge/issues/115) showcase architecture and testing paths
+  - [#116](https://github.com/venkata-ramana/HealthForge/issues/116) admin console experience
 
 ## Documentation map
 
