@@ -40,3 +40,5 @@ Brief-related endpoints are now organization scoped and require actor headers fo
 - multi-model policy routing
 
 This phase is best understood as enterprise groundwork: the system now has clearer org boundaries, stronger role semantics, private deployment scaffolding, and demo-safe telemetry surfaces for audits and oversight.
+
+Phase 6 begins the next step: extracting this local header mode behind a pluggable authentication boundary so future enterprise identity providers can be introduced without rewriting the authorization model again.

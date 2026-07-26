@@ -43,12 +43,16 @@ Prefer environment variables over committed secrets:
 - `HEALTHFORGE_DB_URL`
 - `HEALTHFORGE_DB_USERNAME`
 - `HEALTHFORGE_DB_PASSWORD`
+- `HEALTHFORGE_AUTH_MODE`
+- `HEALTHFORGE_DEFAULT_ORGANIZATION_ID`
 - `HEALTHFORGE_ARTIFACT_DIRECTORY`
 - `HEALTHFORGE_WORKSPACE_ROOT`
 - `HEALTHFORGE_DB_PORT`
 - `HEALTHFORGE_API_PORT`
 
 Do not place real credentials or PHI in source control, Compose files, or logs.
+
+The current supported authentication mode is `local_header`, which keeps the local header workflow active for demos and development while routing request identity through a pluggable provider boundary in the application.
 
 ## Current endpoints
 
