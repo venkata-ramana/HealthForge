@@ -75,6 +75,7 @@ The working platform includes:
 - compliance dashboard and enterprise posture APIs
 - synthetic FHIR generator APIs
 - private deployment Terraform starter scaffolding
+- durable user, organization, membership, and role-assignment modeling
 
 The MVP is intentionally bounded:
 

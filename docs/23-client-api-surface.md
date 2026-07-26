@@ -17,6 +17,7 @@ The supported client-facing workflows are:
 - Compliance dashboard
 - Enterprise posture inspection
 - Synthetic FHIR scenario generation
+- Identity directory inspection
 
 The current API is intended for:
 
@@ -233,6 +234,15 @@ Inspect the enterprise posture:
 curl http://localhost:8080/v1/enterprise/posture \
   -H 'X-HealthForge-Actor: local.auditor' \
   -H 'X-HealthForge-Role: auditor' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Inspect the durable identity directory:
+
+```bash
+curl 'http://localhost:8080/v1/admin/identity-directory?organization_id=tenant.alpha' \
+  -H 'X-HealthForge-Actor: local.admin' \
+  -H 'X-HealthForge-Role: administrator' \
   -H 'X-HealthForge-Organization: tenant.alpha'
 ```
 
