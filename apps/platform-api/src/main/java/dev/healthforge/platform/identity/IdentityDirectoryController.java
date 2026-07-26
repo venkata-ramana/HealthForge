@@ -27,7 +27,6 @@ public class IdentityDirectoryController {
             @RequestParam(name = "organization_id", required = false) String organizationId,
             HttpServletRequest httpRequest
     ) {
-        actorResolver.requireAdministrator(httpRequest);
-        return service.directory(organizationId);
+        return service.directory(actorResolver.requireAdministratorOrganizationScope(httpRequest, organizationId));
     }
 }

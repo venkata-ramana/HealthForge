@@ -69,6 +69,24 @@ class AuthenticatedActorResolverTest {
         assertThat(actor).isEqualTo(administrator);
     }
 
+    @Test
+    void defaultsAdministratorDirectoryScopeToActorsOrganization() {
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(administrator, null), mock(AuthenticatedActorRegistry.class));
+
+        var organizationId = resolver.requireAdministratorOrganizationScope(new MockHttpServletRequest(), null);
+
+        assertThat(organizationId).isEqualTo("tenant.alpha");
+    }
+
+    @Test
+    void rejectsAdministratorDirectoryScopeForDifferentOrganization() {
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(administrator, null), mock(AuthenticatedActorRegistry.class));
+
+        assertThatThrownBy(() -> resolver.requireAdministratorOrganizationScope(new MockHttpServletRequest(), "tenant.beta"))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("own organization");
+    }
+
     private record StubActorProvider(AuthenticatedActor requiredActor, AuthenticatedActor optionalActor) implements AuthenticatedActorProvider {
 
         @Override

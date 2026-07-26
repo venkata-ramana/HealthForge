@@ -73,4 +73,16 @@ public class AuthenticatedActorResolver {
         return actor;
     }
 
+    public String requireAdministratorOrganizationScope(HttpServletRequest request, String requestedOrganizationId) {
+        var actor = requireAdministrator(request);
+        if (requestedOrganizationId == null || requestedOrganizationId.isBlank()) {
+            return actor.organizationId();
+        }
+        if (!actor.organizationId().equals(requestedOrganizationId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Administrators can only access identity directory data for their own organization in this phase.");
+        }
+        return requestedOrganizationId;
+    }
+
 }

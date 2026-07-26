@@ -68,19 +68,13 @@
     </div>
 
     <div class="card">
-      <div class="action-row">
-        <button id="refresh">Refresh Briefs</button>
-        <button class="secondary" onclick="loadDashboard()">Compliance dashboard</button>
-      </div>
+      <div class="action-row" id="briefActions"></div>
       <div id="briefs"></div>
     </div>
 
     <div class="card">
       <h2>Enterprise tools</h2>
-      <div class="action-row">
-        <button class="secondary" onclick="loadPosture()">Enterprise posture</button>
-        <button class="secondary" onclick="loadSyntheticCatalog()">Synthetic FHIR catalog</button>
-      </div>
+      <div class="action-row" id="enterpriseActions"></div>
       <div id="enterprisePanel" class="muted">Use these tools to inspect org-scoped controls, demo-safe synthetic FHIR scenarios, and compliance telemetry.</div>
     </div>
   </aside>
@@ -95,6 +89,18 @@ const defaultCorpusId='mvp-regulatory-corpus';
 const defaultCorpusVersion='2026-07-24-expanded-web-core-v4';
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+const roleRank={reviewer:1,approver:2,auditor:3,administrator:4};
+const roleRequirements={
+  createBrief:'reviewer',
+  reviewFinding:'reviewer',
+  approveBrief:'approver',
+  exportWorkItems:'approver',
+  complianceDashboard:'auditor',
+  auditExport:'auditor',
+  enterprisePosture:'auditor',
+  identityDirectory:'administrator'
+};
+
 function actorHeaders(json=true){
   const headers={
     'X-HealthForge-Actor':actorId.value.trim(),
@@ -103,6 +109,66 @@ function actorHeaders(json=true){
   };
   if(json) headers['Content-Type']='application/json';
   return headers;
+}
+
+function currentRole(){
+  return actorRole.value.trim().toLowerCase();
+}
+
+function currentOrg(){
+  return actorOrg.value.trim();
+}
+
+function can(action){
+  const requiredRole=roleRequirements[action];
+  if(!requiredRole) return true;
+  if(currentRole()==='administrator') return true;
+  if(action==='createBrief' || action==='reviewFinding'){
+    return currentRole()==='reviewer' || currentRole()==='approver';
+  }
+  if(action==='approveBrief' || action==='exportWorkItems'){
+    return currentRole()==='approver';
+  }
+  if(action==='complianceDashboard' || action==='auditExport' || action==='enterprisePosture'){
+    return currentRole()==='auditor';
+  }
+  return roleRank[currentRole()]>=roleRank[requiredRole];
+}
+
+function permissionText(action){
+  const requiredRole=roleRequirements[action];
+  return requiredRole?`Requires ${requiredRole} access.`:'';
+}
+
+function disabledButton(label,action,variant=''){
+  return `<button ${variant?`class="${variant}"`:''} disabled title="${esc(permissionText(action))}">${esc(label)}</button>`;
+}
+
+function renderSessionNote(){
+  return `Current session: <b>${esc(actorId.value.trim())}</b> · role <b>${esc(currentRole())}</b> · org <b>${esc(currentOrg())}</b>.`;
+}
+
+function refreshUiForRole(){
+  const noteParts=[renderSessionNote()];
+  if(!can('createBrief')) noteParts.push('Create/review actions are unavailable for this role.');
+  if(!can('approveBrief')) noteParts.push('Approvals and work-item exports require approver access.');
+  if(!can('auditExport')) noteParts.push('Audit and compliance views require auditor access.');
+  document.querySelector('.session-note').innerHTML=noteParts.join(' ');
+  const complianceButton=can('complianceDashboard')
+    ? '<button class="secondary" onclick="loadDashboard()">Compliance dashboard</button>'
+    : disabledButton('Compliance dashboard','complianceDashboard','secondary');
+  document.querySelector('#briefActions').innerHTML=`
+    <button id="refresh">Refresh Briefs</button>
+    ${complianceButton}
+  `;
+  document.querySelector('#refresh').onclick=load;
+  const postureButton=can('enterprisePosture')
+    ? '<button class="secondary" onclick="loadPosture()">Enterprise posture</button>'
+    : disabledButton('Enterprise posture','enterprisePosture','secondary');
+  document.querySelector('#enterpriseActions').innerHTML=`
+    ${postureButton}
+    <button class="secondary" onclick="loadSyntheticCatalog()">Synthetic FHIR catalog</button>
+  `;
 }
 
 async function apiJson(url,options={}){
@@ -131,6 +197,10 @@ function briefInput(){
 }
 
 async function previewEvidence(){
+  if(!can('createBrief')){
+    evidence.innerHTML=`<div class="alert warning">${esc(permissionText('createBrief'))} Switch to reviewer, approver, or administrator to create a Brief.</div>`;
+    return;
+  }
   const input=briefInput();
   if(!input.question||!input.project_context){
     evidence.innerHTML='<div class="alert error">Question and non-sensitive project context are required.</div>';
@@ -151,6 +221,10 @@ async function previewEvidence(){
 }
 
 async function createBrief(){
+  if(!can('createBrief')){
+    evidence.innerHTML=`<div class="alert warning">${esc(permissionText('createBrief'))}</div>`;
+    return;
+  }
   evidence.innerHTML='<div class="alert warning">Creating your reviewable Brief…</div>';
   try{
     const data=await apiJson(api,{method:'POST',body:JSON.stringify(briefInput())});
@@ -165,17 +239,28 @@ async function openBrief(id){
   try{
     const b=await apiJson(`${api}/${id}`,{method:'GET',headers:actorHeaders(false)});
     const sources=b.sources.map(s=>`<li><a href="${esc(s.canonical_url)}" target="_blank">${esc(s.title)}</a> · ${esc(s.source_version)} · ${esc(s.source_type)}</li>`).join('');
-    const findings=b.findings.map(f=>`<div class="finding" id="finding-${f.finding_id}"><div class="status">${esc(f.kind)} · ${esc(f.confidence)}</div><p>${esc(f.statement)}</p><div class="citation"><b>${esc(f.citation.source_id)} ${esc(f.citation.source_version)}</b> — ${esc(f.citation.locator)}<br>${esc(f.citation.support)}</div><div class="finding-actions"><button onclick="showForm('${b.brief_id}','${f.finding_id}')">Review this finding</button></div><div class="review-slot" id="review-slot-${f.finding_id}"></div></div>`).join('');
+    const findings=b.findings.map(f=>`<div class="finding" id="finding-${f.finding_id}"><div class="status">${esc(f.kind)} · ${esc(f.confidence)}</div><p>${esc(f.statement)}</p><div class="citation"><b>${esc(f.citation.source_id)} ${esc(f.citation.source_version)}</b> — ${esc(f.citation.locator)}<br>${esc(f.citation.support)}</div><div class="finding-actions">${can('reviewFinding')?`<button onclick="showForm('${b.brief_id}','${f.finding_id}')">Review this finding</button>`:disabledButton('Review this finding','reviewFinding')}</div><div class="review-slot" id="review-slot-${f.finding_id}"></div></div>`).join('');
     const decisions=b.review_decisions.map(d=>`<li><b>${esc(d.decision)}</b> by ${esc(d.reviewer)}: ${esc(d.rationale)}</li>`).join('')||'<li>No decisions yet</li>';
     const approvals=(b.approvals||[]).map(a=>`<li><b>approved</b> by ${esc(a.approver)} (${esc(a.approver_role)}) — ${esc(a.rationale)}</li>`).join('')||'<li>No approvals yet</li>';
     const audits=(b.audit_events||[]).map(a=>`<li><b>${esc(a.event_type)}</b> · ${esc(a.actor_id)} (${esc(a.actor_role)})<br>${esc(a.summary)}${a.details?`<br><span class="status">${esc(a.details)}</span>`:''}</li>`).join('')||'<li>No audit events yet</li>';
-    content.innerHTML=`<div class="card"><div class="status">${esc(b.status)}</div><h1>${esc(b.input.question)}</h1><p>${esc(b.summary)}</p><p><b>Context:</b> ${esc(b.input.project_context)}</p><div class="pill">Org: ${esc(actorOrg.value.trim())}</div><div class="pill">Role: ${esc(actorRole.value.trim())}</div><h3>Sources</h3><ul>${sources}</ul></div><div class="card"><h2>Findings</h2>${findings}</div><div class="card"><h2>Review history</h2><ul>${decisions}</ul></div><div class="card"><h2>Approvals and exports</h2><ul>${approvals}</ul><div class="action-row"><button onclick="approveBrief('${b.brief_id}')">Record approval</button><button class="secondary" onclick="downloadJsonWithHeaders('${api}/${b.brief_id}/work-item-export','${b.brief_id}-work-items.json')">Download work-item export</button></div></div><div class="card"><h2>Audit trail</h2><ul>${audits}</ul><div class="action-row"><button class="secondary" onclick="downloadJsonWithHeaders('${api}/${b.brief_id}/audit-export','${b.brief_id}-audit.json')">Download audit export</button></div></div>`;
+    const approvalActions=`
+      ${can('approveBrief')?`<button onclick="approveBrief('${b.brief_id}')">Record approval</button>`:disabledButton('Record approval','approveBrief')}
+      ${can('exportWorkItems')?`<button class="secondary" onclick="downloadJsonWithHeaders('${api}/${b.brief_id}/work-item-export','${b.brief_id}-work-items.json')">Download work-item export</button>`:disabledButton('Download work-item export','exportWorkItems','secondary')}
+    `;
+    const auditActions=can('auditExport')
+      ? `<button class="secondary" onclick="downloadJsonWithHeaders('${api}/${b.brief_id}/audit-export','${b.brief_id}-audit.json')">Download audit export</button>`
+      : disabledButton('Download audit export','auditExport','secondary');
+    content.innerHTML=`<div class="card"><div class="status">${esc(b.status)}</div><h1>${esc(b.input.question)}</h1><p>${esc(b.summary)}</p><p><b>Context:</b> ${esc(b.input.project_context)}</p><div class="pill">Org: ${esc(currentOrg())}</div><div class="pill">Role: ${esc(currentRole())}</div><h3>Sources</h3><ul>${sources}</ul></div><div class="card"><h2>Findings</h2>${findings}</div><div class="card"><h2>Review history</h2><ul>${decisions}</ul></div><div class="card"><h2>Approvals and exports</h2><ul>${approvals}</ul><div class="action-row">${approvalActions}</div></div><div class="card"><h2>Audit trail</h2><ul>${audits}</ul><div class="action-row">${auditActions}</div></div>`;
   }catch(error){
     content.innerHTML=`<div class="card"><div class="alert error">${esc(error.message)}</div></div>`;
   }
 }
 
 function showForm(brief,finding){
+  if(!can('reviewFinding')){
+    alert(permissionText('reviewFinding'));
+    return;
+  }
   document.querySelectorAll('.review-slot').forEach(el=>el.innerHTML='');
   document.querySelectorAll('.finding').forEach(el=>el.classList.remove('active'));
   const container=document.querySelector(`#review-slot-${finding}`);
@@ -188,6 +273,10 @@ function showForm(brief,finding){
 }
 
 async function submitDecision(brief,finding){
+  if(!can('reviewFinding')){
+    alert(permissionText('reviewFinding'));
+    return;
+  }
   const body={finding_id:finding,reviewer:actorId.value.trim(),decision:decision.value,rationale:rationale.value,corrected_statement:corrected.value||null};
   try{
     await apiJson(`${api}/${brief}/review-decisions`,{method:'POST',body:JSON.stringify(body)});
@@ -199,6 +288,10 @@ async function submitDecision(brief,finding){
 }
 
 async function approveBrief(brief){
+  if(!can('approveBrief')){
+    alert(permissionText('approveBrief'));
+    return;
+  }
   const rationale=prompt('Approval rationale');
   if(!rationale)return;
   try{
@@ -211,6 +304,12 @@ async function approveBrief(brief){
 }
 
 async function downloadJsonWithHeaders(url,fileName){
+  const isAudit=url.includes('/audit-export');
+  const action=isAudit?'auditExport':'exportWorkItems';
+  if(!can(action)){
+    alert(permissionText(action));
+    return;
+  }
   try{
     const response=await fetch(url,{headers:actorHeaders(false)});
     const data=await response.json().catch(()=>({}));
@@ -230,6 +329,10 @@ async function downloadJsonWithHeaders(url,fileName){
 }
 
 async function loadDashboard(){
+  if(!can('complianceDashboard')){
+    enterprisePanel.innerHTML=`<div class="alert warning">${esc(permissionText('complianceDashboard'))}</div>`;
+    return;
+  }
   enterprisePanel.innerHTML='<div class="alert warning">Loading compliance dashboard…</div>';
   try{
     const dashboard=await apiJson('/v1/compliance/dashboard',{method:'GET',headers:actorHeaders(false)});
@@ -240,6 +343,10 @@ async function loadDashboard(){
 }
 
 async function loadPosture(){
+  if(!can('enterprisePosture')){
+    enterprisePanel.innerHTML=`<div class="alert warning">${esc(permissionText('enterprisePosture'))}</div>`;
+    return;
+  }
   enterprisePanel.innerHTML='<div class="alert warning">Loading enterprise posture…</div>';
   try{
     const posture=await apiJson('/v1/enterprise/posture',{method:'GET',headers:actorHeaders(false)});
@@ -269,9 +376,12 @@ async function generateSynthetic(scenarioId){
   }
 }
 
-document.querySelector('#refresh').onclick=load;
+actorRole.onchange=refreshUiForRole;
+actorOrg.onchange=refreshUiForRole;
+actorId.onchange=refreshUiForRole;
 corpusIdLabel.textContent=defaultCorpusId;
 corpusVersionLabel.textContent=defaultCorpusVersion;
+refreshUiForRole();
 load();
 </script>
 </body>
