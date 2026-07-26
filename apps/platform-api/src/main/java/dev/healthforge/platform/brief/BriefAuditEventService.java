@@ -22,11 +22,12 @@ public class BriefAuditEventService {
 
     public void record(String briefId, AuthenticatedActor actor, String eventType, String summary, String details) {
         jdbcTemplate.update("""
-                insert into brief_audit_event (audit_event_id, brief_id, actor_id, actor_role, event_type, occurred_at, summary, details)
-                values (?, ?, ?, ?, ?, ?, ?, ?)
+                insert into brief_audit_event (audit_event_id, brief_id, organization_id, actor_id, actor_role, event_type, occurred_at, summary, details)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 "audit_" + UUID.randomUUID(),
                 briefId,
+                actor.organizationId(),
                 actor.actorId(),
                 actor.role().name().toLowerCase(),
                 eventType,
@@ -36,10 +37,10 @@ public class BriefAuditEventService {
         );
     }
 
-    public List<BriefResponse.AuditEvent> listForBrief(String briefId) {
+    public List<BriefResponse.AuditEvent> listForBrief(String briefId, String organizationId) {
         return jdbcTemplate.query("""
                 select audit_event_id, actor_id, actor_role, event_type, occurred_at, summary, details
-                from brief_audit_event where brief_id = ? order by occurred_at
+                from brief_audit_event where brief_id = ? and organization_id = ? order by occurred_at
                 """, (rs, row) -> new BriefResponse.AuditEvent(
                 rs.getString("audit_event_id"),
                 rs.getString("actor_id"),
@@ -48,6 +49,6 @@ public class BriefAuditEventService {
                 rs.getTimestamp("occurred_at").toInstant(),
                 rs.getString("summary"),
                 rs.getString("details")
-        ), briefId);
+        ), briefId, organizationId);
     }
 }

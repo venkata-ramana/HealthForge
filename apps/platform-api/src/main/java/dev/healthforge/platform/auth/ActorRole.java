@@ -4,6 +4,8 @@ import java.util.Locale;
 
 public enum ActorRole {
     REVIEWER,
+    APPROVER,
+    AUDITOR,
     ADMINISTRATOR;
 
     public static ActorRole parse(String value) {

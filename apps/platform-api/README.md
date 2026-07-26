@@ -61,6 +61,8 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 - `POST /v1/regulation-explainers` produces a source-bounded regulation explainer with citations, implications, and caveats.
 - `POST /v1/prior-auth/copilot` analyzes PAS/CRD/DTR-oriented workflow questions with evidence and standards touchpoints.
 - `POST /v1/tracker-exports/preview` generates preview-only GitHub- or Jira-ready payloads from approved work-item exports and records an audit event.
+- `GET /v1/compliance/dashboard` summarizes org-scoped Brief, validation, and export telemetry for auditors and administrators.
+- `GET /v1/enterprise/posture` describes the current enterprise control posture for the active organization.
 - `POST /v1/architecture-reviews` returns a bounded architecture-review artifact for a non-sensitive scenario using grounded evidence and curated standards touchpoints.
 - `POST /v1/codegen/starter-artifacts` generates example-only starter code from an approved work-item export and preserves traceability back to the reviewed artifact.
 - `POST /v1/retrieval/search` performs PostgreSQL full-text retrieval and returns citeable source/version/page metadata.
@@ -70,6 +72,7 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 - `POST /v1/corpus-snapshots` pins an immutable set of current-eligible source versions by default and supports an explicit historical-reconstruction override for withdrawn or superseded versions.
 - `GET /v1/fhir-validation/catalog` returns the pinned package/profile catalog, package metadata, and support status for deterministic validation.
 - `POST /v1/fhir-validation/validate` validates a synthetic or explicitly non-sensitive FHIR example against a pinned R4 profile selection and returns structured findings plus evidence links.
+- `GET /v1/fhir-synthetic/catalog` and `POST /v1/fhir-synthetic/generate` expose reusable synthetic FHIR fixtures for demos and validation walkthroughs.
 
 Synthetic prior-authorization validation fixtures live under `knowledge/fixtures/fhir-validation/`, with scenario metadata under `evals/datasets/fhir-validation/`. They are useful for repeatable non-sensitive evaluation, but they do not prove payer-specific interoperability or production-ready conformance.
 

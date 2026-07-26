@@ -28,7 +28,7 @@ class TrackedWorkItemExportServiceTest {
         var auditEventService = mock(BriefAuditEventService.class);
         var service = new TrackedWorkItemExportService(briefService, auditEventService);
 
-        when(briefService.exportWorkItems("brief-1")).thenReturn(new BriefWorkItemExportResponse(
+        when(briefService.exportWorkItems(eq("brief-1"), any())).thenReturn(new BriefWorkItemExportResponse(
                 "brief-1",
                 "approved",
                 Instant.parse("2026-07-25T18:00:00Z"),

@@ -46,9 +46,9 @@ public class BriefService {
         var briefId = "brief_" + UUID.randomUUID();
         var createdAt = Instant.now(clock);
         jdbcTemplate.update("""
-                insert into engineering_brief (brief_id, status, created_at, question, project_context, corpus_id, corpus_version)
-                values (?, ?, ?, ?, ?, ?, ?)
-                """, briefId, "draft", Timestamp.from(createdAt), request.question(), request.projectContext(), request.corpusId(), request.corpusVersion());
+                insert into engineering_brief (brief_id, organization_id, status, created_at, question, project_context, corpus_id, corpus_version)
+                values (?, ?, ?, ?, ?, ?, ?, ?)
+                """, briefId, actor.organizationId(), "draft", Timestamp.from(createdAt), request.question(), request.projectContext(), request.corpusId(), request.corpusVersion());
 
         for (var source : packet.findings().stream().map(f -> f.citation()).distinct().toList()) {
             jdbcTemplate.update("""
@@ -70,11 +70,11 @@ public class BriefService {
         auditEventService.record(briefId, actor, "evidence_selected",
                 "Selected cited evidence for the Brief draft.",
                 "findings=" + packet.findings().size() + ", sources=" + packet.findings().stream().map(f -> f.citation().sourceId()).distinct().count());
-        return get(briefId);
+        return get(briefId, actor);
     }
 
     public BriefResponse recordDecision(String briefId, ReviewDecisionRequest request, AuthenticatedActor actor) {
-        get(briefId);
+        get(briefId, actor);
         var count = jdbcTemplate.queryForObject(
                 "select count(*) from brief_finding where brief_id = ? and finding_id = ?", Integer.class, briefId, request.findingId());
         if (count == null || count == 0) {
@@ -86,31 +86,31 @@ public class BriefService {
         }
         var decidedAt = Instant.now(clock);
         jdbcTemplate.update("""
-                insert into brief_review_decision (review_id, brief_id, finding_id, decision, reviewer, decided_at, rationale, corrected_statement)
-                values (?, ?, ?, ?, ?, ?, ?, ?)
-                """, "review_" + UUID.randomUUID(), briefId, request.findingId(), request.decision(), actor.actorId(),
+                insert into brief_review_decision (review_id, brief_id, finding_id, organization_id, decision, reviewer, decided_at, rationale, corrected_statement)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, "review_" + UUID.randomUUID(), briefId, request.findingId(), actor.organizationId(), request.decision(), actor.actorId(),
                 Timestamp.from(decidedAt), request.rationale(), request.correctedStatement());
         var status = switch (request.decision()) {
             case "reject", "correct", "needs_information" -> "changes_requested";
             default -> "in_review";
         };
-        jdbcTemplate.update("update engineering_brief set status = ? where brief_id = ?", status, briefId);
+        jdbcTemplate.update("update engineering_brief set status = ? where brief_id = ? and organization_id = ?", status, briefId, actor.organizationId());
         auditEventService.record(briefId, actor, "review_decision_recorded",
                 "Recorded review decision '" + request.decision() + "' for a Brief finding.",
                 "finding_id=" + request.findingId() + ", status=" + status);
-        return get(briefId);
+        return get(briefId, actor);
     }
 
     public BriefResponse approve(String briefId, ApprovalRequest request, AuthenticatedActor actor) {
-        var brief = loadBriefRow(briefId);
+        var brief = loadBriefRow(briefId, actor.organizationId());
         if (!"in_review".equals(brief.status())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "A Brief can only be approved from the in_review state.");
         }
         var acceptCount = jdbcTemplate.queryForObject("""
                 select count(*) from brief_review_decision
-                where brief_id = ? and decision = 'accept'
-                """, Integer.class, briefId);
+                where brief_id = ? and organization_id = ? and decision = 'accept'
+                """, Integer.class, briefId, actor.organizationId());
         if (acceptCount == null || acceptCount == 0) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "A Brief requires at least one accepted review decision before approval.");
@@ -118,18 +118,18 @@ public class BriefService {
         var approvalId = "approval_" + UUID.randomUUID();
         var approvedAt = Instant.now(clock);
         jdbcTemplate.update("""
-                insert into brief_approval (approval_id, brief_id, approver, approver_role, approved_at, rationale)
-                values (?, ?, ?, ?, ?, ?)
-                """, approvalId, briefId, actor.actorId(), actor.role().name().toLowerCase(), Timestamp.from(approvedAt), request.rationale());
-        jdbcTemplate.update("update engineering_brief set status = ? where brief_id = ?", "approved", briefId);
+                insert into brief_approval (approval_id, brief_id, organization_id, approver, approver_role, approved_at, rationale)
+                values (?, ?, ?, ?, ?, ?, ?)
+                """, approvalId, briefId, actor.organizationId(), actor.actorId(), actor.role().name().toLowerCase(), Timestamp.from(approvedAt), request.rationale());
+        jdbcTemplate.update("update engineering_brief set status = ? where brief_id = ? and organization_id = ?", "approved", briefId, actor.organizationId());
         auditEventService.record(briefId, actor, "brief_approved",
                 "Recorded final approval for the Brief.",
                 "approval_id=" + approvalId + ", status=approved");
-        return get(briefId);
+        return get(briefId, actor);
     }
 
-    public BriefResponse get(String briefId) {
-        var brief = loadBriefRow(briefId);
+    public BriefResponse get(String briefId, AuthenticatedActor actor) {
+        var brief = loadBriefRow(briefId, actor.organizationId());
         var sources = jdbcTemplate.query("select source_id, source_version, source_type, title, canonical_url from brief_source where brief_id = ?",
                 (rs, row) -> new BriefResponse.Source(rs.getString("source_id"), rs.getString("source_version"), rs.getString("source_type"), rs.getString("title"), rs.getString("canonical_url")), briefId);
         var findings = jdbcTemplate.query("""
@@ -144,22 +144,22 @@ public class BriefService {
                 rs.getString("reviewer"), rs.getTimestamp("decided_at").toInstant(), rs.getString("rationale"), rs.getString("corrected_statement")), briefId);
         var approvals = jdbcTemplate.query("""
                 select approval_id, approver, approver_role, approved_at, rationale
-                from brief_approval where brief_id = ? order by approved_at
+                from brief_approval where brief_id = ? and organization_id = ? order by approved_at
                 """, (rs, row) -> new BriefResponse.Approval(
                 rs.getString("approval_id"),
                 rs.getString("approver"),
                 rs.getString("approver_role"),
                 rs.getTimestamp("approved_at").toInstant(),
                 rs.getString("rationale")
-        ), briefId);
-        var auditEvents = auditEventService.listForBrief(briefId);
+        ), briefId, actor.organizationId());
+        var auditEvents = auditEventService.listForBrief(briefId, actor.organizationId());
         return new BriefResponse(brief.id(), brief.status(), brief.createdAt(), new BriefResponse.Input(brief.question(), brief.context(), brief.corpusId(), brief.corpusVersion()),
                 sources, findings, "Draft assembled from cited evidence excerpts; human review is required.",
                 List.of("This local MVP does not make a legal, regulatory, clinical, or compliance determination."), decisions, approvals, auditEvents, true);
     }
 
-    public BriefAuditExportResponse exportAudit(String briefId) {
-        var brief = get(briefId);
+    public BriefAuditExportResponse exportAudit(String briefId, AuthenticatedActor actor) {
+        var brief = get(briefId, actor);
         return new BriefAuditExportResponse(
                 brief.briefId(),
                 brief.status(),
@@ -172,8 +172,12 @@ public class BriefService {
         );
     }
 
-    public BriefWorkItemExportResponse exportWorkItems(String briefId) {
-        var brief = get(briefId);
+    public BriefAuditExportResponse exportAudit(String briefId) {
+        return exportAudit(briefId, new AuthenticatedActor("local.system", dev.healthforge.platform.auth.ActorRole.ADMINISTRATOR));
+    }
+
+    public BriefWorkItemExportResponse exportWorkItems(String briefId, AuthenticatedActor actor) {
+        var brief = get(briefId, actor);
         if (!"approved".equals(brief.status())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Only approved Briefs can be exported as implementation work items.");
@@ -219,22 +223,29 @@ public class BriefService {
         );
     }
 
-    private BriefRow loadBriefRow(String briefId) {
+    public BriefWorkItemExportResponse exportWorkItems(String briefId) {
+        return exportWorkItems(briefId, new AuthenticatedActor("local.system", dev.healthforge.platform.auth.ActorRole.ADMINISTRATOR));
+    }
+
+    private BriefRow loadBriefRow(String briefId, String organizationId) {
         var briefs = jdbcTemplate.query("""
-                select brief_id, status, created_at, question, project_context, corpus_id, corpus_version
-                from engineering_brief where brief_id = ?
+                select brief_id, organization_id, status, created_at, question, project_context, corpus_id, corpus_version
+                from engineering_brief where brief_id = ? and organization_id = ?
                 """, (rs, row) -> new BriefRow(rs.getString("brief_id"), rs.getString("status"),
                 rs.getTimestamp("created_at").toInstant(), rs.getString("question"), rs.getString("project_context"),
-                rs.getString("corpus_id"), rs.getString("corpus_version")), briefId);
+                rs.getString("corpus_id"), rs.getString("corpus_version"), rs.getString("organization_id")), briefId, organizationId);
         if (briefs.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Brief was not found");
         return briefs.getFirst();
     }
 
-    public List<BriefSummary> list() {
+    public List<BriefSummary> list(AuthenticatedActor actor) {
         return jdbcTemplate.query("""
-                select brief_id, status, created_at, question from engineering_brief order by created_at desc
+                select brief_id, status, created_at, question
+                from engineering_brief
+                where organization_id = ?
+                order by created_at desc
                 """, (rs, row) -> new BriefSummary(rs.getString("brief_id"), rs.getString("status"),
-                rs.getTimestamp("created_at").toInstant(), rs.getString("question")));
+                rs.getTimestamp("created_at").toInstant(), rs.getString("question")), actor.organizationId());
     }
 
     private BriefWorkItemExportResponse.WorkItem toWorkItem(
@@ -296,5 +307,5 @@ public class BriefService {
         return "engineering_review_workflow";
     }
 
-    private record BriefRow(String id, String status, Instant createdAt, String question, String context, String corpusId, String corpusVersion) {}
+    private record BriefRow(String id, String status, Instant createdAt, String question, String context, String corpusId, String corpusVersion, String organizationId) {}
 }

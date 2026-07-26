@@ -4,12 +4,16 @@ import dev.healthforge.platform.auth.AuthenticatedActor;
 import dev.healthforge.platform.brief.BriefAuditEventService;
 import dev.healthforge.platform.brief.BriefService;
 import dev.healthforge.platform.brief.BriefWorkItemExportResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,14 +25,25 @@ public class TrackedWorkItemExportService {
 
     private final BriefService briefService;
     private final BriefAuditEventService auditEventService;
+    private final JdbcTemplate jdbcTemplate;
     private final Clock clock = Clock.systemUTC();
 
     public TrackedWorkItemExportService(
             BriefService briefService,
             BriefAuditEventService auditEventService
     ) {
+        this(briefService, auditEventService, null);
+    }
+
+    @Autowired
+    public TrackedWorkItemExportService(
+            BriefService briefService,
+            BriefAuditEventService auditEventService,
+            JdbcTemplate jdbcTemplate
+    ) {
         this.briefService = briefService;
         this.auditEventService = auditEventService;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public TrackedWorkItemExportResponse preview(TrackedWorkItemExportRequest request, AuthenticatedActor actor) {
@@ -45,7 +60,7 @@ public class TrackedWorkItemExportService {
                     "Direct writeback is not enabled in this phase. Preview mode only.");
         }
 
-        var export = briefService.exportWorkItems(request.briefId());
+        var export = briefService.exportWorkItems(request.briefId(), actor);
         var workItemIds = request.workItemIds() == null ? List.<String>of() : request.workItemIds();
         var selectedItems = export.workItems().stream()
                 .filter(item -> workItemIds.isEmpty() || workItemIds.contains(item.workItemId()))
@@ -54,16 +69,39 @@ public class TrackedWorkItemExportService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No approved work items matched the requested export preview.");
         }
 
+        var occurredAt = Instant.now(clock);
+        var retentionUntil = occurredAt.plus(30, ChronoUnit.DAYS);
+        if (jdbcTemplate != null) {
+            jdbcTemplate.update("""
+                    insert into tracked_export_event (
+                        tracked_export_event_id, brief_id, organization_id, actor_id, actor_role, target_system,
+                        export_mode, work_item_count, export_reason, retention_until, occurred_at
+                    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    "tracked_export_event_" + UUID.randomUUID(),
+                    request.briefId(),
+                    actor.organizationId(),
+                    actor.actorId(),
+                    actor.role().name().toLowerCase(Locale.ROOT),
+                    target,
+                    "preview_only",
+                    selectedItems.size(),
+                    request.exportReason(),
+                    Timestamp.from(retentionUntil),
+                    Timestamp.from(occurredAt)
+            );
+        }
+
         auditEventService.record(request.briefId(), actor, "tracker_export_preview_generated",
                 "Generated " + target + " tracker-ready preview payloads from approved work items.",
-                "target=" + target + ", work_items=" + selectedItems.size() + ", writeback=false");
+                "target=" + target + ", work_items=" + selectedItems.size() + ", writeback=false, retention_until=" + retentionUntil);
 
         return new TrackedWorkItemExportResponse(
                 "tracked_export_" + UUID.randomUUID(),
                 request.briefId(),
                 target,
                 "preview_only",
-                Instant.now(clock),
+                occurredAt,
                 actor.actorId(),
                 actor.role().name().toLowerCase(Locale.ROOT),
                 selectedItems.stream().map(item -> toPreviewItem(item, target)).toList(),

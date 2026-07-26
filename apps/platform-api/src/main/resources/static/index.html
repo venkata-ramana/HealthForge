@@ -1,18 +1,278 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HealthForge Brief Review</title><style>
-*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui;background:#f4f7fa;color:#17212b}header{background:#073b4c;color:#fff;padding:14px 5%;display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}.header-meta{display:flex;flex-direction:column;gap:2px}.header-meta strong{font-size:20px;line-height:1.1}.header-sub{font-size:13px;color:#d8edf0}.session-bar{display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:8px 12px;align-items:end;justify-items:stretch;min-width:min(100%,380px)}.session-bar label{margin:0;font-size:12px;font-weight:700}.session-bar input,.session-bar select{margin-top:4px;background:#fff;padding:7px}.session-note{grid-column:1/-1;font-size:11px;color:#d8edf0}.scope{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}.scope-item{background:#eef8f9;border:1px solid #bfebef;border-radius:999px;padding:6px 10px;font-size:13px;color:#184e57}.scope-item b{color:#073b4c}main{display:grid;grid-template-columns:340px 1fr;gap:24px;padding:24px 5%}button,select,input,textarea{font:inherit;padding:9px;border:1px solid #97a6b5;border-radius:6px;width:100%}button{background:#006d77;color:#fff;border:0;cursor:pointer;font-weight:700}button:hover{background:#005b64}button:focus,input:focus,textarea:focus,select:focus{outline:3px solid #83d3dc;outline-offset:2px}.card{background:#fff;border:1px solid #d6e0e7;border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 1px 2px #1525360c}.brief{width:100%;text-align:left;background:#fff;color:#17212b;border:1px solid #d6e0e7;margin:5px 0;font-weight:400}.brief:hover{border-color:#006d77;background:#f1fbfc}.status{font-size:12px;text-transform:uppercase;color:#006d77;font-weight:800;letter-spacing:.04em}.finding{border-left:4px solid #006d77;padding:4px 0 4px 14px;margin:22px 0;scroll-margin-top:24px}.finding.active{background:#f1fbfc;border-radius:10px;padding:16px 14px 14px;box-shadow:inset 0 0 0 1px #83d3dc}.finding-actions{margin-top:12px}.review-slot{margin-top:14px}.review-card{background:#f8fcfd;border:1px solid #bfebef}.citation{background:#eef8f9;border:1px solid #bfebef;padding:12px;border-radius:6px;font-size:14px}.alert{padding:12px;border-radius:6px;margin-top:12px;font-weight:600}.alert.error{background:#fff0f0;border:1px solid #f3aaaa;color:#8e1d1d}.alert.warning{background:#fff7df;border:1px solid #edcf78;color:#6b5000}.alert.success{background:#eaf8ef;border:1px solid #9ad1aa;color:#155c2d}textarea{min-height:96px;resize:vertical}label{display:block;margin:12px 0 5px;font-weight:700}label+label{margin-top:12px}a{color:#005f6a;font-weight:650}#empty{color:#52616d}@media(max-width:900px){header{flex-direction:column;align-items:flex-start}.session-bar{grid-template-columns:1fr;width:100%}.scope{flex-direction:column}}@media(max-width:760px){main{display:block;padding:18px}}
-</style></head><body><header><div class="header-meta"><strong>HealthForge</strong><div class="header-sub">Local Brief review · No PHI · Human review required</div></div><div class="session-bar"><label>Actor ID <input id="actorId" value="local.reviewer"></label><label>Role <select id="actorRole"><option value="reviewer">reviewer</option><option value="administrator">administrator</option></select></label><div class="session-note">Used for review, approval, and audit history</div></div></header><main><aside><div class="card"><h2>Start a Brief</h2><p>Use public, non-sensitive engineering context only.</p><div class="scope"><div class="scope-item"><b>Corpus ID:</b> <span id="corpusIdLabel"></span></div><div class="scope-item"><b>Corpus version:</b> <span id="corpusVersionLabel"></span></div></div><label>Question <textarea id="question" placeholder="What does the rule say about prior authorization?"></textarea></label><label>Project context <textarea id="context" placeholder="Describe the non-sensitive engineering scenario."></textarea></label><button onclick="previewEvidence()">Find cited evidence</button><div id="evidence"></div></div><div class="card"><button id="refresh">Refresh Briefs</button><div id="briefs"></div></div></aside><section id="content"><div class="card" id="empty">Select a Brief to inspect its cited findings, audit trail, and submit a review decision.</div></section></main><script>
-const api='/v1/briefs',defaultCorpusId='mvp-regulatory-corpus',defaultCorpusVersion='2026-07-24-expanded-web-core-v4',esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function actorHeaders(){return {'Content-Type':'application/json','X-HealthForge-Actor':actorId.value.trim(),'X-HealthForge-Role':actorRole.value.trim()}}
-async function load(){let data=await fetch(api).then(r=>r.json());document.querySelector('#briefs').innerHTML=data.length?data.map(b=>`<button class="brief" onclick="openBrief('${b.brief_id}')"><b>${esc(b.question)}</b><br><span class="status">${esc(b.status)}</span></button>`).join(''):'<p>No Briefs yet. Create one through the API.</p>'}
-function briefInput(){return {corpus_id:defaultCorpusId,corpus_version:defaultCorpusVersion,question:question.value.trim(),project_context:context.value.trim()}}
-async function previewEvidence(){let input=briefInput();if(!input.question||!input.project_context){evidence.innerHTML='<div class="alert error">Question and non-sensitive project context are required.</div>';return}evidence.innerHTML='<div class="alert warning">Searching the selected snapshot for cited evidence…</div>';let r=await fetch('/v1/answers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});let data=await r.json();if(!r.ok){evidence.innerHTML='<div class="alert error">Could not search this corpus snapshot. Check the corpus ID and version.</div>';return}if(data.status!=='grounded'){evidence.innerHTML='<div class="alert warning"><b>Insufficient evidence.</b> No Brief will be created. Refine the question or select a snapshot with relevant sources.</div>';return}evidence.innerHTML=`<div class="alert success"><b>Grounded evidence found.</b><br>${data.findings.length} cited passage(s) will support the draft.</div><button onclick="createBrief()">Create reviewable Brief</button>`}
-async function createBrief(){evidence.innerHTML='<div class="alert warning">Creating your reviewable Brief…</div>';let r=await fetch(api,{method:'POST',headers:actorHeaders(),body:JSON.stringify(briefInput())});let data=await r.json();if(!r.ok){evidence.innerHTML=`<div class="alert error">Could not create Brief: ${esc(data.detail||'request failed')}</div>`;return}await load();openBrief(data.brief_id)}
-async function openBrief(id){let b=await fetch(`${api}/${id}`).then(r=>r.json());let sources=b.sources.map(s=>`<li><a href="${esc(s.canonical_url)}" target="_blank">${esc(s.title)}</a> · ${esc(s.source_version)} · ${esc(s.source_type)}</li>`).join('');let findings=b.findings.map(f=>`<div class="finding" id="finding-${f.finding_id}"><div class="status">${esc(f.kind)} · ${esc(f.confidence)}</div><p>${esc(f.statement)}</p><div class="citation"><b>${esc(f.citation.source_id)} ${esc(f.citation.source_version)}</b> — ${esc(f.citation.locator)}<br>${esc(f.citation.support)}</div><div class="finding-actions"><button onclick="showForm('${b.brief_id}','${f.finding_id}')">Review this finding</button></div><div class="review-slot" id="review-slot-${f.finding_id}"></div></div>`).join('');let decisions=b.review_decisions.map(d=>`<li><b>${esc(d.decision)}</b> by ${esc(d.reviewer)}: ${esc(d.rationale)}</li>`).join('')||'<li>No decisions yet</li>';let approvals=(b.approvals||[]).map(a=>`<li><b>approved</b> by ${esc(a.approver)} (${esc(a.approver_role)}) — ${esc(a.rationale)}</li>`).join('')||'<li>No approvals yet</li>';let audits=(b.audit_events||[]).map(a=>`<li><b>${esc(a.event_type)}</b> · ${esc(a.actor_id)} (${esc(a.actor_role)})<br>${esc(a.summary)}${a.details?`<br><span class="status">${esc(a.details)}</span>`:''}</li>`).join('')||'<li>No audit events yet</li>';document.querySelector('#content').innerHTML=`<div class="card"><div class="status">${esc(b.status)}</div><h1>${esc(b.input.question)}</h1><p>${esc(b.summary)}</p><p><b>Context:</b> ${esc(b.input.project_context)}</p><h3>Sources</h3><ul>${sources}</ul></div><div class="card"><h2>Findings</h2>${findings}</div><div class="card"><h2>Review history</h2><ul>${decisions}</ul></div><div class="card"><h2>Approvals</h2><ul>${approvals}</ul><button onclick="approveBrief('${b.brief_id}')">Record approval</button><button onclick="downloadWorkItemExport('${b.brief_id}')">Open work-item export</button></div><div class="card"><h2>Audit trail</h2><ul>${audits}</ul><button onclick="downloadAuditExport('${b.brief_id}')">Open audit export</button></div>`}
-function showForm(brief,finding){document.querySelectorAll('.review-slot').forEach(el=>el.innerHTML='');document.querySelectorAll('.finding').forEach(el=>el.classList.remove('active'));let container=document.querySelector(`#review-slot-${finding}`),selected=document.querySelector(`#finding-${finding}`);if(!container||!selected)return;container.innerHTML=`<div class="card review-card"><h2>Record review decision</h2><p>Authenticated actor: <b>${esc(actorId.value.trim())}</b> (${esc(actorRole.value.trim())})</p><label>Decision <select id="decision"><option>accept</option><option>reject</option><option>correct</option><option>needs_information</option></select></label><label>Rationale <textarea id="rationale" required></textarea></label><label>Corrected statement (optional) <textarea id="corrected"></textarea></label><button onclick="submitDecision('${brief}','${finding}')">Save decision</button></div>`;selected.classList.add('active');container.scrollIntoView({behavior:'smooth',block:'nearest'});document.querySelector('#rationale')?.focus()}
-async function submitDecision(brief,finding){let body={finding_id:finding,reviewer:actorId.value.trim(),decision:decision.value,rationale:rationale.value,corrected_statement:corrected.value||null};let r=await fetch(`${api}/${brief}/review-decisions`,{method:'POST',headers:actorHeaders(),body:JSON.stringify(body)});let data=await r.json().catch(()=>({}));if(!r.ok){alert(data.detail||'Could not save decision');return}await load();openBrief(brief)}document.querySelector('#refresh').onclick=load;load();
-corpusIdLabel.textContent=defaultCorpusId;corpusVersionLabel.textContent=defaultCorpusVersion;
-async function approveBrief(brief){let rationale=prompt('Approval rationale');if(!rationale)return;let r=await fetch(`${api}/${brief}/approvals`,{method:'POST',headers:actorHeaders(),body:JSON.stringify({rationale})});let data=await r.json().catch(()=>({}));if(!r.ok){alert(data.detail||'Could not approve Brief');return}await load();openBrief(brief)}
-function downloadAuditExport(brief){window.open(`${api}/${brief}/audit-export`,'_blank')}
-function downloadWorkItemExport(brief){window.open(`${api}/${brief}/work-item-export`,'_blank')}
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HealthForge Enterprise Review Console</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui;background:#f4f7fa;color:#17212b}
+    header{background:#073b4c;color:#fff;padding:14px 5%;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap}
+    .header-meta{display:flex;flex-direction:column;gap:4px}.header-meta strong{font-size:22px;line-height:1.1}.header-sub{font-size:13px;color:#d8edf0}
+    .session-bar{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:8px 12px;align-items:end;min-width:min(100%,560px)}
+    .session-bar label{margin:0;font-size:12px;font-weight:700}.session-bar input,.session-bar select{margin-top:4px;background:#fff;padding:8px}
+    .session-note{grid-column:1/-1;font-size:11px;color:#d8edf0}
+    main{display:grid;grid-template-columns:360px 1fr;gap:24px;padding:24px 5%}
+    button,select,input,textarea{font:inherit;padding:9px;border:1px solid #97a6b5;border-radius:6px;width:100%}
+    button{background:#006d77;color:#fff;border:0;cursor:pointer;font-weight:700}button:hover{background:#005b64}
+    button.secondary{background:#edf5f6;color:#13444b;border:1px solid #bfebef}button.secondary:hover{background:#dff1f3}
+    button:focus,input:focus,textarea:focus,select:focus{outline:3px solid #83d3dc;outline-offset:2px}
+    .card{background:#fff;border:1px solid #d6e0e7;border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 1px 2px #1525360c}
+    .brief{width:100%;text-align:left;background:#fff;color:#17212b;border:1px solid #d6e0e7;margin:5px 0;font-weight:400}.brief:hover{border-color:#006d77;background:#f1fbfc}
+    .status{font-size:12px;text-transform:uppercase;color:#006d77;font-weight:800;letter-spacing:.04em}
+    .finding{border-left:4px solid #006d77;padding:4px 0 4px 14px;margin:22px 0;scroll-margin-top:24px}
+    .finding.active{background:#f1fbfc;border-radius:10px;padding:16px 14px 14px;box-shadow:inset 0 0 0 1px #83d3dc}
+    .finding-actions,.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.action-row button{flex:1 1 180px}
+    .review-slot{margin-top:14px}.review-card{background:#f8fcfd;border:1px solid #bfebef}
+    .citation{background:#eef8f9;border:1px solid #bfebef;padding:12px;border-radius:6px;font-size:14px}
+    .alert{padding:12px;border-radius:6px;margin-top:12px;font-weight:600}.alert.error{background:#fff0f0;border:1px solid #f3aaaa;color:#8e1d1d}.alert.warning{background:#fff7df;border:1px solid #edcf78;color:#6b5000}.alert.success{background:#eaf8ef;border:1px solid #9ad1aa;color:#155c2d}
+    .scope{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}.scope-item{background:#eef8f9;border:1px solid #bfebef;border-radius:999px;padding:6px 10px;font-size:13px;color:#184e57}.scope-item b{color:#073b4c}
+    .metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.metric{border:1px solid #d6e0e7;border-radius:8px;padding:12px;background:#fbfdfe}.metric b{display:block;font-size:20px;color:#073b4c}
+    .muted{color:#52616d;font-size:13px}textarea{min-height:96px;resize:vertical}label{display:block;margin:12px 0 5px;font-weight:700}a{color:#005f6a;font-weight:650}
+    code{background:#eef5f7;padding:2px 5px;border-radius:4px}.pill{display:inline-block;background:#eef8f9;border:1px solid #bfebef;border-radius:999px;padding:4px 8px;font-size:12px;margin-right:6px;margin-top:6px}
+    @media(max-width:1000px){header{flex-direction:column;align-items:flex-start}.session-bar{grid-template-columns:1fr;width:100%}main{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-meta">
+    <strong>HealthForge</strong>
+    <div class="header-sub">Enterprise review console · public evidence only · human review required</div>
+  </div>
+  <div class="session-bar">
+    <label>Actor ID <input id="actorId" value="local.reviewer"></label>
+    <label>Organization <input id="actorOrg" value="local.default"></label>
+    <label>Role
+      <select id="actorRole">
+        <option value="reviewer">reviewer</option>
+        <option value="approver">approver</option>
+        <option value="auditor">auditor</option>
+        <option value="administrator">administrator</option>
+      </select>
+    </label>
+    <div class="session-note">These values drive org-scoped reads, review actions, approval gates, audit exports, and compliance dashboard visibility.</div>
+  </div>
+</header>
+<main>
+  <aside>
+    <div class="card">
+      <h2>Start a Brief</h2>
+      <p class="muted">Use public, non-sensitive engineering context only.</p>
+      <div class="scope">
+        <div class="scope-item"><b>Corpus ID:</b> <span id="corpusIdLabel"></span></div>
+        <div class="scope-item"><b>Corpus version:</b> <span id="corpusVersionLabel"></span></div>
+      </div>
+      <label>Question <textarea id="question" placeholder="What changes do we need for CMS prior authorization workflows?"></textarea></label>
+      <label>Project context <textarea id="context" placeholder="Describe the non-sensitive engineering scenario."></textarea></label>
+      <button onclick="previewEvidence()">Find cited evidence</button>
+      <div id="evidence"></div>
+    </div>
+
+    <div class="card">
+      <div class="action-row">
+        <button id="refresh">Refresh Briefs</button>
+        <button class="secondary" onclick="loadDashboard()">Compliance dashboard</button>
+      </div>
+      <div id="briefs"></div>
+    </div>
+
+    <div class="card">
+      <h2>Enterprise tools</h2>
+      <div class="action-row">
+        <button class="secondary" onclick="loadPosture()">Enterprise posture</button>
+        <button class="secondary" onclick="loadSyntheticCatalog()">Synthetic FHIR catalog</button>
+      </div>
+      <div id="enterprisePanel" class="muted">Use these tools to inspect org-scoped controls, demo-safe synthetic FHIR scenarios, and compliance telemetry.</div>
+    </div>
+  </aside>
+
+  <section id="content">
+    <div class="card" id="empty">Select a Brief to inspect cited findings, review history, approvals, export artifacts, and the audit trail for your current organization.</div>
+  </section>
+</main>
+<script>
+const api='/v1/briefs';
+const defaultCorpusId='mvp-regulatory-corpus';
+const defaultCorpusVersion='2026-07-24-expanded-web-core-v4';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function actorHeaders(json=true){
+  const headers={
+    'X-HealthForge-Actor':actorId.value.trim(),
+    'X-HealthForge-Role':actorRole.value.trim(),
+    'X-HealthForge-Organization':actorOrg.value.trim()
+  };
+  if(json) headers['Content-Type']='application/json';
+  return headers;
+}
+
+async function apiJson(url,options={}){
+  const response=await fetch(url,{...options,headers:{...(options.headers||{}),...actorHeaders(!options.headers || options.headers['Content-Type']!=='multipart/form-data')}});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(data.detail||'Request failed');
+  return data;
+}
+
+async function load(){
+  try{
+    const data=await apiJson(api,{method:'GET',headers:actorHeaders(false)});
+    briefs.innerHTML=data.length?data.map(b=>`<button class="brief" onclick="openBrief('${b.brief_id}')"><b>${esc(b.question)}</b><br><span class="status">${esc(b.status)}</span></button>`).join(''):'<p>No Briefs yet for this organization.</p>';
+  }catch(error){
+    briefs.innerHTML=`<div class="alert error">${esc(error.message)}</div>`;
+  }
+}
+
+function briefInput(){
+  return {
+    corpus_id:defaultCorpusId,
+    corpus_version:defaultCorpusVersion,
+    question:question.value.trim(),
+    project_context:context.value.trim()
+  };
+}
+
+async function previewEvidence(){
+  const input=briefInput();
+  if(!input.question||!input.project_context){
+    evidence.innerHTML='<div class="alert error">Question and non-sensitive project context are required.</div>';
+    return;
+  }
+  evidence.innerHTML='<div class="alert warning">Searching the selected snapshot for cited evidence…</div>';
+  const r=await fetch('/v1/answers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok){
+    evidence.innerHTML='<div class="alert error">Could not search this corpus snapshot. Check the corpus ID and version.</div>';
+    return;
+  }
+  if(data.status!=='grounded'){
+    evidence.innerHTML='<div class="alert warning"><b>Insufficient evidence.</b> No Brief will be created. Refine the question or select a snapshot with relevant sources.</div>';
+    return;
+  }
+  evidence.innerHTML=`<div class="alert success"><b>Grounded evidence found.</b><br>${data.findings.length} cited passage(s) will support the draft.</div><button onclick="createBrief()">Create reviewable Brief</button>`;
+}
+
+async function createBrief(){
+  evidence.innerHTML='<div class="alert warning">Creating your reviewable Brief…</div>';
+  try{
+    const data=await apiJson(api,{method:'POST',body:JSON.stringify(briefInput())});
+    await load();
+    openBrief(data.brief_id);
+  }catch(error){
+    evidence.innerHTML=`<div class="alert error">Could not create Brief: ${esc(error.message)}</div>`;
+  }
+}
+
+async function openBrief(id){
+  try{
+    const b=await apiJson(`${api}/${id}`,{method:'GET',headers:actorHeaders(false)});
+    const sources=b.sources.map(s=>`<li><a href="${esc(s.canonical_url)}" target="_blank">${esc(s.title)}</a> · ${esc(s.source_version)} · ${esc(s.source_type)}</li>`).join('');
+    const findings=b.findings.map(f=>`<div class="finding" id="finding-${f.finding_id}"><div class="status">${esc(f.kind)} · ${esc(f.confidence)}</div><p>${esc(f.statement)}</p><div class="citation"><b>${esc(f.citation.source_id)} ${esc(f.citation.source_version)}</b> — ${esc(f.citation.locator)}<br>${esc(f.citation.support)}</div><div class="finding-actions"><button onclick="showForm('${b.brief_id}','${f.finding_id}')">Review this finding</button></div><div class="review-slot" id="review-slot-${f.finding_id}"></div></div>`).join('');
+    const decisions=b.review_decisions.map(d=>`<li><b>${esc(d.decision)}</b> by ${esc(d.reviewer)}: ${esc(d.rationale)}</li>`).join('')||'<li>No decisions yet</li>';
+    const approvals=(b.approvals||[]).map(a=>`<li><b>approved</b> by ${esc(a.approver)} (${esc(a.approver_role)}) — ${esc(a.rationale)}</li>`).join('')||'<li>No approvals yet</li>';
+    const audits=(b.audit_events||[]).map(a=>`<li><b>${esc(a.event_type)}</b> · ${esc(a.actor_id)} (${esc(a.actor_role)})<br>${esc(a.summary)}${a.details?`<br><span class="status">${esc(a.details)}</span>`:''}</li>`).join('')||'<li>No audit events yet</li>';
+    content.innerHTML=`<div class="card"><div class="status">${esc(b.status)}</div><h1>${esc(b.input.question)}</h1><p>${esc(b.summary)}</p><p><b>Context:</b> ${esc(b.input.project_context)}</p><div class="pill">Org: ${esc(actorOrg.value.trim())}</div><div class="pill">Role: ${esc(actorRole.value.trim())}</div><h3>Sources</h3><ul>${sources}</ul></div><div class="card"><h2>Findings</h2>${findings}</div><div class="card"><h2>Review history</h2><ul>${decisions}</ul></div><div class="card"><h2>Approvals and exports</h2><ul>${approvals}</ul><div class="action-row"><button onclick="approveBrief('${b.brief_id}')">Record approval</button><button class="secondary" onclick="downloadJsonWithHeaders('${api}/${b.brief_id}/work-item-export','${b.brief_id}-work-items.json')">Download work-item export</button></div></div><div class="card"><h2>Audit trail</h2><ul>${audits}</ul><div class="action-row"><button class="secondary" onclick="downloadJsonWithHeaders('${api}/${b.brief_id}/audit-export','${b.brief_id}-audit.json')">Download audit export</button></div></div>`;
+  }catch(error){
+    content.innerHTML=`<div class="card"><div class="alert error">${esc(error.message)}</div></div>`;
+  }
+}
+
+function showForm(brief,finding){
+  document.querySelectorAll('.review-slot').forEach(el=>el.innerHTML='');
+  document.querySelectorAll('.finding').forEach(el=>el.classList.remove('active'));
+  const container=document.querySelector(`#review-slot-${finding}`);
+  const selected=document.querySelector(`#finding-${finding}`);
+  if(!container||!selected)return;
+  container.innerHTML=`<div class="card review-card"><h2>Record review decision</h2><p>Authenticated actor: <b>${esc(actorId.value.trim())}</b> (${esc(actorRole.value.trim())}) · org <b>${esc(actorOrg.value.trim())}</b></p><label>Decision <select id="decision"><option>accept</option><option>reject</option><option>correct</option><option>needs_information</option></select></label><label>Rationale <textarea id="rationale" required></textarea></label><label>Corrected statement (optional) <textarea id="corrected"></textarea></label><button onclick="submitDecision('${brief}','${finding}')">Save decision</button></div>`;
+  selected.classList.add('active');
+  container.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.querySelector('#rationale')?.focus();
+}
+
+async function submitDecision(brief,finding){
+  const body={finding_id:finding,reviewer:actorId.value.trim(),decision:decision.value,rationale:rationale.value,corrected_statement:corrected.value||null};
+  try{
+    await apiJson(`${api}/${brief}/review-decisions`,{method:'POST',body:JSON.stringify(body)});
+    await load();
+    openBrief(brief);
+  }catch(error){
+    alert(error.message);
+  }
+}
+
+async function approveBrief(brief){
+  const rationale=prompt('Approval rationale');
+  if(!rationale)return;
+  try{
+    await apiJson(`${api}/${brief}/approvals`,{method:'POST',body:JSON.stringify({rationale})});
+    await load();
+    openBrief(brief);
+  }catch(error){
+    alert(error.message);
+  }
+}
+
+async function downloadJsonWithHeaders(url,fileName){
+  try{
+    const response=await fetch(url,{headers:actorHeaders(false)});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(data.detail||'Download failed');
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const href=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+    link.href=href;
+    link.download=fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(href);
+  }catch(error){
+    alert(error.message);
+  }
+}
+
+async function loadDashboard(){
+  enterprisePanel.innerHTML='<div class="alert warning">Loading compliance dashboard…</div>';
+  try{
+    const dashboard=await apiJson('/v1/compliance/dashboard',{method:'GET',headers:actorHeaders(false)});
+    enterprisePanel.innerHTML=`<h3>Compliance dashboard</h3><div class="muted">${esc(dashboard.summary)}</div><div class="metric-grid"><div class="metric"><span class="status">Briefs</span><b>${dashboard.brief_metrics.total_briefs}</b><div class="muted">approved ${dashboard.brief_metrics.approved_briefs} · in review ${dashboard.brief_metrics.in_review_briefs}</div></div><div class="metric"><span class="status">Validation runs</span><b>${dashboard.validation_metrics.total_runs}</b><div class="muted">valid ${dashboard.validation_metrics.valid_runs} · invalid ${dashboard.validation_metrics.invalid_runs}</div></div><div class="metric"><span class="status">Export previews</span><b>${dashboard.export_metrics.total_preview_exports}</b><div class="muted">GitHub ${dashboard.export_metrics.github_preview_exports} · Jira ${dashboard.export_metrics.jira_preview_exports}</div></div><div class="metric"><span class="status">Org</span><b>${esc(dashboard.organization_id)}</b><div class="muted">viewer ${esc(dashboard.actor_role)}</div></div></div><h4>Recent audit events</h4><ul>${(dashboard.recent_audit_events||[]).map(event=>`<li><b>${esc(event.event_type)}</b> · ${esc(event.actor_id)} · ${esc(event.brief_id)}</li>`).join('')||'<li>No audit events yet</li>'}</ul>`;
+  }catch(error){
+    enterprisePanel.innerHTML=`<div class="alert error">${esc(error.message)}</div>`;
+  }
+}
+
+async function loadPosture(){
+  enterprisePanel.innerHTML='<div class="alert warning">Loading enterprise posture…</div>';
+  try{
+    const posture=await apiJson('/v1/enterprise/posture',{method:'GET',headers:actorHeaders(false)});
+    enterprisePanel.innerHTML=`<h3>Enterprise posture</h3><p class="muted">Deployment mode: <b>${esc(posture.deployment_mode)}</b><br>Identity mode: <b>${esc(posture.identity_mode)}</b></p><h4>Active controls</h4><ul>${posture.active_controls.map(item=>`<li>${esc(item)}</li>`).join('')}</ul><h4>Current boundaries</h4><ul>${posture.current_boundaries.map(item=>`<li>${esc(item)}</li>`).join('')}</ul>`;
+  }catch(error){
+    enterprisePanel.innerHTML=`<div class="alert error">${esc(error.message)}</div>`;
+  }
+}
+
+async function loadSyntheticCatalog(){
+  enterprisePanel.innerHTML='<div class="alert warning">Loading synthetic FHIR scenarios…</div>';
+  try{
+    const catalog=await fetch('/v1/fhir-synthetic/catalog').then(r=>r.json());
+    enterprisePanel.innerHTML=`<h3>Synthetic FHIR scenarios</h3><ul>${catalog.scenarios.map(s=>`<li><b>${esc(s.title)}</b><br>${esc(s.description)}<br><button class="secondary" onclick="generateSynthetic('${esc(s.scenario_id)}')">Generate payload</button></li>`).join('')}</ul>`;
+  }catch(error){
+    enterprisePanel.innerHTML=`<div class="alert error">Could not load synthetic FHIR catalog.</div>`;
+  }
+}
+
+async function generateSynthetic(scenarioId){
+  enterprisePanel.innerHTML='<div class="alert warning">Generating synthetic FHIR payload…</div>';
+  try{
+    const payload=await fetch('/v1/fhir-synthetic/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scenario_id:scenarioId})}).then(r=>r.json());
+    enterprisePanel.innerHTML=`<h3>${esc(payload.title)}</h3><p class="muted">${esc(payload.description)}</p><div class="pill">Expected validation: ${esc(payload.expected_validation_status)}</div><div class="pill">Profile: ${esc(payload.validation_recommendation.profile_url)}</div><pre style="white-space:pre-wrap;overflow:auto;background:#0f1720;color:#d7e3ea;padding:14px;border-radius:8px">${esc(JSON.stringify(payload.validation_request,null,2))}</pre>`;
+  }catch(error){
+    enterprisePanel.innerHTML=`<div class="alert error">Could not generate synthetic FHIR payload.</div>`;
+  }
+}
+
+document.querySelector('#refresh').onclick=load;
+corpusIdLabel.textContent=defaultCorpusId;
+corpusVersionLabel.textContent=defaultCorpusVersion;
+load();
+</script>
+</body>
+</html>
