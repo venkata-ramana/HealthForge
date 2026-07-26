@@ -28,6 +28,6 @@ public class TrackedWorkItemExportController {
             @Valid @RequestBody TrackedWorkItemExportRequest request,
             HttpServletRequest httpRequest
     ) {
-        return service.preview(request, actorResolver.requireAdministrator(httpRequest));
+        return service.preview(request, actorResolver.requireApproverOrAdministrator(httpRequest));
     }
 }

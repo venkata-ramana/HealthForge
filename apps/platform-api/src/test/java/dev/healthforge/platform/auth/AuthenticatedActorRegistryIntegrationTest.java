@@ -20,7 +20,9 @@ class AuthenticatedActorRegistryIntegrationTest {
     @AfterEach
     void tearDown() {
         jdbcTemplate.update("delete from actor_role_assignment where actor_user_id like 'actor.%'");
+        jdbcTemplate.update("delete from actor_role_assignment where organization_id like 'tenant.%'");
         jdbcTemplate.update("delete from actor_organization_membership where actor_user_id like 'actor.%'");
+        jdbcTemplate.update("delete from actor_organization_membership where organization_id like 'tenant.%'");
         jdbcTemplate.update("delete from actor_user where actor_user_id like 'actor.%'");
         jdbcTemplate.update("delete from actor_organization where organization_id like 'tenant.%'");
     }
