@@ -6,6 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 class AuthenticatedActorResolverTest {
 
@@ -16,7 +17,7 @@ class AuthenticatedActorResolverTest {
 
     @Test
     void delegatesRequiredResolutionToConfiguredProvider() {
-        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, null));
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, null), mock(AuthenticatedActorRegistry.class));
 
         var actor = resolver.requireWriteActor(new MockHttpServletRequest());
 
@@ -25,7 +26,7 @@ class AuthenticatedActorResolverTest {
 
     @Test
     void resolvesOptionalActorThroughProvider() {
-        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, approver));
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, approver), mock(AuthenticatedActorRegistry.class));
 
         var actor = resolver.resolveOptionalActor(new MockHttpServletRequest());
 
@@ -34,7 +35,7 @@ class AuthenticatedActorResolverTest {
 
     @Test
     void rejectsAdministratorOnlyActionForReviewer() {
-        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, null));
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, null), mock(AuthenticatedActorRegistry.class));
 
         assertThatThrownBy(() -> resolver.requireAdministrator(new MockHttpServletRequest()))
                 .isInstanceOf(ResponseStatusException.class)
@@ -43,7 +44,7 @@ class AuthenticatedActorResolverTest {
 
     @Test
     void allowsApproverForApprovalActions() {
-        var resolver = new AuthenticatedActorResolver(new StubActorProvider(approver, null));
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(approver, null), mock(AuthenticatedActorRegistry.class));
 
         var actor = resolver.requireApproverOrAdministrator(new MockHttpServletRequest());
 
@@ -52,7 +53,7 @@ class AuthenticatedActorResolverTest {
 
     @Test
     void allowsAuditorForAuditActions() {
-        var resolver = new AuthenticatedActorResolver(new StubActorProvider(auditor, null));
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(auditor, null), mock(AuthenticatedActorRegistry.class));
 
         var actor = resolver.requireAuditorOrAdministrator(new MockHttpServletRequest());
 
@@ -61,7 +62,7 @@ class AuthenticatedActorResolverTest {
 
     @Test
     void allowsAdministratorForAdministrativeActions() {
-        var resolver = new AuthenticatedActorResolver(new StubActorProvider(administrator, null));
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(administrator, null), mock(AuthenticatedActorRegistry.class));
 
         var actor = resolver.requireAdministrator(new MockHttpServletRequest());
 

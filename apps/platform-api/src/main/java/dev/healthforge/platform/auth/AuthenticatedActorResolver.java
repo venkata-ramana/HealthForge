@@ -14,17 +14,25 @@ public class AuthenticatedActorResolver {
     public static final String ACTOR_IDENTITY_MODE_HEADER = LocalHeaderAuthenticatedActorProvider.ACTOR_IDENTITY_MODE_HEADER;
 
     private final AuthenticatedActorProvider actorProvider;
+    private final AuthenticatedActorRegistry actorRegistry;
 
-    public AuthenticatedActorResolver(AuthenticatedActorProvider actorProvider) {
+    public AuthenticatedActorResolver(AuthenticatedActorProvider actorProvider, AuthenticatedActorRegistry actorRegistry) {
         this.actorProvider = actorProvider;
+        this.actorRegistry = actorRegistry;
     }
 
     public AuthenticatedActor requireWriteActor(HttpServletRequest request) {
-        return actorProvider.resolveRequiredActor(request);
+        var actor = actorProvider.resolveRequiredActor(request);
+        actorRegistry.recordResolvedActor(actor);
+        return actor;
     }
 
     public AuthenticatedActor resolveOptionalActor(HttpServletRequest request) {
-        return actorProvider.resolveOptionalActor(request);
+        var actor = actorProvider.resolveOptionalActor(request);
+        if (actor != null) {
+            actorRegistry.recordResolvedActor(actor);
+        }
+        return actor;
     }
 
     public AuthenticatedActor requireReviewerOrAdministrator(HttpServletRequest request) {
