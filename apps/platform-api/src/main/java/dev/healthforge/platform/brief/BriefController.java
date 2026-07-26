@@ -28,10 +28,14 @@ public class BriefController {
     }
 
     @GetMapping
-    public List<BriefSummary> list() { return briefService.list(); }
+    public List<BriefSummary> list(HttpServletRequest httpRequest) {
+        return briefService.list(actorResolver.requireWriteActor(httpRequest));
+    }
 
     @GetMapping("/{briefId}")
-    public BriefResponse get(@PathVariable String briefId) { return briefService.get(briefId); }
+    public BriefResponse get(@PathVariable String briefId, HttpServletRequest httpRequest) {
+        return briefService.get(briefId, actorResolver.requireWriteActor(httpRequest));
+    }
 
     @PostMapping("/{briefId}/review-decisions")
     public BriefResponse decide(@PathVariable String briefId, @Valid @RequestBody ReviewDecisionRequest request, HttpServletRequest httpRequest) {
@@ -40,16 +44,16 @@ public class BriefController {
 
     @PostMapping("/{briefId}/approvals")
     public BriefResponse approve(@PathVariable String briefId, @Valid @RequestBody ApprovalRequest request, HttpServletRequest httpRequest) {
-        return briefService.approve(briefId, request, actorResolver.requireAdministrator(httpRequest));
+        return briefService.approve(briefId, request, actorResolver.requireApproverOrAdministrator(httpRequest));
     }
 
     @GetMapping("/{briefId}/audit-export")
-    public BriefAuditExportResponse exportAudit(@PathVariable String briefId) {
-        return briefService.exportAudit(briefId);
+    public BriefAuditExportResponse exportAudit(@PathVariable String briefId, HttpServletRequest httpRequest) {
+        return briefService.exportAudit(briefId, actorResolver.requireAuditorOrAdministrator(httpRequest));
     }
 
     @GetMapping("/{briefId}/work-item-export")
-    public BriefWorkItemExportResponse exportWorkItems(@PathVariable String briefId) {
-        return briefService.exportWorkItems(briefId);
+    public BriefWorkItemExportResponse exportWorkItems(@PathVariable String briefId, HttpServletRequest httpRequest) {
+        return briefService.exportWorkItems(briefId, actorResolver.requireApproverOrAdministrator(httpRequest));
     }
 }

@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +19,7 @@ class StarterCodeGenerationServiceTest {
     @Test
     void generatesExampleStarterCodeFromApprovedWorkItem() {
         var briefService = mock(BriefService.class);
-        when(briefService.exportWorkItems("brief_123")).thenReturn(new BriefWorkItemExportResponse(
+        when(briefService.exportWorkItems(eq("brief_123"), any())).thenReturn(new BriefWorkItemExportResponse(
                 "brief_123",
                 "approved",
                 Instant.parse("2026-07-25T17:00:00Z"),

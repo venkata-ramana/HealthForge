@@ -1,0 +1,5 @@
+environment        = "demo"
+organization_scope = "tenant.alpha"
+application_port   = 8080
+database_port      = 5432
+artifact_storage_path = "/var/lib/healthforge/artifacts"

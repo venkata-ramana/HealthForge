@@ -81,10 +81,11 @@ class BriefWorkItemExportIntegrationTest {
     private String insertBrief(String status) {
         var briefId = "brief-test-" + UUID.randomUUID();
         jdbcTemplate.update("""
-                insert into engineering_brief (brief_id, status, created_at, question, project_context, corpus_id, corpus_version)
-                values (?, ?, ?, ?, ?, ?, ?)
+                insert into engineering_brief (brief_id, organization_id, status, created_at, question, project_context, corpus_id, corpus_version)
+                values (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 briefId,
+                "local.default",
                 status,
                 Timestamp.from(Instant.parse("2026-07-25T16:00:00Z")),
                 "What changes do we need for prior authorization workflows?",
@@ -119,12 +120,13 @@ class BriefWorkItemExportIntegrationTest {
 
     private void insertDecision(String reviewId, String briefId, String findingId, String decision, String reviewer, String rationale) {
         jdbcTemplate.update("""
-                insert into brief_review_decision (review_id, brief_id, finding_id, decision, reviewer, decided_at, rationale, corrected_statement)
-                values (?, ?, ?, ?, ?, ?, ?, ?)
+                insert into brief_review_decision (review_id, brief_id, finding_id, organization_id, decision, reviewer, decided_at, rationale, corrected_statement)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 reviewId,
                 briefId,
                 findingId,
+                "local.default",
                 decision,
                 reviewer,
                 Timestamp.from(Instant.parse("2026-07-25T16:05:00Z")),
@@ -134,11 +136,12 @@ class BriefWorkItemExportIntegrationTest {
 
     private void insertApproval(String briefId) {
         jdbcTemplate.update("""
-                insert into brief_approval (approval_id, brief_id, approver, approver_role, approved_at, rationale)
-                values (?, ?, ?, ?, ?, ?)
+                insert into brief_approval (approval_id, brief_id, organization_id, approver, approver_role, approved_at, rationale)
+                values (?, ?, ?, ?, ?, ?, ?)
                 """,
                 "approval_" + UUID.randomUUID(),
                 briefId,
+                "local.default",
                 "admin.one",
                 "administrator",
                 Timestamp.from(Instant.parse("2026-07-25T16:10:00Z")),
@@ -147,11 +150,12 @@ class BriefWorkItemExportIntegrationTest {
 
     private void insertAuditEvent(String briefId, String eventType, String actorRole, String summary) {
         jdbcTemplate.update("""
-                insert into brief_audit_event (audit_event_id, brief_id, actor_id, actor_role, event_type, occurred_at, summary, details)
-                values (?, ?, ?, ?, ?, ?, ?, ?)
+                insert into brief_audit_event (audit_event_id, brief_id, organization_id, actor_id, actor_role, event_type, occurred_at, summary, details)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 "audit_" + UUID.randomUUID(),
                 briefId,
+                "local.default",
                 "actor.one",
                 actorRole,
                 eventType,

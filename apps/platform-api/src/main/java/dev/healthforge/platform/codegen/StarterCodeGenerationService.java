@@ -1,5 +1,6 @@
 package dev.healthforge.platform.codegen;
 
+import dev.healthforge.platform.auth.AuthenticatedActor;
 import dev.healthforge.platform.brief.BriefService;
 import dev.healthforge.platform.brief.BriefWorkItemExportResponse;
 import org.springframework.http.HttpStatus;
@@ -21,8 +22,8 @@ public class StarterCodeGenerationService {
         this.briefService = briefService;
     }
 
-    public StarterCodeGenerationResponse generate(StarterCodeGenerationRequest request) {
-        var export = briefService.exportWorkItems(request.briefId());
+    public StarterCodeGenerationResponse generate(StarterCodeGenerationRequest request, AuthenticatedActor actor) {
+        var export = briefService.exportWorkItems(request.briefId(), actor);
         var workItem = export.workItems().stream()
                 .filter(item -> item.workItemId().equals(request.workItemId()))
                 .findFirst()
@@ -58,6 +59,10 @@ public class StarterCodeGenerationService {
                         workItem.validationNotes()
                 )
         );
+    }
+
+    public StarterCodeGenerationResponse generate(StarterCodeGenerationRequest request) {
+        return generate(request, new AuthenticatedActor("local.system", dev.healthforge.platform.auth.ActorRole.ADMINISTRATOR));
     }
 
     private String endpointStub(BriefWorkItemExportResponse export, BriefWorkItemExportResponse.WorkItem workItem) {

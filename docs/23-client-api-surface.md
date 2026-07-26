@@ -1,6 +1,6 @@
 # Client-facing API surface
 
-This document defines the current **supported local client API boundary** for HealthForge as of Phase 4.
+This document defines the current **supported local client API boundary** for HealthForge as of Phase 5.
 
 ## Scope
 
@@ -14,6 +14,9 @@ The supported client-facing workflows are:
 - Regulation explainer
 - Prior-authorization copilot
 - Tracked GitHub/Jira-ready export previews
+- Compliance dashboard
+- Enterprise posture inspection
+- Synthetic FHIR scenario generation
 
 The current API is intended for:
 
@@ -34,13 +37,16 @@ Write operations currently use local actor headers:
 
 - `X-HealthForge-Actor`
 - `X-HealthForge-Role`
+- `X-HealthForge-Organization`
 
 Supported local roles are:
 
 - `reviewer`
+- `approver`
+- `auditor`
 - `administrator`
 
-This is a temporary local-only identity model that preserves audit traceability until stronger authentication and RBAC arrive in later phases.
+Brief reads, approvals, audit exports, work-item exports, dashboard reads, and starter-code generation now rely on this org-scoped local identity model as well. It preserves audit traceability while Phase 5 lays the groundwork for future SSO and richer RBAC.
 
 ## Request correlation and errors
 
@@ -71,6 +77,7 @@ curl -X POST http://localhost:8080/v1/briefs \
   -H 'Content-Type: application/json' \
   -H 'X-HealthForge-Actor: local.reviewer' \
   -H 'X-HealthForge-Role: reviewer' \
+  -H 'X-HealthForge-Organization: tenant.alpha' \
   -d '{
     "corpus_id": "mvp-regulatory-corpus",
     "corpus_version": "2026-07-24-expanded-web-core-v4",
@@ -86,6 +93,7 @@ curl -X POST http://localhost:8080/v1/briefs/brief_example/review-decisions \
   -H 'Content-Type: application/json' \
   -H 'X-HealthForge-Actor: local.reviewer' \
   -H 'X-HealthForge-Role: reviewer' \
+  -H 'X-HealthForge-Organization: tenant.alpha' \
   -d '{
     "finding_id": "find_example",
     "decision": "accept",
@@ -99,8 +107,9 @@ Approve a Brief for export:
 ```bash
 curl -X POST http://localhost:8080/v1/briefs/brief_example/approvals \
   -H 'Content-Type: application/json' \
-  -H 'X-HealthForge-Actor: local.admin' \
-  -H 'X-HealthForge-Role: administrator' \
+  -H 'X-HealthForge-Actor: local.approver' \
+  -H 'X-HealthForge-Role: approver' \
+  -H 'X-HealthForge-Organization: tenant.alpha' \
   -d '{
     "rationale": "Reviewed for local planning export."
   }'
@@ -109,7 +118,10 @@ curl -X POST http://localhost:8080/v1/briefs/brief_example/approvals \
 Open the approved work-item export:
 
 ```bash
-curl http://localhost:8080/v1/briefs/brief_example/work-item-export
+curl http://localhost:8080/v1/briefs/brief_example/work-item-export \
+  -H 'X-HealthForge-Actor: local.approver' \
+  -H 'X-HealthForge-Role: approver' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
 ```
 
 Create an architecture review:
@@ -136,6 +148,9 @@ Validate a synthetic FHIR example:
 ```bash
 curl -X POST http://localhost:8080/v1/fhir-validation/validate \
   -H 'Content-Type: application/json' \
+  -H 'X-HealthForge-Actor: local.reviewer' \
+  -H 'X-HealthForge-Role: reviewer' \
+  -H 'X-HealthForge-Organization: tenant.alpha' \
   -d '{
     "package_id": "hl7.fhir.r4.core",
     "package_version": "4.0.1",
@@ -193,6 +208,7 @@ curl -X POST http://localhost:8080/v1/tracker-exports/preview \
   -H 'Content-Type: application/json' \
   -H 'X-HealthForge-Actor: local.admin' \
   -H 'X-HealthForge-Role: administrator' \
+  -H 'X-HealthForge-Organization: tenant.alpha' \
   -d '{
     "brief_id": "brief_example",
     "target_system": "github",
@@ -202,12 +218,40 @@ curl -X POST http://localhost:8080/v1/tracker-exports/preview \
   }'
 ```
 
+Inspect the compliance dashboard:
+
+```bash
+curl http://localhost:8080/v1/compliance/dashboard \
+  -H 'X-HealthForge-Actor: local.auditor' \
+  -H 'X-HealthForge-Role: auditor' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Inspect the enterprise posture:
+
+```bash
+curl http://localhost:8080/v1/enterprise/posture \
+  -H 'X-HealthForge-Actor: local.auditor' \
+  -H 'X-HealthForge-Role: auditor' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Generate a synthetic FHIR scenario:
+
+```bash
+curl -X POST http://localhost:8080/v1/fhir-synthetic/generate \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "scenario_id": "prior_auth_claim_valid"
+  }'
+```
+
 ## Boundary statement
 
-This Phase 4 API surface is the supported product boundary for local clients. It is explicit about what remains local/demo only:
+This Phase 5 API surface is the supported product boundary for local clients and private demos. It is explicit about what remains local/demo only:
 
-- header-based local identity;
+- org-scoped but still header-based identity;
 - non-sensitive and synthetic-only examples;
 - no direct external writeback;
-- no production auth hardening; and
+- no production auth hardening or SSO; and
 - no PHI or clinical decision support use.

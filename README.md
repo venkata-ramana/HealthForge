@@ -22,7 +22,7 @@ HealthForge turns approved public healthcare sources into a local evidence layer
 | Architecture review assistant | API | Produces bounded architecture guidance from grounded evidence and curated standards metadata | Available now |
 | Guarded starter artifacts | API | Generates example-only starter code from approved work-item exports | Available now |
 | VS Code extension prototype | VS Code | Brings Brief creation, FHIR validation, and standards lookup into the developer workflow | Prototype available now |
-| Additional developer and enterprise integrations | Future | Broader IDE integrations, stronger enterprise workflows, private deployment, RBAC, and more product surfaces | Planned |
+| Additional developer and enterprise integrations | Web UI + API + private deployment scaffolding | Broader enterprise workflows including org-aware review boundaries, compliance visibility, synthetic FHIR generators, private deployment scaffolding, and stronger audit/export controls | Available now |
 
 ## Quick start
 
@@ -53,7 +53,7 @@ mvn spring-boot:run
 
 ## Current status
 
-Phase 4 is completed.
+Phase 5 is completed.
 
 The working platform includes:
 
@@ -71,6 +71,10 @@ The working platform includes:
 - approved work-item export
 - guarded example-only starter code generation
 - a local VS Code extension prototype
+- organization-aware review boundaries
+- compliance dashboard and enterprise posture APIs
+- synthetic FHIR generator APIs
+- private deployment Terraform starter scaffolding
 
 The MVP is intentionally bounded:
 
@@ -334,7 +338,7 @@ HealthForge is being built in deliberate phases so the platform stays reviewable
 | Phase 2 | Completed | Executable local platform slice: corpus ingestion, snapshots, retrieval, local Brief UI, guarded Brief synthesis, review identity, approvals, audit, observability, and evaluation baselines |
 | Phase 3 | Completed | Standards-aware engineering workflows: pinned FHIR validation catalog, standards artifact registry, synthetic FHIR fixtures, approved work-item export, architecture review assistant, client-facing API surface, and guarded example-only code generation |
 | Phase 4 | Completed | Product growth workflows: FHIR knowledge assistant, regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready export previews, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
-| Phase 5 | Planned | Enterprise and product hardening: tenant isolation, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
+| Phase 5 | Completed | Enterprise and product hardening: organization-aware review boundaries, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code starter scaffolding, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
 
 ### Phase highlights
 
@@ -379,6 +383,17 @@ Phase 4 completed:
 - tracked GitHub- and Jira-ready export preview integration
 - prior-authorization copilot workflow for PAS/CRD/DTR scenarios
 
+Phase 5 completed:
+
+- organization-aware Brief, approval, validation, and export telemetry boundaries
+- approver and auditor role groundwork in addition to reviewer and administrator flows
+- compliance dashboard API for enterprise oversight
+- enterprise posture API for private deployment control inspection
+- persisted validation-run telemetry for synthetic/non-sensitive FHIR validation
+- synthetic FHIR generator API backed by repository fixtures
+- private deployment Terraform starter scaffolding
+- stronger export retention metadata and audit coverage
+
 ## Documentation map
 
 Core docs:
@@ -406,6 +421,7 @@ Workflow and domain docs:
 - [`docs/27-vscode-extension-prototype.md`](docs/27-vscode-extension-prototype.md)
 - [`docs/28-prior-auth-copilot.md`](docs/28-prior-auth-copilot.md)
 - [`docs/29-tracked-export-integrations.md`](docs/29-tracked-export-integrations.md)
+- [`docs/30-phase-5-enterprise-hardening.md`](docs/30-phase-5-enterprise-hardening.md)
 
 Reference artifacts:
 
