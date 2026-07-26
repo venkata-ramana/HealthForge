@@ -46,7 +46,7 @@ Supported local roles are:
 - `auditor`
 - `administrator`
 
-Brief reads, approvals, audit exports, work-item exports, dashboard reads, and starter-code generation now rely on this org-scoped local identity model as well. It preserves audit traceability while Phase 5 lays the groundwork for future SSO and richer RBAC.
+Brief reads, approvals, audit exports, work-item exports, dashboard reads, and starter-code generation now rely on this org-scoped local identity model as well. It preserves audit traceability while the platform transitions toward a pluggable enterprise authentication boundary and richer RBAC.
 
 ## Request correlation and errors
 

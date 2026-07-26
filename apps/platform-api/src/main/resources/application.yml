@@ -43,6 +43,9 @@ logging:
     console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%X{requestId:-none}] %logger{36} - %msg%n"
 
 healthforge:
+  auth:
+    mode: ${HEALTHFORGE_AUTH_MODE:local_header}
+    default-organization-id: ${HEALTHFORGE_DEFAULT_ORGANIZATION_ID:local.default}
   fhir:
     validation:
       packages:

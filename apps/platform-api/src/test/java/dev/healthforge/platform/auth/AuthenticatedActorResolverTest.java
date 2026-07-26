@@ -9,58 +9,80 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AuthenticatedActorResolverTest {
 
-    private final AuthenticatedActorResolver resolver = new AuthenticatedActorResolver();
+    private final AuthenticatedActor reviewer = new AuthenticatedActor("local.reviewer", ActorRole.REVIEWER, "tenant.alpha", "local_header");
+    private final AuthenticatedActor administrator = new AuthenticatedActor("local.admin", ActorRole.ADMINISTRATOR, "tenant.alpha", "local_header");
+    private final AuthenticatedActor approver = new AuthenticatedActor("local.approver", ActorRole.APPROVER, "tenant.alpha", "local_header");
+    private final AuthenticatedActor auditor = new AuthenticatedActor("local.auditor", ActorRole.AUDITOR, "tenant.alpha", "local_header");
 
     @Test
-    void resolvesAuthenticatedActorFromHeaders() {
-        var request = new MockHttpServletRequest();
-        request.addHeader(AuthenticatedActorResolver.ACTOR_ID_HEADER, "local.reviewer");
-        request.addHeader(AuthenticatedActorResolver.ACTOR_ROLE_HEADER, "reviewer");
+    void delegatesRequiredResolutionToConfiguredProvider() {
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, null));
 
-        var actor = resolver.requireWriteActor(request);
+        var actor = resolver.requireWriteActor(new MockHttpServletRequest());
 
-        assertThat(actor.actorId()).isEqualTo("local.reviewer");
-        assertThat(actor.role()).isEqualTo(ActorRole.REVIEWER);
-        assertThat(actor.organizationId()).isEqualTo("local.default");
-        assertThat(actor.identityMode()).isEqualTo("local_header");
+        assertThat(actor).isEqualTo(reviewer);
     }
 
     @Test
-    void rejectsMissingHeaders() {
-        assertThatThrownBy(() -> resolver.requireWriteActor(new MockHttpServletRequest()))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Authenticated write actions require");
+    void resolvesOptionalActorThroughProvider() {
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, approver));
+
+        var actor = resolver.resolveOptionalActor(new MockHttpServletRequest());
+
+        assertThat(actor).isEqualTo(approver);
     }
 
     @Test
     void rejectsAdministratorOnlyActionForReviewer() {
-        var request = new MockHttpServletRequest();
-        request.addHeader(AuthenticatedActorResolver.ACTOR_ID_HEADER, "local.reviewer");
-        request.addHeader(AuthenticatedActorResolver.ACTOR_ROLE_HEADER, "reviewer");
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, null));
 
-        assertThatThrownBy(() -> resolver.requireAdministrator(request))
+        assertThatThrownBy(() -> resolver.requireAdministrator(new MockHttpServletRequest()))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("administrator role");
     }
 
     @Test
-    void resolvesOptionalActorAsNullWhenHeadersAbsent() {
-        assertThat(resolver.resolveOptionalActor(new MockHttpServletRequest())).isNull();
+    void allowsApproverForApprovalActions() {
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(approver, null));
+
+        var actor = resolver.requireApproverOrAdministrator(new MockHttpServletRequest());
+
+        assertThat(actor).isEqualTo(approver);
     }
 
     @Test
-    void resolvesOptionalActorWhenHeadersPresent() {
-        var request = new MockHttpServletRequest();
-        request.addHeader(AuthenticatedActorResolver.ACTOR_ID_HEADER, "auditor.one");
-        request.addHeader(AuthenticatedActorResolver.ACTOR_ROLE_HEADER, "auditor");
-        request.addHeader(AuthenticatedActorResolver.ACTOR_ORG_HEADER, "tenant.alpha");
-        request.addHeader(AuthenticatedActorResolver.ACTOR_IDENTITY_MODE_HEADER, "demo_sso");
+    void allowsAuditorForAuditActions() {
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(auditor, null));
 
-        var actor = resolver.resolveOptionalActor(request);
+        var actor = resolver.requireAuditorOrAdministrator(new MockHttpServletRequest());
 
-        assertThat(actor.actorId()).isEqualTo("auditor.one");
-        assertThat(actor.role()).isEqualTo(ActorRole.AUDITOR);
-        assertThat(actor.organizationId()).isEqualTo("tenant.alpha");
-        assertThat(actor.identityMode()).isEqualTo("demo_sso");
+        assertThat(actor).isEqualTo(auditor);
+    }
+
+    @Test
+    void allowsAdministratorForAdministrativeActions() {
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(administrator, null));
+
+        var actor = resolver.requireAdministrator(new MockHttpServletRequest());
+
+        assertThat(actor).isEqualTo(administrator);
+    }
+
+    private record StubActorProvider(AuthenticatedActor requiredActor, AuthenticatedActor optionalActor) implements AuthenticatedActorProvider {
+
+        @Override
+        public AuthenticatedActor resolveRequiredActor(jakarta.servlet.http.HttpServletRequest request) {
+            return requiredActor;
+        }
+
+        @Override
+        public AuthenticatedActor resolveOptionalActor(jakarta.servlet.http.HttpServletRequest request) {
+            return optionalActor;
+        }
+
+        @Override
+        public String authenticationMode() {
+            return "stub";
+        }
     }
 }

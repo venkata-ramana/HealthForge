@@ -5,7 +5,7 @@ For the local Phase 2 shared-review preparation slice, HealthForge now distingui
 - `reviewer`: may create Brief drafts from grounded evidence and record review decisions.
 - `administrator`: retains reviewer capabilities and is required for administrative actions such as controlled ingestion and future deployment configuration.
 
-This is intentionally a local, header-based authentication boundary rather than a production identity system. Until shared deployment work is complete, write actions must include:
+This is intentionally a local, header-based authentication mode rather than a production identity system. In later phases, HealthForge will replace this with stronger enterprise authentication, but the platform now treats local headers as one pluggable provider mode instead of the only possible runtime boundary. Until shared deployment work is complete, local write actions must include:
 
 - `X-HealthForge-Actor`: stable local actor identifier
 - `X-HealthForge-Role`: `reviewer` or `administrator`
