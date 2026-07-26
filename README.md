@@ -2,27 +2,30 @@
 
 HealthForge is an open-source AI engineering platform for healthcare interoperability.
 
-It turns authoritative healthcare regulations and implementation guidance into traceable, reviewable engineering outputs: cited answers, Briefs, architecture guidance, validation results, and downstream implementation artifacts.
+It helps healthcare teams turn authoritative public regulations, implementation guides, and standards artifacts into traceable engineering outputs: grounded answers, reviewable Briefs, architecture guidance, validation results, and implementation-ready artifacts.
 
-HealthForge turns approved public healthcare sources into a local evidence layer that teams can search, review, validate, and turn into engineering-ready outputs.
+In practical terms, HealthForge creates a local evidence layer from approved public sources, then gives reviewers, approvers, auditors, and administrators a structured way to search, assess, validate, approve, and export what the platform finds.
 
 ## Features
 
-| Feature | Interface | What it does | Status |
+| Capability | Interface | What it does | Status |
 | --- | --- | --- | --- |
 | Regulatory document ingestion | Backend workflow | Ingests approved public documents such as CMS PDFs and stores provenance, versions, and artifacts locally | Available now |
 | Evidence extraction and corpus snapshots | Backend workflow | Splits documents into citeable passages and organizes them into reproducible corpus snapshots | Available now |
 | Web-based evidence search and grounded answers | Web UI + API | Lets users ask questions with project context and returns grounded answers backed by retrieved evidence | Available now |
 | Reviewable Brief workflow | Web UI + API | Creates Briefs with findings, citations, review decisions, approvals, and audit history | Available now |
+| Role-aware review console | Web UI | Adapts the console to reviewer, approver, auditor, and administrator responsibilities so users only see or trigger actions appropriate for their role | Available now |
+| Tenant-aware review boundaries | Web UI + API | Scopes Briefs, exports, telemetry, and admin directory access to the active organization | Available now |
 | FHIR validation | API + VS Code prototype | Validates synthetic or non-sensitive FHIR examples against a pinned R4 validation catalog | Available now |
 | FHIR knowledge assistant | API + VS Code prototype | Helps developers inspect curated FHIR resources, profiles, guides, and workflow touchpoints | Available now |
 | Regulation explainer | API | Turns an approved source into a plain-English technical explainer with citations, caveats, and implications | Available now |
 | Prior-authorization copilot | API | Analyzes PAS, CRD, and DTR-oriented workflow scenarios with evidence and standards touchpoints | Available now |
-| Tracked export previews | API | Generates GitHub- and Jira-ready preview payloads from approved work items without direct writeback | Available now |
+| Tracked export previews | API | Generates GitHub- and Jira-ready preview payloads from approved work items without direct writeback, with approver/admin authorization and audit traceability | Available now |
 | Architecture review assistant | API | Produces bounded architecture guidance from grounded evidence and curated standards metadata | Available now |
 | Guarded starter artifacts | API | Generates example-only starter code from approved work-item exports | Available now |
 | VS Code extension prototype | VS Code | Brings Brief creation, FHIR validation, and standards lookup into the developer workflow | Prototype available now |
-| Additional developer and enterprise integrations | Web UI + API + private deployment scaffolding | Broader enterprise workflows including org-aware review boundaries, compliance visibility, synthetic FHIR generators, private deployment scaffolding, and stronger audit/export controls | Available now |
+| Identity directory and access model | API | Persists durable users, organizations, memberships, and role assignments behind a pluggable auth boundary | Available now |
+| Additional developer and enterprise integrations | Web UI + API + private deployment scaffolding | Broader enterprise workflows including compliance visibility, synthetic FHIR generators, private deployment scaffolding, and stronger audit/export controls | Available now |
 
 ## Quick start
 
@@ -53,7 +56,7 @@ mvn spring-boot:run
 
 ## Current status
 
-Phase 5 is completed.
+Phase 5 is completed. Phase 6 is in progress.
 
 The working platform includes:
 
@@ -76,6 +79,10 @@ The working platform includes:
 - synthetic FHIR generator APIs
 - private deployment Terraform starter scaffolding
 - durable user, organization, membership, and role-assignment modeling
+- a pluggable authentication boundary for future identity providers
+- tenant-scoped identity directory inspection for administrators
+- role-aware UI controls across reviewer, approver, auditor, and administrator flows
+- RBAC enforcement aligned across the UI and core APIs
 
 The MVP is intentionally bounded:
 
@@ -95,6 +102,13 @@ The first usable vertical slice is the Regulation-to-Engineering Brief workflow:
 4. Create a reviewable Brief from cited findings.
 5. Accept, correct, reject, and approve findings through a human review workflow.
 6. Export approved implementation work items for downstream engineering planning.
+
+The platform is now also strong enough to demo an enterprise review story:
+
+1. Switch roles in the local review console.
+2. Show how reviewer, approver, auditor, and administrator actions differ.
+3. Demonstrate that organization-scoped reads, approvals, exports, and admin inspection stay tenant-aware.
+4. Walk from evidence discovery to approval to export preview without direct external writeback.
 
 ## Examples
 
@@ -340,7 +354,7 @@ HealthForge is being built in deliberate phases so the platform stays reviewable
 | Phase 3 | Completed | Standards-aware engineering workflows: pinned FHIR validation catalog, standards artifact registry, synthetic FHIR fixtures, approved work-item export, architecture review assistant, client-facing API surface, and guarded example-only code generation |
 | Phase 4 | Completed | Product growth workflows: FHIR knowledge assistant, regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready export previews, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
 | Phase 5 | Completed | Enterprise and product hardening: organization-aware review boundaries, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code starter scaffolding, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
-| Phase 6 | Planned | Production identity, RBAC, tenant administration, and stronger enterprise access controls. See [#88](https://github.com/venkata-ramana/HealthForge/issues/88). |
+| Phase 6 | In progress | Production identity, RBAC, tenant administration, and stronger enterprise access controls. Authentication boundary, durable identity model, and RBAC enforcement are complete. See [#88](https://github.com/venkata-ramana/HealthForge/issues/88). |
 | Phase 7 | Planned | Deeper prior-authorization and interoperability workflows including PAS/CRD/DTR journeys, bundle review, and standards crosswalks. See [#89](https://github.com/venkata-ramana/HealthForge/issues/89). |
 | Phase 8 | Planned | Enterprise integrations and delivery automation including governed writeback, collaboration notifications, and webhooks. See [#90](https://github.com/venkata-ramana/HealthForge/issues/90). |
 | Phase 9 | Planned | Trust, evaluation, and governance at scale with dashboards, regression visibility, and policy reporting. See [#91](https://github.com/venkata-ramana/HealthForge/issues/91). |
@@ -400,13 +414,13 @@ Phase 5 completed:
 - private deployment Terraform starter scaffolding
 - stronger export retention metadata and audit coverage
 
-Phase 6 planned:
+Phase 6 in progress:
 
-- production-oriented authentication boundary beyond local header identity
-- durable user, organization, membership, and role assignment models
-- RBAC and tenant-aware authorization across UI and APIs
-- stronger operator setup, secret handling, and private deployment hardening
-- audit policy configuration and access-review reporting
+- completed: production-oriented authentication boundary beyond direct controller coupling
+- completed: durable user, organization, membership, and role-assignment models
+- completed: RBAC and tenant-aware authorization across UI and APIs
+- next: stronger operator setup, secret handling, and private deployment hardening
+- next: audit policy configuration and access-review reporting
 
 Phase 7 planned:
 
@@ -442,9 +456,9 @@ Phase 10 planned:
 ### Planned backlog by phase
 
 - Phase 6 roadmap: [#88](https://github.com/venkata-ramana/HealthForge/issues/88)
-  - [#93](https://github.com/venkata-ramana/HealthForge/issues/93) authentication boundary
-  - [#94](https://github.com/venkata-ramana/HealthForge/issues/94) user/org/membership model
-  - [#95](https://github.com/venkata-ramana/HealthForge/issues/95) RBAC and tenant-aware authorization
+  - [#93](https://github.com/venkata-ramana/HealthForge/issues/93) authentication boundary — completed
+  - [#94](https://github.com/venkata-ramana/HealthForge/issues/94) user/org/membership model — completed
+  - [#95](https://github.com/venkata-ramana/HealthForge/issues/95) RBAC and tenant-aware authorization — completed
   - [#96](https://github.com/venkata-ramana/HealthForge/issues/96) private deployment hardening
   - [#97](https://github.com/venkata-ramana/HealthForge/issues/97) audit policy and access-review reporting
 
