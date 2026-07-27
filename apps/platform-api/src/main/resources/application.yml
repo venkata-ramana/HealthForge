@@ -46,6 +46,15 @@ healthforge:
   auth:
     mode: ${HEALTHFORGE_AUTH_MODE:local_header}
     default-organization-id: ${HEALTHFORGE_DEFAULT_ORGANIZATION_ID:local.default}
+  audit:
+    policy:
+      policy-version: ${HEALTHFORGE_AUDIT_POLICY_VERSION:private-demo-v1}
+      tracked-export-retention-days: ${HEALTHFORGE_TRACKED_EXPORT_RETENTION_DAYS:30}
+      validation-telemetry-retention: ${HEALTHFORGE_VALIDATION_TELEMETRY_RETENTION:Retained in the local telemetry store until an operator rotates or archives it.}
+      audit-evidence-retention: ${HEALTHFORGE_AUDIT_EVIDENCE_RETENTION:Retained in the local platform database to preserve review traceability for approved engineering outputs.}
+      access-review-cadence: ${HEALTHFORGE_ACCESS_REVIEW_CADENCE:Review organization access at least quarterly for private pilots.}
+      role-review-expectation: ${HEALTHFORGE_ROLE_REVIEW_EXPECTATION:Administrators should confirm reviewer, approver, auditor, and administrator assignments remain justified and organization scoped.}
+      approval-required-for-exports: ${HEALTHFORGE_APPROVAL_REQUIRED_FOR_EXPORTS:true}
   fhir:
     validation:
       packages:

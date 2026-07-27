@@ -246,6 +246,22 @@ curl 'http://localhost:8080/v1/admin/identity-directory?organization_id=tenant.a
   -H 'X-HealthForge-Organization: tenant.alpha'
 ```
 
+Inspect the organization-scoped access-review report:
+
+```bash
+curl http://localhost:8080/v1/admin/access-review \
+  -H 'X-HealthForge-Actor: local.admin' \
+  -H 'X-HealthForge-Role: administrator' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Expected result:
+
+- organization-scoped role assignments
+- access-review policy metadata
+- administrator, auditor, approver, and reviewer assignment counts
+- non-PHI rationale explaining what each role currently allows
+
 Generate a synthetic FHIR scenario:
 
 ```bash
