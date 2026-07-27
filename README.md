@@ -517,6 +517,7 @@ Workflow and domain docs:
 - [`docs/28-prior-auth-copilot.md`](docs/28-prior-auth-copilot.md)
 - [`docs/29-tracked-export-integrations.md`](docs/29-tracked-export-integrations.md)
 - [`docs/30-phase-5-enterprise-hardening.md`](docs/30-phase-5-enterprise-hardening.md)
+- [`docs/31-private-deployment-operator-guide.md`](docs/31-private-deployment-operator-guide.md)
 
 Reference artifacts:
 

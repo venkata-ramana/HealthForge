@@ -9,8 +9,12 @@ The local platform API reads deployment-sensitive configuration from environment
 - `HEALTHFORGE_DB_URL`
 - `HEALTHFORGE_DB_USERNAME`
 - `HEALTHFORGE_DB_PASSWORD`
+- `HEALTHFORGE_AUTH_MODE`
+- `HEALTHFORGE_DEFAULT_ORGANIZATION_ID`
 - `HEALTHFORGE_ARTIFACT_DIRECTORY`
 - `HEALTHFORGE_WORKSPACE_ROOT`
+- `HEALTHFORGE_MODEL_ENABLED`
+- `HEALTHFORGE_MODEL_PROVIDER`
 - `HEALTHFORGE_DB_PORT`
 - `HEALTHFORGE_API_PORT`
 
@@ -63,3 +67,7 @@ The repository now provides a Docker Compose path under `infra/docker/docker-com
 - the platform API container
 
 This path is intended for local and non-production validation only. It is not a production hardening story, but it does provide a repeatable runtime with health checks and environment-driven configuration.
+
+Use `infra/docker/.env.example` as the starting point for a non-committed local `.env` file so credentials and runtime overrides do not have to live in shell history or Compose YAML.
+
+For the stronger operator baseline introduced in Phase 6, see [`docs/31-private-deployment-operator-guide.md`](./31-private-deployment-operator-guide.md).

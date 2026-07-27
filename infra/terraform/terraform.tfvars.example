@@ -1,5 +1,10 @@
 environment        = "demo"
 organization_scope = "tenant.alpha"
 application_port   = 8080
+db_username        = "healthforge"
+db_password_secret_ref = "kv://healthforge/demo/postgres-password"
 database_port      = 5432
+auth_mode          = "local_header"
+default_organization_id = "tenant.alpha"
 artifact_storage_path = "/var/lib/healthforge/artifacts"
+model_enabled      = false
