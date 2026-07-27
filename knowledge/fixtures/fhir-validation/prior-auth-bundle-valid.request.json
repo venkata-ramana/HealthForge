@@ -1,0 +1,121 @@
+{
+  "package_id": "hl7.fhir.r4.core",
+  "package_version": "4.0.1",
+  "profile_url": "http://hl7.org/fhir/StructureDefinition/Bundle",
+  "data_classification": "synthetic",
+  "resource": {
+    "resourceType": "Bundle",
+    "id": "synthetic-prior-auth-bundle-valid",
+    "type": "collection",
+    "entry": [
+      {
+        "fullUrl": "http://example.org/fhir/Patient/example",
+        "resource": {
+          "resourceType": "Patient",
+          "id": "example",
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Synthetic patient context.</div>"
+          }
+        }
+      },
+      {
+        "fullUrl": "http://example.org/fhir/Coverage/synthetic-prior-auth-coverage-valid",
+        "resource": {
+          "resourceType": "Coverage",
+          "id": "synthetic-prior-auth-coverage-valid",
+          "status": "active",
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Synthetic coverage context.</div>"
+          },
+          "beneficiary": {
+            "reference": "http://example.org/fhir/Patient/example"
+          },
+          "payor": [
+            {
+              "reference": "http://example.org/fhir/Organization/example-payer"
+            }
+          ]
+        }
+      },
+      {
+        "fullUrl": "http://example.org/fhir/Claim/synthetic-prior-auth-claim-valid",
+        "resource": {
+          "resourceType": "Claim",
+          "id": "synthetic-prior-auth-claim-valid",
+          "status": "active",
+          "use": "preauthorization",
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Synthetic prior-authorization claim.</div>"
+          },
+          "type": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                "code": "professional"
+              }
+            ]
+          },
+          "patient": {
+            "reference": "http://example.org/fhir/Patient/example"
+          },
+          "created": "2026-07-25",
+          "provider": {
+            "reference": "http://example.org/fhir/Organization/example-provider"
+          },
+          "priority": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/processpriority",
+                "code": "normal"
+              }
+            ]
+          },
+          "insurance": [
+            {
+              "sequence": 1,
+              "focal": true,
+              "coverage": {
+                "reference": "http://example.org/fhir/Coverage/synthetic-prior-auth-coverage-valid"
+              }
+            }
+          ],
+          "item": [
+            {
+              "sequence": 1,
+              "productOrService": {
+                "text": "Planned orthopedic procedure"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "fullUrl": "http://example.org/fhir/Organization/example-provider",
+        "resource": {
+          "resourceType": "Organization",
+          "id": "example-provider",
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Synthetic provider organization.</div>"
+          },
+          "name": "Example Orthopedics"
+        }
+      },
+      {
+        "fullUrl": "http://example.org/fhir/Organization/example-payer",
+        "resource": {
+          "resourceType": "Organization",
+          "id": "example-payer",
+          "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Synthetic payer organization.</div>"
+          },
+          "name": "Example Health Plan"
+        }
+      }
+    ]
+  }
+}

@@ -292,6 +292,28 @@ curl -X POST http://localhost:8080/v1/fhir-synthetic/generate \
   }'
 ```
 
+Review a synthetic prior-authorization bundle scenario:
+
+```bash
+curl -X POST http://localhost:8080/v1/prior-auth/bundle-reviews \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "corpus_id": "mvp-regulatory-corpus",
+    "corpus_version": "2026-07-24-expanded-web-core-v4",
+    "question": "How should we review a PAS-oriented prior authorization bundle?",
+    "project_context": "Synthetic provider EHR planning scenario for prior authorization APIs.",
+    "scenario_id": "prior_auth_bundle_valid"
+  }'
+```
+
+Expected result:
+
+- a synthetic multi-resource Bundle is loaded and validated against the pinned R4 Bundle profile
+- bundle inventory shows the resource mix and observed references
+- workflow context shows PAS/CRD/DTR-style stages, transitions, responsibilities, and standards touchpoints
+- scenario findings distinguish structural bundle issues from workflow-review guidance
+- cited evidence findings remain bounded and reviewer-visible
+
 ## Boundary statement
 
 This Phase 5 API surface is the supported product boundary for local clients and private demos. It is explicit about what remains local/demo only:

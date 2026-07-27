@@ -44,6 +44,13 @@ public class SyntheticFhirService {
                 "knowledge/fixtures/fhir-validation/prior-auth-coverage-valid.request.json",
                 "valid"
         ));
+        scenarios.put("prior_auth_bundle_valid", new ScenarioDefinition(
+                "prior_auth_bundle_valid",
+                "Prior authorization bundle (valid)",
+                "Synthetic multi-resource prior-authorization bundle for workflow and validation demos.",
+                "knowledge/fixtures/fhir-validation/prior-auth-bundle-valid.request.json",
+                "valid"
+        ));
         scenarios.put("prior_auth_bundle_invalid_missing_type", new ScenarioDefinition(
                 "prior_auth_bundle_invalid_missing_type",
                 "Prior authorization bundle (invalid: missing type)",
@@ -148,6 +155,12 @@ public class SyntheticFhirService {
                     case "package_id" -> "hl7.fhir.r4.core";
                     case "package_version" -> "4.0.1";
                     case "profile_url" -> "http://hl7.org/fhir/StructureDefinition/Coverage";
+                    default -> "";
+                };
+                case "prior_auth_bundle_valid" -> switch (field) {
+                    case "package_id" -> "hl7.fhir.r4.core";
+                    case "package_version" -> "4.0.1";
+                    case "profile_url" -> "http://hl7.org/fhir/StructureDefinition/Bundle";
                     default -> "";
                 };
                 case "prior_auth_bundle_invalid_missing_type" -> switch (field) {
