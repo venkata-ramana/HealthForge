@@ -13,7 +13,8 @@ This is the first executable HealthForge slice. It fetches only manifest-approve
 From the repository root:
 
 ```bash
-docker compose -f infra/docker/docker-compose.yml up -d
+cp infra/docker/.env.example infra/docker/.env
+docker compose --env-file infra/docker/.env -f infra/docker/docker-compose.yml up -d
 cd apps/platform-api
 mvn spring-boot:run
 ```
@@ -26,7 +27,8 @@ The Docker database maps to host port `5433` by default to avoid colliding with 
 From the repository root:
 
 ```bash
-docker compose -f infra/docker/docker-compose.yml up --build
+cp infra/docker/.env.example infra/docker/.env
+docker compose --env-file infra/docker/.env -f infra/docker/docker-compose.yml up --build
 ```
 
 This starts PostgreSQL plus the platform API container. The API health endpoints are available at:
@@ -51,6 +53,8 @@ Prefer environment variables over committed secrets:
 - `HEALTHFORGE_API_PORT`
 
 Do not place real credentials or PHI in source control, Compose files, or logs.
+
+For private deployment and operator guidance beyond local development, see [`docs/31-private-deployment-operator-guide.md`](../docs/31-private-deployment-operator-guide.md).
 
 The current supported authentication mode is `local_header`, which keeps the local header workflow active for demos and development while routing request identity through a pluggable provider boundary in the application.
 

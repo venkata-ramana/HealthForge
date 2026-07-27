@@ -3,13 +3,13 @@ services:
     image: postgres:17-alpine
     container_name: healthforge-postgres
     environment:
-      POSTGRES_DB: healthforge
-      POSTGRES_USER: healthforge
-      POSTGRES_PASSWORD: healthforge
+      POSTGRES_DB: ${HEALTHFORGE_POSTGRES_DB:-healthforge}
+      POSTGRES_USER: ${HEALTHFORGE_POSTGRES_USER:-healthforge}
+      POSTGRES_PASSWORD: ${HEALTHFORGE_POSTGRES_PASSWORD:-change-me-local-only}
     ports:
       - "${HEALTHFORGE_DB_PORT:-5433}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U healthforge -d healthforge"]
+      test: ["CMD-SHELL", "pg_isready -U ${HEALTHFORGE_POSTGRES_USER:-healthforge} -d ${HEALTHFORGE_POSTGRES_DB:-healthforge}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -25,11 +25,15 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      HEALTHFORGE_DB_URL: jdbc:postgresql://postgres:5432/healthforge
-      HEALTHFORGE_DB_USERNAME: healthforge
-      HEALTHFORGE_DB_PASSWORD: healthforge
-      HEALTHFORGE_ARTIFACT_DIRECTORY: /var/lib/healthforge/artifacts
-      HEALTHFORGE_WORKSPACE_ROOT: /workspace
+      HEALTHFORGE_DB_URL: ${HEALTHFORGE_DB_URL:-jdbc:postgresql://postgres:5432/healthforge}
+      HEALTHFORGE_DB_USERNAME: ${HEALTHFORGE_DB_USERNAME:-healthforge}
+      HEALTHFORGE_DB_PASSWORD: ${HEALTHFORGE_DB_PASSWORD:-change-me-local-only}
+      HEALTHFORGE_AUTH_MODE: ${HEALTHFORGE_AUTH_MODE:-local_header}
+      HEALTHFORGE_DEFAULT_ORGANIZATION_ID: ${HEALTHFORGE_DEFAULT_ORGANIZATION_ID:-local.default}
+      HEALTHFORGE_ARTIFACT_DIRECTORY: ${HEALTHFORGE_ARTIFACT_DIRECTORY:-/var/lib/healthforge/artifacts}
+      HEALTHFORGE_WORKSPACE_ROOT: ${HEALTHFORGE_WORKSPACE_ROOT:-/workspace}
+      HEALTHFORGE_MODEL_ENABLED: ${HEALTHFORGE_MODEL_ENABLED:-false}
+      HEALTHFORGE_MODEL_PROVIDER: ${HEALTHFORGE_MODEL_PROVIDER:-disabled}
     ports:
       - "${HEALTHFORGE_API_PORT:-8080}:8080"
     healthcheck:
