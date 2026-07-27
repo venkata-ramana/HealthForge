@@ -21,6 +21,7 @@ In practical terms, HealthForge creates a local evidence layer from approved pub
 | Regulation explainer | API | Turns an approved source into a plain-English technical explainer with citations, caveats, and implications | Available now |
 | Prior-authorization copilot | API | Analyzes PAS, CRD, and DTR-oriented workflow scenarios with evidence and standards touchpoints | Available now |
 | Prior-authorization journey modeling | API | Renders PAS, CRD, and DTR workflow journeys with explicit stages, transitions, responsibilities, and candidate standards touchpoints | Available now |
+| Standards crosswalk generation | API | Maps cited CMS/policy findings to workflow stages, FHIR resources, operations, guides, and curated standards artifacts | Available now |
 | Tracked export previews | API | Generates GitHub- and Jira-ready preview payloads from approved work items without direct writeback, with approver/admin authorization and audit traceability | Available now |
 | Architecture review assistant | API | Produces bounded architecture guidance from grounded evidence and curated standards metadata | Available now |
 | Guarded starter artifacts | API | Generates example-only starter code from approved work-item exports | Available now |
@@ -428,7 +429,7 @@ Phase 7 in progress:
 
 - completed: PAS, CRD, and DTR workflow journeys with explicit state transitions
 - completed: bundle-level scenario review for prior-authorization exchanges
-- next: standards crosswalks from CMS requirements to FHIR and workflow touchpoints
+- completed: standards crosswalks from CMS requirements to FHIR and workflow touchpoints
 - next: richer payer/provider implementation tracks from approved Briefs
 
 Phase 8 planned:
@@ -467,7 +468,7 @@ Phase 10 planned:
 - Phase 7 roadmap: [#89](https://github.com/venkata-ramana/HealthForge/issues/89)
   - [#98](https://github.com/venkata-ramana/HealthForge/issues/98) PAS/CRD/DTR workflow journeys — completed
   - [#99](https://github.com/venkata-ramana/HealthForge/issues/99) bundle-level scenario review — completed
-  - [#100](https://github.com/venkata-ramana/HealthForge/issues/100) standards crosswalk generation
+  - [#100](https://github.com/venkata-ramana/HealthForge/issues/100) standards crosswalk generation — completed
   - [#101](https://github.com/venkata-ramana/HealthForge/issues/101) payer/provider implementation tracks
 
 - Phase 8 roadmap: [#90](https://github.com/venkata-ramana/HealthForge/issues/90)
