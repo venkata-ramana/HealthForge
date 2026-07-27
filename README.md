@@ -412,6 +412,7 @@ Phase 5 completed:
 - enterprise posture API for private deployment control inspection
 - persisted validation-run telemetry for synthetic/non-sensitive FHIR validation
 - synthetic FHIR generator API backed by repository fixtures
+- bundle-level prior-authorization scenario review over synthetic multi-resource FHIR bundles
 - private deployment Terraform starter scaffolding
 - stronger export retention metadata and audit coverage
 
@@ -426,7 +427,7 @@ Phase 6 completed:
 Phase 7 in progress:
 
 - completed: PAS, CRD, and DTR workflow journeys with explicit state transitions
-- next: bundle-level scenario review for prior-authorization exchanges
+- completed: bundle-level scenario review for prior-authorization exchanges
 - next: standards crosswalks from CMS requirements to FHIR and workflow touchpoints
 - next: richer payer/provider implementation tracks from approved Briefs
 
@@ -465,7 +466,7 @@ Phase 10 planned:
 
 - Phase 7 roadmap: [#89](https://github.com/venkata-ramana/HealthForge/issues/89)
   - [#98](https://github.com/venkata-ramana/HealthForge/issues/98) PAS/CRD/DTR workflow journeys — completed
-  - [#99](https://github.com/venkata-ramana/HealthForge/issues/99) bundle-level scenario review
+  - [#99](https://github.com/venkata-ramana/HealthForge/issues/99) bundle-level scenario review — completed
   - [#100](https://github.com/venkata-ramana/HealthForge/issues/100) standards crosswalk generation
   - [#101](https://github.com/venkata-ramana/HealthForge/issues/101) payer/provider implementation tracks
 

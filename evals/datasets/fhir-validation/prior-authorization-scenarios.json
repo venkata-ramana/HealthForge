@@ -26,6 +26,13 @@
       "reviewer_note": "Coverage is included because prior-authorization request assembly often depends on coverage context."
     },
     {
+      "scenario_id": "bundle-valid",
+      "title": "Synthetic prior-authorization bundle passes base R4 validation with multi-resource context",
+      "fixture_path": "knowledge/fixtures/fhir-validation/prior-auth-bundle-valid.request.json",
+      "expected_status": "valid",
+      "reviewer_note": "Positive bundle case exercises multi-resource prior-authorization packaging for planning demos without implying PAS production support."
+    },
+    {
       "scenario_id": "bundle-missing-type",
       "title": "Synthetic prior-authorization bundle fails when Bundle.type is missing",
       "fixture_path": "knowledge/fixtures/fhir-validation/prior-auth-bundle-invalid-missing-type.request.json",
