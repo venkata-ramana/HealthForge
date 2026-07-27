@@ -31,6 +31,9 @@ class StarterCodeGenerationServiceTest {
                         "Prior authorization claim intake",
                         "Implement a reviewed intake boundary for prior-authorization claim submission.",
                         "prior_authorization_workflow",
+                        "provider",
+                        "request_submission",
+                        List.of("approved_brief_review", "request_packaging_boundary"),
                         List.of("FHIR R4 Claim [resource]", "PAS Claim Profile [profile]"),
                         List.of("Approved export only"),
                         "approved_brief_human_review_retained",
@@ -46,6 +49,16 @@ class StarterCodeGenerationServiceTest {
                                 Instant.parse("2026-07-25T17:04:00Z"),
                                 "Looks good"
                         ))
+                )),
+                List.of(new BriefWorkItemExportResponse.ImplementationTrack(
+                        "track_provider",
+                        "Provider implementation track",
+                        "provider",
+                        "Provider-facing workflow planning.",
+                        List.of("approved_brief_review", "request_packaging_boundary"),
+                        List.of("request_submission"),
+                        List.of("FHIR R4 Claim [resource]", "PAS Claim Profile [profile]"),
+                        List.of("work_abc")
                 )),
                 List.of(new BriefResponse.Approval("approval_1", "admin.one", "administrator", Instant.parse("2026-07-25T17:05:00Z"), "Approved")),
                 List.of()

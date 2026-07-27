@@ -11,6 +11,7 @@ public record BriefWorkItemExportResponse(
         String approvalStatus,
         String exportBoundary,
         List<WorkItem> workItems,
+        List<ImplementationTrack> implementationTracks,
         List<BriefResponse.Approval> approvals,
         List<BriefResponse.AuditEvent> auditEvents
 ) {
@@ -19,11 +20,25 @@ public record BriefWorkItemExportResponse(
             String title,
             String rationale,
             String affectedCapability,
+            String primaryTrack,
+            String workflowStage,
+            List<String> dependencies,
             List<String> standardsTouchpoints,
             List<String> validationNotes,
             String humanReviewStatus,
             List<String> relatedFindingIds,
             List<Evidence> evidence
+    ) {}
+
+    public record ImplementationTrack(
+            String trackId,
+            String title,
+            String actorFocus,
+            String summary,
+            List<String> dependencies,
+            List<String> workflowStages,
+            List<String> standardsTouchpoints,
+            List<String> workItemIds
     ) {}
 
     public record Evidence(

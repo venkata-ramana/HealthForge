@@ -74,6 +74,7 @@ The working platform includes:
 - tracked GitHub/Jira-ready export previews
 - architecture-review artifacts
 - approved work-item export
+- richer payer/provider implementation-track export from approved Briefs
 - guarded example-only starter code generation
 - a local VS Code extension prototype
 - organization-aware review boundaries
@@ -430,7 +431,7 @@ Phase 7 in progress:
 - completed: PAS, CRD, and DTR workflow journeys with explicit state transitions
 - completed: bundle-level scenario review for prior-authorization exchanges
 - completed: standards crosswalks from CMS requirements to FHIR and workflow touchpoints
-- next: richer payer/provider implementation tracks from approved Briefs
+- completed: richer payer/provider implementation tracks from approved Briefs
 
 Phase 8 planned:
 
@@ -469,7 +470,7 @@ Phase 10 planned:
   - [#98](https://github.com/venkata-ramana/HealthForge/issues/98) PAS/CRD/DTR workflow journeys — completed
   - [#99](https://github.com/venkata-ramana/HealthForge/issues/99) bundle-level scenario review — completed
   - [#100](https://github.com/venkata-ramana/HealthForge/issues/100) standards crosswalk generation — completed
-  - [#101](https://github.com/venkata-ramana/HealthForge/issues/101) payer/provider implementation tracks
+  - [#101](https://github.com/venkata-ramana/HealthForge/issues/101) payer/provider implementation tracks — completed
 
 - Phase 8 roadmap: [#90](https://github.com/venkata-ramana/HealthForge/issues/90)
   - [#102](https://github.com/venkata-ramana/HealthForge/issues/102) governed GitHub/Jira writeback

@@ -14,9 +14,13 @@ The export is meant for human review outside the app before any downstream backl
 The exported work items include:
 
 - a reviewable title and rationale;
+- a primary payer/provider/shared implementation track and workflow stage;
+- dependencies that make downstream planning less flat;
 - an affected capability label;
 - standards touchpoints drawn from the Brief's technical-guidance sources when available;
 - validation notes that restate the approval and non-writeback boundary; and
 - source-backed evidence tied to the accepted review decision.
+
+The export also groups work items into higher-level implementation tracks so delivery teams can separate provider-facing workflow work from payer-facing decision/status work when useful.
 
 This keeps the HealthForge boundary intact: recommendations may be organized and exported, but a human still decides whether they become tracker items, architecture work, or code changes.

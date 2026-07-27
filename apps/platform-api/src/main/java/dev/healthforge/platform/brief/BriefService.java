@@ -210,6 +210,8 @@ public class BriefService {
                 .map(finding -> toWorkItem(finding, latestAcceptedDecisionsByFinding.get(finding.findingId()), sourceByKey, standardsTouchpoints, brief))
                 .toList();
 
+        var implementationTracks = toImplementationTracks(workItems);
+
         return new BriefWorkItemExportResponse(
                 brief.briefId(),
                 brief.status(),
@@ -218,6 +220,7 @@ public class BriefService {
                 "approved_for_export",
                 "JSON export only. This artifact excludes unapproved findings and does not perform external tracker writeback.",
                 workItems,
+                implementationTracks,
                 brief.approvals(),
                 brief.auditEvents()
         );
@@ -277,6 +280,9 @@ public class BriefService {
                 buildTitle(effectiveStatement),
                 effectiveStatement,
                 inferCapability(brief.input().question(), effectiveStatement),
+                inferPrimaryTrack(brief.input().question(), effectiveStatement),
+                inferWorkflowStage(brief.input().question(), effectiveStatement),
+                inferDependencies(brief.input().question(), effectiveStatement),
                 standardsTouchpoints,
                 List.of(
                         "Derived from an approved Brief and limited to findings with an accepted review decision.",
@@ -305,6 +311,89 @@ public class BriefService {
         if (text.contains("coverage")) return "coverage_and_eligibility_context";
         if (text.contains("audit")) return "review_and_audit_traceability";
         return "engineering_review_workflow";
+    }
+
+    private String inferPrimaryTrack(String question, String statement) {
+        var text = (question + " " + statement).toLowerCase(Locale.ROOT);
+        if (text.contains("payer")) return "payer";
+        if (text.contains("provider") || text.contains("ehr") || text.contains("clinician")) return "provider";
+        if (text.contains("claimresponse") || text.contains("decision") || text.contains("status")) return "payer";
+        if (text.contains("coverage") || text.contains("documentation") || text.contains("questionnaire")) return "provider";
+        if (text.contains("claim") || text.contains("submit") || text.contains("submission")) return "provider";
+        return "shared";
+    }
+
+    private String inferWorkflowStage(String question, String statement) {
+        var text = (question + " " + statement).toLowerCase(Locale.ROOT);
+        if (text.contains("coverage") || text.contains("discover") || text.contains("requirement")) return "requirements_discovery";
+        if (text.contains("documentation") || text.contains("questionnaire")) return "documentation_capture";
+        if (text.contains("decision") || text.contains("status") || text.contains("response") || text.contains("follow-up")) return "decision_and_follow_up";
+        if (text.contains("submit") || text.contains("claim") || text.contains("request")) return "request_submission";
+        return "submission_preparation";
+    }
+
+    private List<String> inferDependencies(String question, String statement) {
+        var text = (question + " " + statement).toLowerCase(Locale.ROOT);
+        var dependencies = new java.util.LinkedHashSet<String>();
+        dependencies.add("approved_brief_review");
+        if (text.contains("coverage")) dependencies.add("coverage_context_resolution");
+        if (text.contains("documentation") || text.contains("questionnaire")) dependencies.add("documentation_workflow_alignment");
+        if (text.contains("claim") || text.contains("submit") || text.contains("pas")) dependencies.add("request_packaging_boundary");
+        if (text.contains("decision") || text.contains("status") || text.contains("response")) dependencies.add("status_normalization_and_follow_up");
+        if (text.contains("payer")) dependencies.add("payer_endpoint_and_policy_review");
+        if (text.contains("provider") || text.contains("ehr")) dependencies.add("provider_workflow_integration_review");
+        return dependencies.stream().toList();
+    }
+
+    private List<BriefWorkItemExportResponse.ImplementationTrack> toImplementationTracks(
+            List<BriefWorkItemExportResponse.WorkItem> workItems
+    ) {
+        var byTrack = workItems.stream().collect(Collectors.groupingBy(
+                BriefWorkItemExportResponse.WorkItem::primaryTrack,
+                java.util.LinkedHashMap::new,
+                Collectors.toList()
+        ));
+
+        return byTrack.entrySet().stream()
+                .map(entry -> {
+                    var track = entry.getKey();
+                    var items = entry.getValue();
+                    var dependencies = items.stream()
+                            .flatMap(item -> item.dependencies().stream())
+                            .distinct()
+                            .toList();
+                    var workflowStages = items.stream()
+                            .map(BriefWorkItemExportResponse.WorkItem::workflowStage)
+                            .distinct()
+                            .toList();
+                    var touchpoints = items.stream()
+                            .flatMap(item -> item.standardsTouchpoints().stream())
+                            .distinct()
+                            .toList();
+                    var workItemIds = items.stream()
+                            .map(BriefWorkItemExportResponse.WorkItem::workItemId)
+                            .toList();
+
+                    return new BriefWorkItemExportResponse.ImplementationTrack(
+                            "track_" + track,
+                            switch (track) {
+                                case "payer" -> "Payer implementation track";
+                                case "provider" -> "Provider implementation track";
+                                default -> "Shared implementation track";
+                            },
+                            track,
+                            switch (track) {
+                                case "payer" -> "Tasks primarily oriented around payer-side decision handling, endpoint behavior, and review dependencies.";
+                                case "provider" -> "Tasks primarily oriented around provider-side workflow, EHR integration, documentation capture, and request preparation.";
+                                default -> "Tasks that remain shared across payer/provider planning boundaries or need joint review.";
+                            },
+                            dependencies,
+                            workflowStages,
+                            touchpoints,
+                            workItemIds
+                    );
+                })
+                .toList();
     }
 
     private record BriefRow(String id, String status, Instant createdAt, String question, String context, String corpusId, String corpusVersion, String organizationId) {}
