@@ -20,6 +20,7 @@ In practical terms, HealthForge creates a local evidence layer from approved pub
 | FHIR knowledge assistant | API + VS Code prototype | Helps developers inspect curated FHIR resources, profiles, guides, and workflow touchpoints | Available now |
 | Regulation explainer | API | Turns an approved source into a plain-English technical explainer with citations, caveats, and implications | Available now |
 | Prior-authorization copilot | API | Analyzes PAS, CRD, and DTR-oriented workflow scenarios with evidence and standards touchpoints | Available now |
+| Prior-authorization journey modeling | API | Renders PAS, CRD, and DTR workflow journeys with explicit stages, transitions, responsibilities, and candidate standards touchpoints | Available now |
 | Tracked export previews | API | Generates GitHub- and Jira-ready preview payloads from approved work items without direct writeback, with approver/admin authorization and audit traceability | Available now |
 | Architecture review assistant | API | Produces bounded architecture guidance from grounded evidence and curated standards metadata | Available now |
 | Guarded starter artifacts | API | Generates example-only starter code from approved work-item exports | Available now |
@@ -355,7 +356,7 @@ HealthForge is being built in deliberate phases so the platform stays reviewable
 | Phase 4 | Completed | Product growth workflows: FHIR knowledge assistant, regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready export previews, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
 | Phase 5 | Completed | Enterprise and product hardening: organization-aware review boundaries, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code starter scaffolding, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
 | Phase 6 | Completed | Production identity, RBAC, tenant administration, and stronger enterprise access controls. Authentication boundary, durable identity model, RBAC enforcement, private deployment hardening, and audit/access-review reporting are complete. See [#88](https://github.com/venkata-ramana/HealthForge/issues/88). |
-| Phase 7 | Planned | Deeper prior-authorization and interoperability workflows including PAS/CRD/DTR journeys, bundle review, and standards crosswalks. See [#89](https://github.com/venkata-ramana/HealthForge/issues/89). |
+| Phase 7 | In progress | Deeper prior-authorization and interoperability workflows including PAS/CRD/DTR journeys, bundle review, and standards crosswalks. Journey modeling is complete. See [#89](https://github.com/venkata-ramana/HealthForge/issues/89). |
 | Phase 8 | Planned | Enterprise integrations and delivery automation including governed writeback, collaboration notifications, and webhooks. See [#90](https://github.com/venkata-ramana/HealthForge/issues/90). |
 | Phase 9 | Planned | Trust, evaluation, and governance at scale with dashboards, regression visibility, and policy reporting. See [#91](https://github.com/venkata-ramana/HealthForge/issues/91). |
 | Phase 10 | Planned | Productization, onboarding, showcase UX, and admin experiences for broader adoption. See [#92](https://github.com/venkata-ramana/HealthForge/issues/92). |
@@ -422,12 +423,12 @@ Phase 6 completed:
 - completed: stronger operator setup, secret handling, and private deployment hardening
 - completed: audit policy configuration and access-review reporting
 
-Phase 7 planned:
+Phase 7 in progress:
 
-- PAS, CRD, and DTR workflow journeys with explicit state transitions
-- bundle-level scenario review for prior-authorization exchanges
-- standards crosswalks from CMS requirements to FHIR and workflow touchpoints
-- richer payer/provider implementation tracks from approved Briefs
+- completed: PAS, CRD, and DTR workflow journeys with explicit state transitions
+- next: bundle-level scenario review for prior-authorization exchanges
+- next: standards crosswalks from CMS requirements to FHIR and workflow touchpoints
+- next: richer payer/provider implementation tracks from approved Briefs
 
 Phase 8 planned:
 
@@ -463,7 +464,7 @@ Phase 10 planned:
   - [#97](https://github.com/venkata-ramana/HealthForge/issues/97) audit policy and access-review reporting — completed
 
 - Phase 7 roadmap: [#89](https://github.com/venkata-ramana/HealthForge/issues/89)
-  - [#98](https://github.com/venkata-ramana/HealthForge/issues/98) PAS/CRD/DTR workflow journeys
+  - [#98](https://github.com/venkata-ramana/HealthForge/issues/98) PAS/CRD/DTR workflow journeys — completed
   - [#99](https://github.com/venkata-ramana/HealthForge/issues/99) bundle-level scenario review
   - [#100](https://github.com/venkata-ramana/HealthForge/issues/100) standards crosswalk generation
   - [#101](https://github.com/venkata-ramana/HealthForge/issues/101) payer/provider implementation tracks

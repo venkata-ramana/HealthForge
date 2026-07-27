@@ -68,6 +68,7 @@ The current supported authentication mode is `local_header`, which keeps the loc
 - `POST /v1/fhir-assistant/query` provides a bounded standards-native lookup workflow over curated artifacts and the pinned validation catalog.
 - `POST /v1/regulation-explainers` produces a source-bounded regulation explainer with citations, implications, and caveats.
 - `POST /v1/prior-auth/copilot` analyzes PAS/CRD/DTR-oriented workflow questions with evidence and standards touchpoints.
+- `POST /v1/prior-auth/journeys` renders an explicit PAS, CRD, or DTR workflow journey with stages, transitions, responsibilities, and candidate standards touchpoints for planning and demo use.
 - `POST /v1/tracker-exports/preview` generates preview-only GitHub- or Jira-ready payloads from approved work-item exports and records an audit event.
 - `GET /v1/compliance/dashboard` summarizes org-scoped Brief, validation, and export telemetry for auditors and administrators.
 - `GET /v1/enterprise/posture` describes the current enterprise control posture for the active organization.

@@ -202,6 +202,26 @@ curl -X POST http://localhost:8080/v1/prior-auth/copilot \
   }'
 ```
 
+Render an explicit PAS/CRD/DTR workflow journey:
+
+```bash
+curl -X POST http://localhost:8080/v1/prior-auth/journeys \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "corpus_id": "mvp-regulatory-corpus",
+    "corpus_version": "2026-07-24-expanded-web-core-v4",
+    "question": "How should PAS claim submission work in a provider EHR workflow?",
+    "project_context": "Synthetic prior authorization workflow planning scenario."
+  }'
+```
+
+Expected result:
+
+- explicit workflow stages
+- visible state transitions
+- actor and system responsibilities per stage
+- candidate standards touchpoints tied to the journey
+
 Generate a tracked export preview from an approved Brief:
 
 ```bash
