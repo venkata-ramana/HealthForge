@@ -56,7 +56,7 @@ mvn spring-boot:run
 
 ## Current status
 
-Phase 5 is completed. Phase 6 is in progress.
+Phase 5 is completed. Phase 6 is completed.
 
 The working platform includes:
 
@@ -354,7 +354,7 @@ HealthForge is being built in deliberate phases so the platform stays reviewable
 | Phase 3 | Completed | Standards-aware engineering workflows: pinned FHIR validation catalog, standards artifact registry, synthetic FHIR fixtures, approved work-item export, architecture review assistant, client-facing API surface, and guarded example-only code generation |
 | Phase 4 | Completed | Product growth workflows: FHIR knowledge assistant, regulation explainer, VS Code extension prototype, tracked GitHub/Jira-ready export previews, and a prior-authorization copilot for PAS/CRD/DTR scenarios |
 | Phase 5 | Completed | Enterprise and product hardening: organization-aware review boundaries, RBAC groundwork, compliance dashboard, private deployment and infrastructure-as-code starter scaffolding, stronger audit/security controls, and synthetic FHIR data generation for safer demos and validation |
-| Phase 6 | In progress | Production identity, RBAC, tenant administration, and stronger enterprise access controls. Authentication boundary, durable identity model, and RBAC enforcement are complete. See [#88](https://github.com/venkata-ramana/HealthForge/issues/88). |
+| Phase 6 | Completed | Production identity, RBAC, tenant administration, and stronger enterprise access controls. Authentication boundary, durable identity model, RBAC enforcement, private deployment hardening, and audit/access-review reporting are complete. See [#88](https://github.com/venkata-ramana/HealthForge/issues/88). |
 | Phase 7 | Planned | Deeper prior-authorization and interoperability workflows including PAS/CRD/DTR journeys, bundle review, and standards crosswalks. See [#89](https://github.com/venkata-ramana/HealthForge/issues/89). |
 | Phase 8 | Planned | Enterprise integrations and delivery automation including governed writeback, collaboration notifications, and webhooks. See [#90](https://github.com/venkata-ramana/HealthForge/issues/90). |
 | Phase 9 | Planned | Trust, evaluation, and governance at scale with dashboards, regression visibility, and policy reporting. See [#91](https://github.com/venkata-ramana/HealthForge/issues/91). |
@@ -414,7 +414,7 @@ Phase 5 completed:
 - private deployment Terraform starter scaffolding
 - stronger export retention metadata and audit coverage
 
-Phase 6 in progress:
+Phase 6 completed:
 
 - completed: production-oriented authentication boundary beyond direct controller coupling
 - completed: durable user, organization, membership, and role-assignment models
