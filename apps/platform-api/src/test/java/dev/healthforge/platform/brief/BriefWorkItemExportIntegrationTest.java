@@ -70,11 +70,19 @@ class BriefWorkItemExportIntegrationTest {
         assertThat(export.workItems()).singleElement().satisfies(workItem -> {
             assertThat(workItem.relatedFindingIds()).containsExactly(acceptedFindingId);
             assertThat(workItem.affectedCapability()).isEqualTo("prior_authorization_workflow");
+            assertThat(workItem.primaryTrack()).isEqualTo("provider");
+            assertThat(workItem.workflowStage()).isEqualTo("request_submission");
+            assertThat(workItem.dependencies()).contains("approved_brief_review", "request_packaging_boundary");
             assertThat(workItem.standardsTouchpoints()).contains("HL7 FHIR R4 (4.0.1)");
             assertThat(workItem.evidence()).singleElement().satisfies(evidence -> {
                 assertThat(evidence.sourceId()).isEqualTo("hl7-fhir-r4");
                 assertThat(evidence.acceptedBy()).isEqualTo("reviewer.one");
             });
+        });
+        assertThat(export.implementationTracks()).singleElement().satisfies(track -> {
+            assertThat(track.actorFocus()).isEqualTo("provider");
+            assertThat(track.workflowStages()).contains("request_submission");
+            assertThat(track.workItemIds()).hasSize(1);
         });
     }
 

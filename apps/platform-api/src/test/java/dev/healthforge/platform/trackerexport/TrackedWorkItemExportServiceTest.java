@@ -40,6 +40,9 @@ class TrackedWorkItemExportServiceTest {
                         "Implement PAS claim handling",
                         "Implement PAS claim handling with cited evidence.",
                         "prior_authorization_workflow",
+                        "provider",
+                        "request_submission",
+                        List.of("approved_brief_review", "request_packaging_boundary"),
                         List.of("FHIR R4 Claim (4.0.1)"),
                         List.of("Human review required."),
                         "approved_brief_human_review_retained",
@@ -55,6 +58,16 @@ class TrackedWorkItemExportServiceTest {
                                 Instant.parse("2026-07-25T18:04:00Z"),
                                 "accepted"
                         ))
+                )),
+                List.of(new BriefWorkItemExportResponse.ImplementationTrack(
+                        "track_provider",
+                        "Provider implementation track",
+                        "provider",
+                        "Provider-facing workflow planning.",
+                        List.of("approved_brief_review", "request_packaging_boundary"),
+                        List.of("request_submission"),
+                        List.of("FHIR R4 Claim (4.0.1)"),
+                        List.of("work-1")
                 )),
                 List.<BriefResponse.Approval>of(),
                 List.<BriefResponse.AuditEvent>of()
