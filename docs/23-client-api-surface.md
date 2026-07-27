@@ -314,6 +314,26 @@ Expected result:
 - scenario findings distinguish structural bundle issues from workflow-review guidance
 - cited evidence findings remain bounded and reviewer-visible
 
+Generate a standards crosswalk from cited policy findings:
+
+```bash
+curl -X POST http://localhost:8080/v1/prior-auth/standards-crosswalks \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "corpus_id": "mvp-regulatory-corpus",
+    "corpus_version": "2026-07-24-expanded-web-core-v4",
+    "question": "What changes do we need for CMS prior authorization workflows?",
+    "project_context": "Synthetic provider EHR planning scenario for prior authorization APIs."
+  }'
+```
+
+Expected result:
+
+- cited policy findings are converted into explicit requirement-level crosswalk rows
+- each row shows the likely workflow stage, FHIR resources, operations, guides, and curated artifacts
+- artifact summaries show which technical touchpoints are reused across multiple requirements
+- output stays bounded, inspectable, and human-review-first rather than claiming conformance
+
 ## Boundary statement
 
 This Phase 5 API surface is the supported product boundary for local clients and private demos. It is explicit about what remains local/demo only:
