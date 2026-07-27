@@ -419,8 +419,8 @@ Phase 6 in progress:
 - completed: production-oriented authentication boundary beyond direct controller coupling
 - completed: durable user, organization, membership, and role-assignment models
 - completed: RBAC and tenant-aware authorization across UI and APIs
-- next: stronger operator setup, secret handling, and private deployment hardening
-- next: audit policy configuration and access-review reporting
+- completed: stronger operator setup, secret handling, and private deployment hardening
+- completed: audit policy configuration and access-review reporting
 
 Phase 7 planned:
 
@@ -459,8 +459,8 @@ Phase 10 planned:
   - [#93](https://github.com/venkata-ramana/HealthForge/issues/93) authentication boundary — completed
   - [#94](https://github.com/venkata-ramana/HealthForge/issues/94) user/org/membership model — completed
   - [#95](https://github.com/venkata-ramana/HealthForge/issues/95) RBAC and tenant-aware authorization — completed
-  - [#96](https://github.com/venkata-ramana/HealthForge/issues/96) private deployment hardening
-  - [#97](https://github.com/venkata-ramana/HealthForge/issues/97) audit policy and access-review reporting
+  - [#96](https://github.com/venkata-ramana/HealthForge/issues/96) private deployment hardening — completed
+  - [#97](https://github.com/venkata-ramana/HealthForge/issues/97) audit policy and access-review reporting — completed
 
 - Phase 7 roadmap: [#89](https://github.com/venkata-ramana/HealthForge/issues/89)
   - [#98](https://github.com/venkata-ramana/HealthForge/issues/98) PAS/CRD/DTR workflow journeys

@@ -72,6 +72,7 @@ The current supported authentication mode is `local_header`, which keeps the loc
 - `GET /v1/compliance/dashboard` summarizes org-scoped Brief, validation, and export telemetry for auditors and administrators.
 - `GET /v1/enterprise/posture` describes the current enterprise control posture for the active organization.
 - `GET /v1/admin/identity-directory` returns the current durable organization, user, membership, and role-assignment directory model for administrators.
+- `GET /v1/admin/access-review` returns an organization-scoped access-review report with role assignments, audit-policy metadata, and oversight-safe access rationale for administrators.
 - `POST /v1/architecture-reviews` returns a bounded architecture-review artifact for a non-sensitive scenario using grounded evidence and curated standards touchpoints.
 - `POST /v1/codegen/starter-artifacts` generates example-only starter code from an approved work-item export and preserves traceability back to the reviewed artifact.
 - `POST /v1/retrieval/search` performs PostgreSQL full-text retrieval and returns citeable source/version/page metadata.
