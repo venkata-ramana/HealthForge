@@ -2,6 +2,8 @@
 
 This is the first executable HealthForge slice. It fetches only manifest-approved public PDFs, stores their immutable checksum-addressed artifact locally, extracts citeable page passages, and retrieves matching passages from PostgreSQL.
 
+The Phase 10 workspace also presents these APIs through a more polished showcase UI for reviewers, operators, and enterprise evaluators.
+
 ## Prerequisites
 
 - Java 21 or newer
@@ -72,8 +74,14 @@ The current supported authentication mode is `local_header`, which keeps the loc
 - `POST /v1/prior-auth/bundle-reviews` reviews a synthetic multi-resource prior-authorization bundle, combines bundle-level validation with workflow context, and returns scenario findings for reviewer inspection.
 - `POST /v1/prior-auth/standards-crosswalks` turns cited policy findings into an inspectable crosswalk across workflow stages, FHIR resources, operations, and candidate implementation guides.
 - `POST /v1/tracker-exports/preview` generates preview-only GitHub- or Jira-ready payloads from approved work-item exports and records an audit event.
+- `POST /v1/collaboration/notifications` packages review-ready, approval-needed, or workflow-handoff notifications for governed collaboration delivery.
+- `POST /v1/documentation-exports` packages approved artifacts for documentation-system delivery paths such as Notion-, SharePoint-, or Confluence-style targets.
+- `POST /v1/automation/webhook-subscriptions`, `POST /v1/automation/events`, and `GET /v1/automation/status` expose the Phase 8 workflow-event and governed webhook framework.
 - `GET /v1/compliance/dashboard` summarizes org-scoped Brief, validation, and export telemetry for auditors and administrators.
+- `GET /v1/evaluation/dashboard` returns regression, evidence, review-quality, and workflow-quality signals for auditors and administrators.
+- `GET /v1/evaluation/policy-safety-report` returns a clearer policy and safety summary around unsupported outputs, approval policy, and governed integrations.
 - `GET /v1/enterprise/posture` describes the current enterprise control posture for the active organization.
+- `GET /v1/enterprise/deployment-promotion-guide` returns environment promotion and rollback guidance for administrators.
 - `GET /v1/admin/identity-directory` returns the current durable organization, user, membership, and role-assignment directory model for administrators.
 - `GET /v1/admin/access-review` returns an organization-scoped access-review report with role assignments, audit-policy metadata, and oversight-safe access rationale for administrators.
 - `POST /v1/architecture-reviews` returns a bounded architecture-review artifact for a non-sensitive scenario using grounded evidence and curated standards touchpoints.
@@ -90,6 +98,8 @@ The current supported authentication mode is `local_header`, which keeps the loc
 Synthetic prior-authorization validation fixtures live under `knowledge/fixtures/fhir-validation/`, with scenario metadata under `evals/datasets/fhir-validation/`. They are useful for repeatable non-sensitive evaluation, but they do not prove payer-specific interoperability or production-ready conformance.
 
 See [`docs/23-client-api-surface.md`](../docs/23-client-api-surface.md) for the supported local client workflows, auth headers, structured error format, and example calls.
+
+For a repeatable evaluator/contributor walkthrough, see [`docs/36-end-to-end-demo-and-contributor-onboarding.md`](../docs/36-end-to-end-demo-and-contributor-onboarding.md).
 
 The local VS Code extension prototype lives under [`apps/vscode-extension`](../apps/vscode-extension/) and is intended for local developer use only.
 
