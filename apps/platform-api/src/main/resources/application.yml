@@ -103,6 +103,108 @@ healthforge:
       access-review-cadence: ${HEALTHFORGE_ACCESS_REVIEW_CADENCE:Review organization access at least quarterly for private pilots.}
       role-review-expectation: ${HEALTHFORGE_ROLE_REVIEW_EXPECTATION:Administrators should confirm reviewer, approver, auditor, and administrator assignments remain justified and organization scoped.}
       approval-required-for-exports: ${HEALTHFORGE_APPROVAL_REQUIRED_FOR_EXPORTS:true}
+  operations:
+    deployment-tier: ${HEALTHFORGE_DEPLOYMENT_TIER:private_demo_plus_ops}
+    environments:
+      - environment-name: demo
+        promotion-gate: Guided sandbox verification and operator walk-through complete before external demo use.
+        secret-boundary: Demo uses local or preview-only references with no production credential crossover.
+        change-window: On-demand during active operator supervision.
+        data-boundary: Synthetic sources and non-sensitive examples only.
+      - environment-name: staging
+        promotion-gate: Access review, retention review, and rollback rehearsal complete before promotion.
+        secret-boundary: Environment-scoped secret references resolved through the target deployment manager.
+        change-window: Planned operator window with recovery contact identified.
+        data-boundary: Internal validation with governed connector targets and synthetic artifacts.
+      - environment-name: private_prod
+        promotion-gate: Operator sign-off, continuity checklist, and environment policy acknowledgment recorded.
+        secret-boundary: Secrets remain externally managed and rotatable without code changes.
+        change-window: Approved maintenance or incident-driven operator window only.
+        data-boundary: Customer-private deployment boundary with organization-scoped audit preservation.
+    config-boundaries:
+      - key: spring.datasource.url
+        classification: environment_runtime
+        source: environment variable
+        exposure-policy: Show endpoint family only; never display credentials.
+        rationale: Database host and database name are deployment-scoped assumptions rather than application logic.
+      - key: healthforge.auth.mode
+        classification: identity_control
+        source: environment variable
+        exposure-policy: Safe to summarize as current auth posture.
+        rationale: Operators need to explain whether the workspace is using local headers or trusted-proxy identity.
+      - key: healthforge.integrations.*.credential-reference
+        classification: secret_reference
+        source: environment variable
+        exposure-policy: Show reference pattern only; never resolve or display raw secret values.
+        rationale: Connector credentials are governance-critical and should remain explainable without being exposed.
+      - key: healthforge.audit.policy.*
+        classification: retention_policy
+        source: application config
+        exposure-policy: Safe to display as policy summary.
+        rationale: Retention rules are part of the enterprise operating model and must be reviewable by auditors and administrators.
+      - key: healthforge.operations.quotas
+        classification: quota_policy
+        source: application config
+        exposure-policy: Safe to display as advisory limits and operator guidance.
+        rationale: Soft quotas help private operators communicate workload expectations and future packaging boundaries.
+    secret-references:
+      - system: github
+        reference: env:HEALTHFORGE_GITHUB_TOKEN
+        rotation-expectation: Rotate on connector onboarding changes and after incident review.
+        usage-boundary: Used only when the connector is enabled and permitted for the current environment.
+      - system: jira
+        reference: env:HEALTHFORGE_JIRA_TOKEN
+        rotation-expectation: Rotate when project access changes or when delivery behavior is reauthorized.
+        usage-boundary: Governs simulated or live-capable tracker delivery based on environment policy.
+      - system: notion
+        reference: env:HEALTHFORGE_NOTION_TOKEN
+        rotation-expectation: Rotate when workspace publishing scope changes.
+        usage-boundary: Applies only to governed documentation export workflows.
+      - system: sharepoint
+        reference: env:HEALTHFORGE_SHAREPOINT_TOKEN
+        rotation-expectation: Rotate with tenant or publishing-boundary changes.
+        usage-boundary: Applies only to environment-enabled collaboration/document export paths.
+      - system: confluence
+        reference: env:HEALTHFORGE_CONFLUENCE_TOKEN
+        rotation-expectation: Rotate after credential ownership or scope changes.
+        usage-boundary: Used for governed documentation publishing workflows only.
+    observability-runbooks:
+      - Review actuator health, connector receipts, blocked delivery queue, and the latest audit events together before declaring a workflow incident.
+      - Treat retention drift, blocked connectors, and repeated insufficient-evidence responses as separate operator narratives with different follow-up actions.
+      - Rehearse preview-only rollback before re-enabling governed writeback after an incident.
+    retention-checks:
+      - Confirm tracked export retention-until metadata is still aligned with the active audit policy.
+      - Review validation telemetry volume and archive or rotate it according to operator guidance.
+      - Preserve audit and attestation history before any cleanup or environment movement.
+    continuity-checks:
+      - Validate flyway migration level, organization counts, and approval/audit read paths before and after restore.
+      - Confirm connector modes remain correct for the target environment before resuming outbound delivery.
+      - Verify one representative Brief, validation run, tracked export, and attestation record after migration.
+    quotas:
+      - metric: briefs_last_30_days
+        soft-limit: ${HEALTHFORGE_BRIEF_SOFT_LIMIT_30_DAYS:120}
+        window: 30 days
+        rationale: Helps operators communicate private deployment workload expectations for review-heavy programs.
+      - metric: answers_last_30_days
+        soft-limit: ${HEALTHFORGE_ANSWER_SOFT_LIMIT_30_DAYS:600}
+        window: 30 days
+        rationale: Useful proxy for retrieval, AI-assist, and reviewer demand.
+      - metric: validations_last_30_days
+        soft-limit: ${HEALTHFORGE_VALIDATION_SOFT_LIMIT_30_DAYS:200}
+        window: 30 days
+        rationale: Tracks standards-validation pressure and future runtime/package expansion needs.
+      - metric: tracked_exports_last_30_days
+        soft-limit: ${HEALTHFORGE_EXPORT_SOFT_LIMIT_30_DAYS:150}
+        window: 30 days
+        rationale: Delivery volume predicts downstream coordination, retries, and operator oversight cost.
+      - metric: inbound_cases_last_30_days
+        soft-limit: ${HEALTHFORGE_INBOUND_CASE_SOFT_LIMIT_30_DAYS:100}
+        window: 30 days
+        rationale: Helps teams reason about intake-driven workload for future tenant-aware packaging.
+    expected-attestations:
+      - Record a sign-off before promoting connector mode changes from preview-only to governed writeback.
+      - Record a sign-off after continuity rehearsal, restore rehearsal, or migration validation is completed.
+      - Record a sign-off when identity mode, retention expectations, or quota guidance materially changes.
   fhir:
     validation:
       packages:

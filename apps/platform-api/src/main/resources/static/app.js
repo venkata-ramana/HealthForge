@@ -30,7 +30,12 @@ const roleRequirements = {
   policySafetyReport: 'auditor',
   identityDirectory: 'administrator',
   accessReview: 'administrator',
-  deploymentGuide: 'administrator'
+  deploymentGuide: 'administrator',
+  operationsConfiguration: 'administrator',
+  operationsObservability: 'auditor',
+  operationsContinuity: 'administrator',
+  operationsUsage: 'auditor',
+  operationsAttestations: 'administrator'
 };
 
 const demoScenarios = [
@@ -88,6 +93,11 @@ const docLinks = [
     title: 'Phase 13 intelligence loops',
     path: '/docs/42-phase13-intelligence-loops-and-recommendations.md',
     description: 'Retrieval feedback, evidence gaps, similarity clusters, and bounded recommendations.'
+  },
+  {
+    title: 'Phase 14 private deployment operations',
+    path: '/docs/43-phase14-private-deployment-and-enterprise-operations.md',
+    description: 'Configuration boundaries, observability, continuity, quotas, and operator sign-off workflows.'
   },
   {
     title: 'Client API surface',
@@ -162,6 +172,16 @@ const testingPaths = [
       'Open the intelligence panel from the admin console.',
       'Inspect retrieval, evidence-gap, and workflow-tuning recommendations.',
       'Use the clusters and persona recommendations to explain next steps.'
+    ]
+  },
+  {
+    title: 'Private deployment operations walkthrough',
+    body: 'Inspect the new Phase 14 operator surfaces for configuration policy, observability, continuity, usage, and attestation history.',
+    steps: [
+      'Switch to administrator and open Config policy, Continuity, and Attestations.',
+      'Switch to auditor and inspect Observability and Usage.',
+      'Record one sample operator sign-off to show governance history.',
+      'Use the Phase 14 doc to explain how private operations are being hardened.'
     ]
   }
 ];
@@ -283,6 +303,11 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Access review', action: 'accessReview', onClick: 'openAdminPanel("accessReview")' }),
     buttonHtml({ label: 'Identity directory', action: 'identityDirectory', onClick: 'openAdminPanel("identity")' }),
     buttonHtml({ label: 'Deployment guide', action: 'deploymentGuide', onClick: 'openAdminPanel("deployment")' }),
+    buttonHtml({ label: 'Config policy', action: 'operationsConfiguration', className: 'secondary', onClick: 'openAdminPanel("operationsConfiguration")' }),
+    buttonHtml({ label: 'Observability', action: 'operationsObservability', className: 'secondary', onClick: 'openAdminPanel("operationsObservability")' }),
+    buttonHtml({ label: 'Continuity', action: 'operationsContinuity', className: 'secondary', onClick: 'openAdminPanel("operationsContinuity")' }),
+    buttonHtml({ label: 'Usage', action: 'operationsUsage', className: 'secondary', onClick: 'openAdminPanel("operationsUsage")' }),
+    buttonHtml({ label: 'Attestations', action: 'operationsAttestations', className: 'secondary', onClick: 'openAdminPanel("operationsAttestations")' }),
     buttonHtml({ label: 'Connector health', action: 'integrationStatus', className: 'secondary', onClick: 'openAdminPanel("integrations")' }),
     buttonHtml({ label: 'Inbound intake', action: 'inboundCases', className: 'secondary', onClick: 'openAdminPanel("intake")' }),
     buttonHtml({ label: 'Templates', action: 'orchestrationTemplates', className: 'secondary', onClick: 'openAdminPanel("templates")' }),
@@ -939,6 +964,35 @@ function renderMetricCard(label, value, note) {
   return `<article class="metric-card"><strong>${esc(value)}</strong><span>${esc(label)}</span>${note ? `<span>${esc(note)}</span>` : ''}</article>`;
 }
 
+function attestationForm() {
+  return `
+    <article class="admin-card">
+      <h4>Record operator sign-off</h4>
+      <label>Policy area
+        <input id="attestationPolicyArea" placeholder="connector-governance">
+      </label>
+      <label>Environment
+        <input id="attestationEnvironment" placeholder="staging">
+      </label>
+      <label>Attestation type
+        <input id="attestationType" placeholder="change_acknowledgment">
+      </label>
+      <label>Control IDs
+        <input id="attestationControls" placeholder="connector-mode,retention-review">
+      </label>
+      <label>Change summary
+        <textarea id="attestationSummary" placeholder="Preview-only connector path reviewed before governed enablement."></textarea>
+      </label>
+      <label>Acknowledgment
+        <textarea id="attestationAcknowledgment" placeholder="I confirm the environment policy, rollback path, and retention expectations were reviewed."></textarea>
+      </label>
+      <div class="button-row">
+        <button onclick="recordOperationsAttestation()">Record sign-off</button>
+      </div>
+    </article>
+  `;
+}
+
 async function openAdminPanel(panel) {
   setView('admin');
   enterprisePanel.innerHTML = '<div class="alert warning">Loading operator view…</div>';
@@ -1113,6 +1167,161 @@ async function openAdminPanel(panel) {
           <ol class="stack-list">${guide.promotion_steps.map((step) => `<li>${esc(step)}</li>`).join('')}</ol>
           <h4>Rollback steps</h4>
           <ol class="stack-list">${guide.rollback_steps.map((step) => `<li>${esc(step)}</li>`).join('')}</ol>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'operationsConfiguration') {
+      if (!can('operationsConfiguration')) throw new Error(permissionText('operationsConfiguration'));
+      const config = await apiJson('/v1/admin/operations/configuration', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Configuration and secret policy</h3>
+          <p class="helper">${esc(config.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('deployment tier', config.deployment_tier)}
+            ${renderMetricCard('environments', config.environments.length)}
+            ${renderMetricCard('config boundaries', config.config_boundaries.length)}
+            ${renderMetricCard('secret refs', config.secret_references.length)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Environment policies</h4>
+          <div class="doc-grid">
+            ${config.environments.map((environment) => `
+              <article class="doc-card">
+                <h3>${esc(environment.environment_name)}</h3>
+                <p>${esc(environment.promotion_gate)}</p>
+                <ul class="stack-list">
+                  <li><b>Secrets:</b> ${esc(environment.secret_boundary)}</li>
+                  <li><b>Window:</b> ${esc(environment.change_window)}</li>
+                  <li><b>Data:</b> ${esc(environment.data_boundary)}</li>
+                </ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Config classification</h4>
+          <ul class="stack-list">${config.config_boundaries.map((item) => `<li><b>${esc(item.key)}</b> · ${esc(item.classification)} · ${esc(item.source)}<br><span class="helper">${esc(item.exposure_policy)} — ${esc(item.rationale)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Secret references</h4>
+          <ul class="stack-list">${config.secret_references.map((item) => `<li><b>${esc(item.system)}</b> · ${esc(item.reference)}<br><span class="helper">${esc(item.rotation_expectation)} · ${esc(item.usage_boundary)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'operationsObservability') {
+      if (!can('operationsObservability')) throw new Error(permissionText('operationsObservability'));
+      const ops = await apiJson('/v1/admin/operations/observability', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Observability and retention operations</h3>
+          <p class="helper">${esc(ops.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('briefs (30d)', ops.health_signals.briefs_last_30_days)}
+            ${renderMetricCard('answers (30d)', ops.health_signals.answers_last_30_days)}
+            ${renderMetricCard('invalid validations (30d)', ops.health_signals.invalid_validations_last_30_days)}
+            ${renderMetricCard('blocked deliveries', ops.health_signals.blocked_deliveries)}
+            ${renderMetricCard('changes requested', ops.health_signals.changes_requested_briefs)}
+            ${renderMetricCard('attestations', ops.retention_signals.attestation_events)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Incident runbooks</h4>
+          <ul class="stack-list">${ops.incident_runbooks.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Retention posture</h4>
+          <ul class="stack-list">
+            <li><b>Tracked export retention:</b> ${esc(ops.retention_signals.tracked_export_retention_days)} days</li>
+            <li><b>Validation telemetry:</b> ${esc(ops.retention_signals.validation_telemetry_retention)}</li>
+            <li><b>Audit evidence:</b> ${esc(ops.retention_signals.audit_evidence_retention)}</li>
+          </ul>
+        </article>
+        <article class="admin-card">
+          <h4>Operator narrative</h4>
+          <ul class="stack-list">${ops.operator_narratives.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'operationsContinuity') {
+      if (!can('operationsContinuity')) throw new Error(permissionText('operationsContinuity'));
+      const continuity = await apiJson('/v1/admin/operations/continuity', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Backup, restore, and migration continuity</h3>
+          <p class="helper">${esc(continuity.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('briefs', continuity.continuity_inventory.total_briefs)}
+            ${renderMetricCard('audit events', continuity.continuity_inventory.total_audit_events)}
+            ${renderMetricCard('tracked exports', continuity.continuity_inventory.total_tracked_exports)}
+            ${renderMetricCard('validation runs', continuity.continuity_inventory.total_validation_runs)}
+            ${renderMetricCard('flyway', continuity.continuity_inventory.latest_flyway_version || 'n/a')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Backup guidance</h4>
+          <ul class="stack-list">${continuity.backup_guidance.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+          <h4>Restore checks</h4>
+          <ul class="stack-list">${continuity.restore_checks.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Migration checks</h4>
+          <ul class="stack-list">${continuity.migration_checks.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+          <h4>Recovery rehearsals</h4>
+          <ul class="stack-list">${continuity.recovery_rehearsals.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'operationsUsage') {
+      if (!can('operationsUsage')) throw new Error(permissionText('operationsUsage'));
+      const usage = await apiJson('/v1/admin/operations/usage', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Tenant-aware usage and quota signals</h3>
+          <p class="helper">${esc(usage.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('orgs', usage.usage_summary.active_organizations)}
+            ${renderMetricCard('briefs (30d)', usage.usage_summary.briefs_last_30_days)}
+            ${renderMetricCard('answers (30d)', usage.usage_summary.answers_last_30_days)}
+            ${renderMetricCard('validations (30d)', usage.usage_summary.validations_last_30_days)}
+            ${renderMetricCard('exports (30d)', usage.usage_summary.tracked_exports_last_30_days)}
+            ${renderMetricCard('inbound cases (30d)', usage.usage_summary.inbound_cases_last_30_days)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Quota status</h4>
+          <ul class="stack-list">${usage.quota_statuses.map((item) => `<li><b>${esc(item.metric)}</b> · observed ${esc(item.observed)} / limit ${esc(item.soft_limit)} · ${esc(item.status)}<br><span class="helper">${esc(item.window)} · ${esc(item.rationale)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Cost-control signals</h4>
+          <ul class="stack-list">${usage.cost_signals.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.signal)}<br><span class="helper">${esc(item.explanation)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'operationsAttestations') {
+      if (!can('operationsAttestations')) throw new Error(permissionText('operationsAttestations'));
+      const attestation = await apiJson('/v1/admin/operations/attestations', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Policy attestation and operator sign-off history</h3>
+          <p class="helper">${esc(attestation.summary)}</p>
+          <ul class="stack-list">${attestation.expected_attestations.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+        ${attestationForm()}
+        <article class="admin-card">
+          <h4>Recent sign-offs</h4>
+          <ul class="stack-list">${(attestation.recent_attestations || []).map((item) => `<li><b>${esc(item.policy_area)}</b> · ${esc(item.environment_name)} · ${esc(item.attestation_type)}<br><span class="helper">${esc(item.actor_id)} (${esc(item.actor_role)}) · ${esc(item.change_summary)}</span>${item.control_ids.length ? `<br><span class="helper">Controls: ${item.control_ids.map((controlId) => esc(controlId)).join(', ')}</span>` : ''}</li>`).join('') || '<li>No sign-offs recorded yet.</li>'}</ul>
         </article>
       `;
       return;
@@ -1312,6 +1521,27 @@ async function generateSynthetic(scenarioId) {
     `;
   } catch (error) {
     enterprisePanel.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
+  }
+}
+
+async function recordOperationsAttestation() {
+  try {
+    await apiJson('/v1/admin/operations/attestations', {
+      method: 'POST',
+      body: JSON.stringify({
+        policy_area: document.getElementById('attestationPolicyArea').value.trim(),
+        environment_name: document.getElementById('attestationEnvironment').value.trim(),
+        attestation_type: document.getElementById('attestationType').value.trim(),
+        change_summary: document.getElementById('attestationSummary').value.trim(),
+        control_ids: document.getElementById('attestationControls').value.trim()
+          ? document.getElementById('attestationControls').value.split(',').map((item) => item.trim()).filter(Boolean)
+          : [],
+        acknowledgment: document.getElementById('attestationAcknowledgment').value.trim()
+      })
+    });
+    await openAdminPanel('operationsAttestations');
+  } catch (error) {
+    alert(error.message);
   }
 }
 
