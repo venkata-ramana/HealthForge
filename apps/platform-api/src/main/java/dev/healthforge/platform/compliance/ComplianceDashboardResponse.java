@@ -11,6 +11,7 @@ public record ComplianceDashboardResponse(
         BriefMetrics briefMetrics,
         ValidationMetrics validationMetrics,
         ExportMetrics exportMetrics,
+        EvaluationMetrics evaluationMetrics,
         List<AuditEventSummary> recentAuditEvents,
         List<String> controls,
         String summary
@@ -40,6 +41,15 @@ public record ComplianceDashboardResponse(
             int successfulWritebacks,
             int blockedWritebacks,
             Instant latestRetentionUntil
+    ) {
+    }
+
+    public record EvaluationMetrics(
+            int totalAnswers,
+            int insufficientEvidenceAnswers,
+            int unsupportedTriggeredAnswers,
+            int disagreementFindings,
+            String latestQualityGateDecision
     ) {
     }
 

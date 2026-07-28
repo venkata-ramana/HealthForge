@@ -1,6 +1,7 @@
 package dev.healthforge.platform.compliance;
 
 import dev.healthforge.platform.auth.AuthenticatedActor;
+import dev.healthforge.platform.evaluation.EvaluationDashboardService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +14,15 @@ import java.util.List;
 public class ComplianceDashboardService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final EvaluationDashboardService evaluationDashboardService;
     private final Clock clock = Clock.systemUTC();
 
-    public ComplianceDashboardService(JdbcTemplate jdbcTemplate) {
+    public ComplianceDashboardService(
+            JdbcTemplate jdbcTemplate,
+            EvaluationDashboardService evaluationDashboardService
+    ) {
         this.jdbcTemplate = jdbcTemplate;
+        this.evaluationDashboardService = evaluationDashboardService;
     }
 
     public ComplianceDashboardResponse dashboard(AuthenticatedActor actor) {
@@ -24,6 +30,7 @@ public class ComplianceDashboardService {
         var briefMetrics = briefMetrics(organizationId);
         var validationMetrics = validationMetrics(organizationId);
         var exportMetrics = exportMetrics(organizationId);
+        var evaluationMetrics = evaluationMetrics(actor);
         var recentAuditEvents = recentAuditEvents(organizationId);
 
         return new ComplianceDashboardResponse(
@@ -34,14 +41,15 @@ public class ComplianceDashboardService {
                 briefMetrics,
                 validationMetrics,
                 exportMetrics,
+                evaluationMetrics,
                 recentAuditEvents,
                 List.of(
-                        "Organization-scoped reads and writes are enforced for Briefs, approvals, audit events, validation telemetry, and tracker-export telemetry.",
+                        "Organization-scoped reads and writes are enforced for Briefs, approvals, audit events, validation telemetry, tracker-export telemetry, and evaluation telemetry.",
                         "Human review remains mandatory for regulatory interpretation, implementation guidance, and downstream exports.",
                         "Only synthetic or non-sensitive FHIR examples are supported in this phase.",
-                        "Tracked export, collaboration notification, documentation export, and webhook automation flows are explicit, auditable, and organization scoped with retention metadata for downstream evidence governance."
+                        "Tracked export, collaboration notification, documentation export, webhook automation, and evaluation reporting flows are explicit, auditable, and organization scoped with retention metadata for downstream evidence governance."
                 ),
-                "This dashboard summarizes the current organization boundary, review activity, validation evidence, and governed integration telemetry for enterprise oversight."
+                "This dashboard summarizes the current organization boundary, review activity, validation evidence, governed integration telemetry, and evaluation trust signals for enterprise oversight."
         );
     }
 
@@ -131,6 +139,32 @@ public class ComplianceDashboardService {
                 rs.getTimestamp("occurred_at").toInstant(),
                 rs.getString("summary")
         ), organizationId);
+    }
+
+    private ComplianceDashboardResponse.EvaluationMetrics evaluationMetrics(AuthenticatedActor actor) {
+        var disagreementFindings = count("""
+                select count(*) from (
+                    select finding_id
+                    from brief_review_decision
+                    where organization_id = ?
+                    group by finding_id
+                    having count(distinct decision) > 1
+                ) disagreement
+                """, actor.organizationId());
+        var evaluationDashboard = evaluationDashboardService.dashboard(actor);
+        return new ComplianceDashboardResponse.EvaluationMetrics(
+                count("select count(*) from answer_generation_event where organization_id = ?", actor.organizationId()),
+                count("""
+                        select count(*) from answer_generation_event
+                        where organization_id = ? and answer_status = 'insufficient_evidence'
+                        """, actor.organizationId()),
+                count("""
+                        select count(*) from answer_generation_event
+                        where organization_id = ? and unsupported_triggered = true
+                        """, actor.organizationId()),
+                disagreementFindings,
+                evaluationDashboard.qualityGate().decision()
+        );
     }
 
     private int count(String sql, String organizationId) {
