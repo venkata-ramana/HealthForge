@@ -16,6 +16,9 @@ HealthForge currently includes:
 - prior-authorization workflow tools for PAS, CRD, and DTR scenarios
 - richer implementation planning exports for payer/provider/shared tracks
 - local web UI, API, and VS Code prototype support
+- governed delivery scaffolding for tracker, collaboration, documentation, and webhook workflows
+- trust and evaluation reporting for operators and enterprise evaluators
+- a Phase 10 showcase workspace with guided demo paths and a clearer admin console
 
 ## Milestone history
 
@@ -53,14 +56,29 @@ HealthForge currently includes:
 - added policy-to-standards crosswalk generation
 - added richer payer/provider/shared implementation-track exports from approved Briefs
 
+### Governed delivery and trust layer
+
+- added governed tracker writeback with approval gates and visible retry/blocked states
+- added collaboration notification, documentation export, and webhook automation scaffolding
+- added evaluation dashboard and policy/safety reporting
+- added runtime telemetry for insufficient-evidence and unsupported-output patterns
+
+### Showcase and productization
+
+- redesigned the web workspace into a clearer showcase experience
+- added a guided sandbox/demo path and stronger admin/operator walkthrough surface
+- clarified deployable editions and capability boundaries
+- added stronger onboarding, testing paths, and presentation-ready architecture narratives
+- added content and community pipeline templates tied to shipped milestones
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
-As of July 27, 2026:
+As of July 28, 2026:
 
-- Phase 7 is complete
-- the next major focus area is Phase 8
+- Phase 10 is complete
+- the next major planning step is to define the following five phases
 
 ## Suggested future release-note structure
 

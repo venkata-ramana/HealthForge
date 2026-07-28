@@ -2,79 +2,66 @@
 
 HealthForge is an open-source AI engineering platform for healthcare interoperability.
 
-It helps teams turn public regulations, implementation guides, and standards references into grounded, reviewable engineering outputs instead of disconnected notes and one-off interpretations.
+It helps teams turn public regulations, implementation guides, and standards references into grounded, reviewable engineering outputs instead of disconnected notes, unsupported interpretations, and one-off planning artifacts.
 
-## What it does
+## What it is
 
 HealthForge creates a local evidence layer from approved public sources and then helps teams:
 
-- search and retrieve cited evidence
-- generate grounded answers from pinned source snapshots
+- retrieve cited evidence from pinned snapshots
+- generate grounded answers with explicit limits
 - create reviewable Briefs with approvals and audit history
-- inspect FHIR and standards artifacts
-- validate synthetic or non-sensitive FHIR examples
-- translate policy and workflow findings into implementation planning artifacts
+- inspect workflow, standards, and FHIR planning artifacts
+- evaluate trust, safety, and workflow quality over time
+- prepare governed downstream delivery artifacts for engineering and operator teams
 
 ## Why it exists
 
-Healthcare interoperability work is rarely blocked by a lack of documents. It is usually blocked by the gap between:
+Healthcare interoperability work is rarely blocked by missing documents.
 
-- what regulations and guides say
+It is usually blocked by the gap between:
+
+- what regulations and implementation guides say
 - what engineering teams think they mean
-- what reviewers are willing to approve
+- what reviewers and approvers are willing to sign off on
+- what operators can safely demonstrate or govern
 
-HealthForge is designed to reduce that gap with traceability, reviewability, and bounded outputs.
+HealthForge is designed to reduce that gap with traceability, reviewability, bounded outputs, and operator-visible trust signals.
 
-## Key capabilities
+## Product highlights
 
-| Capability | What it helps with |
+| Area | What it helps with |
 | --- | --- |
-| Evidence search and grounded answers | Ask questions against a pinned corpus and get cited findings |
-| Reviewable Brief workflow | Turn findings into a human-reviewed artifact with approvals and audit trail |
-| FHIR validation | Validate synthetic or non-sensitive examples against pinned FHIR profiles |
-| FHIR knowledge assistant | Explore curated resources, profiles, guides, and workflow touchpoints |
-| Regulation explainer | Convert approved sources into plain-English technical interpretation |
-| Prior-authorization workflow tools | Model journeys, review synthetic bundles, and generate standards crosswalks |
-| Implementation planning export | Turn approved findings into richer payer/provider/shared implementation tracks |
-| Local developer tools | Use the API, web UI, and VS Code prototype for review-driven engineering workflows |
-
-## Product shape
-
-HealthForge is currently a local-first platform with:
-
-- a Spring Boot API
-- a web UI
-- PostgreSQL-backed evidence and review storage
-- synthetic/demo-safe FHIR workflows
-- approval and audit controls
-
-It is intentionally bounded:
-
-- public, non-sensitive sources only
-- synthetic or non-sensitive FHIR examples only
-- human review required for recommendations and exports
-- no PHI handling
-- no direct external writeback in the current product boundary
+| Grounded evidence | Ask bounded questions against pinned source snapshots and inspect cited findings |
+| Brief workflow | Turn grounded findings into human-reviewed artifacts with decisions, approvals, and audit trail |
+| FHIR and workflow tooling | Explore standards, validate synthetic examples, review bundles, and inspect prior-auth planning paths |
+| Governed delivery | Prepare tracker, collaboration, documentation, and webhook-facing artifacts with explicit controls |
+| Trust and evaluation | Inspect quality gates, evidence sufficiency, disagreement patterns, and policy/safety reporting |
+| Showcase and builder UX | Use the web workspace, API, docs, and VS Code prototype for demo-safe workflows |
 
 ## How it works
 
 ```mermaid
 flowchart LR
     A["Approved public sources"] --> B["Ingestion and provenance"]
-    B --> C["Citeable passages and snapshots"]
+    B --> C["Snapshots and citeable passages"]
     C --> D["Retrieval and grounded answers"]
-    D --> E["Briefs, review, approvals, and audit"]
-    E --> F["Validation, workflow analysis, and implementation planning"]
+    D --> E["Brief review, approvals, and audit"]
+    E --> F["Planning exports and governed integrations"]
+    E --> G["Evaluation, safety, and operator reporting"]
 ```
 
-In practice:
+## Capability boundaries
 
-1. Ingest approved public source material.
-2. Create citeable passages and corpus snapshots.
-3. Ask a bounded engineering or workflow question.
-4. Review grounded findings.
-5. Approve what should become planning input.
-6. Export structured artifacts for downstream engineering work.
+HealthForge is intentionally bounded today:
+
+- public, non-sensitive sources only
+- synthetic or non-sensitive FHIR examples only
+- human review required for recommendations and governed downstream actions
+- no PHI handling
+- no claim of compliance certification or production-readiness
+
+Those boundaries are a feature, not a missing disclaimer: they make the product easier to trust and easier to demo honestly.
 
 ## Quick start
 
@@ -103,28 +90,36 @@ cd apps/platform-api
 mvn spring-boot:run
 ```
 
-## Simple demo prompts
+## Best demo prompts
 
 Try these in the local UI:
 
 - Question: `What changes do we need for CMS prior authorization workflows?`
   Context: `Synthetic provider EHR planning scenario for prior authorization APIs.`
 
-- Question: `What does CMS-0057-F require for prior authorization APIs?`
-  Context: `Internal product planning for a non-sensitive prior authorization workflow MVP.`
-
 - Question: `How should a provider workflow handle documentation and status exchange for prior authorization?`
   Context: `Synthetic architecture review for a provider-facing utilization management workflow.`
+
+- Question: `What evidence-quality and approval signals should an enterprise evaluator inspect?`
+  Context: `Synthetic enterprise evaluation walkthrough using the HealthForge trust layer.`
+
+## Choose your path
+
+- Want to understand the product quickly? Start with [the end-to-end demo and onboarding guide](docs/36-end-to-end-demo-and-contributor-onboarding.md).
+- Want the supported API boundary? Read [the client API surface](docs/23-client-api-surface.md).
+- Want the operator story? Read [the private deployment operator guide](docs/31-private-deployment-operator-guide.md).
+- Want the trust layer? Read [Phase 9 evaluation and trust](docs/34-phase-9-evaluation-and-trust.md).
+- Want the packaging story? Read [deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md).
 
 ## Documentation
 
 - [Platform API guide](apps/platform-api/README.md)
 - [Client API surface](docs/23-client-api-surface.md)
-- [FHIR knowledge assistant](docs/25-fhir-knowledge-assistant.md)
-- [Regulation explainer](docs/26-regulation-explainer.md)
+- [End-to-end demo and contributor onboarding](docs/36-end-to-end-demo-and-contributor-onboarding.md)
+- [Showcase architecture and solution narratives](docs/38-showcase-architecture-and-solution-narratives.md)
+- [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
+- [Content and community pipeline](docs/39-content-and-community-pipeline.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
-- [Prior-authorization copilot](docs/28-prior-auth-copilot.md)
-- [Tracked export integrations](docs/29-tracked-export-integrations.md)
 - [Release notes](docs/releases.md)
 
 ## Release notes
