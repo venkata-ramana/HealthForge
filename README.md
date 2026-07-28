@@ -36,7 +36,7 @@ HealthForge is designed to reduce that gap with traceability, reviewability, bou
 | Brief workflow | Turn grounded findings into human-reviewed artifacts with decisions, approvals, and audit trail |
 | Team workspace | Organize briefs into projects, reviewer queues, assignments, saved views, and evidence workspaces |
 | FHIR and workflow tooling | Explore standards, validate synthetic examples, review bundles, and inspect prior-auth planning paths |
-| Governed delivery | Prepare tracker, collaboration, documentation, and webhook-facing artifacts with explicit controls |
+| Governed delivery | Prepare tracker, collaboration, documentation, webhook, and inbound-case workflows with explicit controls and receipts |
 | Trust and evaluation | Inspect quality gates, evidence sufficiency, disagreement patterns, policy/safety reporting, and enterprise auth posture |
 | Showcase and builder UX | Use the web workspace, API, docs, and VS Code prototype for demo-safe workflows |
 
@@ -111,6 +111,7 @@ Try these in the local UI:
 - Want the supported API boundary? Read [the client API surface](docs/23-client-api-surface.md).
 - Want the operator story? Read [the private deployment operator guide](docs/31-private-deployment-operator-guide.md).
 - Want the team workspace story? Read [the Phase 11 collaboration workspace guide](docs/40-phase11-team-workspaces-and-auth-foundation.md).
+- Want the governed connector story? Read [the Phase 12 integrations and orchestration guide](docs/41-phase12-governed-integrations-and-orchestration.md).
 - Want the trust layer? Read [Phase 9 evaluation and trust](docs/34-phase-9-evaluation-and-trust.md).
 - Want the packaging story? Read [deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md).
 
@@ -121,6 +122,7 @@ Try these in the local UI:
 - [End-to-end demo and contributor onboarding](docs/36-end-to-end-demo-and-contributor-onboarding.md)
 - [Showcase architecture and solution narratives](docs/38-showcase-architecture-and-solution-narratives.md)
 - [Phase 11 collaboration workspace and auth foundation](docs/40-phase11-team-workspaces-and-auth-foundation.md)
+- [Phase 12 governed integrations and orchestration](docs/41-phase12-governed-integrations-and-orchestration.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Content and community pipeline](docs/39-content-and-community-pipeline.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)

@@ -9,11 +9,14 @@ public record DocumentationExportResponse(
         String targetSystem,
         String exportMode,
         String packageFormat,
+        String publishOperation,
         Instant createdAt,
         String deliveryStatus,
         String externalReference,
         List<String> traceability,
         String packageBody,
+        boolean simulated,
+        String receiptType,
         String reviewNotice
 ) {
 }

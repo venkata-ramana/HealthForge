@@ -6,6 +6,7 @@ import dev.healthforge.platform.brief.BriefAuditEventService;
 import dev.healthforge.platform.brief.BriefResponse;
 import dev.healthforge.platform.brief.BriefService;
 import dev.healthforge.platform.brief.BriefWorkItemExportResponse;
+import dev.healthforge.platform.integration.GovernedConnectorGateway;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -92,6 +93,7 @@ class TrackedWorkItemExportServiceTest {
         assertThat(response.items()).hasSize(1);
         assertThat(response.items().getFirst().github().title()).isEqualTo("Implement PAS claim handling");
         assertThat(response.writebackExecution().executionStatus()).isEqualTo("preview_generated");
+        assertThat(response.writebackExecution().receiptType()).isEqualTo("tracker_receipt");
         verify(auditEventService).record(eq("brief-1"), any(), eq("tracker_export_preview_generated"), any(), any());
     }
 
@@ -150,7 +152,13 @@ class TrackedWorkItemExportServiceTest {
         var briefService = mock(BriefService.class);
         var auditEventService = mock(BriefAuditEventService.class);
         var jdbcTemplate = mock(org.springframework.jdbc.core.JdbcTemplate.class);
-        var service = new TrackedWorkItemExportService(briefService, auditEventService, jdbcTemplate);
+        var connectorGateway = mock(GovernedConnectorGateway.class);
+        when(connectorGateway.executeTracker(eq("github"), eq("openai/healthforge"), eq(true), eq(1)))
+                .thenReturn(new dev.healthforge.platform.integration.ConnectorExecutionResult(
+                        "github", "simulated_retry", "Simulated retry through governed connector adapter.",
+                        "openai/healthforge", "github.com/openai/healthforge/issues/retry-1", true, "tracker_receipt"
+                ));
+        var service = new TrackedWorkItemExportService(briefService, auditEventService, jdbcTemplate, null, connectorGateway);
 
         when(briefService.exportWorkItems(eq("brief-1"), any())).thenReturn(new BriefWorkItemExportResponse(
                 "brief-1",
@@ -205,7 +213,7 @@ class TrackedWorkItemExportServiceTest {
         assertThat(response.mode()).isEqualTo("governed_writeback");
         assertThat(response.writebackEnabled()).isTrue();
         assertThat(response.approvalGate().approvalId()).isEqualTo("approval_1");
-        assertThat(response.writebackExecution().executionStatus()).isEqualTo("writeback_retried");
+        assertThat(response.writebackExecution().executionStatus()).isEqualTo("simulated_retry");
         assertThat(response.writebackExecution().retryCount()).isEqualTo(1);
         assertThat(response.writebackExecution().externalReference()).contains("github.com/openai/healthforge/issues/retry-1");
         verify(auditEventService).record(eq("brief-1"), any(), eq("tracker_writeback_executed"), any(), any());
