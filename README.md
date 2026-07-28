@@ -34,9 +34,10 @@ HealthForge is designed to reduce that gap with traceability, reviewability, bou
 | --- | --- |
 | Grounded evidence | Ask bounded questions against pinned source snapshots and inspect cited findings |
 | Brief workflow | Turn grounded findings into human-reviewed artifacts with decisions, approvals, and audit trail |
+| Team workspace | Organize briefs into projects, reviewer queues, assignments, saved views, and evidence workspaces |
 | FHIR and workflow tooling | Explore standards, validate synthetic examples, review bundles, and inspect prior-auth planning paths |
 | Governed delivery | Prepare tracker, collaboration, documentation, and webhook-facing artifacts with explicit controls |
-| Trust and evaluation | Inspect quality gates, evidence sufficiency, disagreement patterns, and policy/safety reporting |
+| Trust and evaluation | Inspect quality gates, evidence sufficiency, disagreement patterns, policy/safety reporting, and enterprise auth posture |
 | Showcase and builder UX | Use the web workspace, API, docs, and VS Code prototype for demo-safe workflows |
 
 ## How it works
@@ -47,8 +48,9 @@ flowchart LR
     B --> C["Snapshots and citeable passages"]
     C --> D["Retrieval and grounded answers"]
     D --> E["Brief review, approvals, and audit"]
-    E --> F["Planning exports and governed integrations"]
-    E --> G["Evaluation, safety, and operator reporting"]
+    E --> F["Projects, queues, saved views, and reusable configs"]
+    F --> G["Planning exports and governed integrations"]
+    F --> H["Evaluation, safety, operator reporting, and auth foundation"]
 ```
 
 ## Capability boundaries
@@ -108,6 +110,7 @@ Try these in the local UI:
 - Want to understand the product quickly? Start with [the end-to-end demo and onboarding guide](docs/36-end-to-end-demo-and-contributor-onboarding.md).
 - Want the supported API boundary? Read [the client API surface](docs/23-client-api-surface.md).
 - Want the operator story? Read [the private deployment operator guide](docs/31-private-deployment-operator-guide.md).
+- Want the team workspace story? Read [the Phase 11 collaboration workspace guide](docs/40-phase11-team-workspaces-and-auth-foundation.md).
 - Want the trust layer? Read [Phase 9 evaluation and trust](docs/34-phase-9-evaluation-and-trust.md).
 - Want the packaging story? Read [deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md).
 
@@ -117,6 +120,7 @@ Try these in the local UI:
 - [Client API surface](docs/23-client-api-surface.md)
 - [End-to-end demo and contributor onboarding](docs/36-end-to-end-demo-and-contributor-onboarding.md)
 - [Showcase architecture and solution narratives](docs/38-showcase-architecture-and-solution-narratives.md)
+- [Phase 11 collaboration workspace and auth foundation](docs/40-phase11-team-workspaces-and-auth-foundation.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Content and community pipeline](docs/39-content-and-community-pipeline.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)

@@ -2,7 +2,7 @@
 
 This is the first executable HealthForge slice. It fetches only manifest-approved public PDFs, stores their immutable checksum-addressed artifact locally, extracts citeable page passages, and retrieves matching passages from PostgreSQL.
 
-The Phase 10 workspace also presents these APIs through a more polished showcase UI for reviewers, operators, and enterprise evaluators.
+The Phase 11 workspace presents these APIs through a more polished showcase UI for reviewers, operators, administrators, and enterprise evaluators.
 
 ## Prerequisites
 
@@ -58,7 +58,7 @@ Do not place real credentials or PHI in source control, Compose files, or logs.
 
 For private deployment and operator guidance beyond local development, see [`docs/31-private-deployment-operator-guide.md`](../docs/31-private-deployment-operator-guide.md).
 
-The current supported authentication mode is `local_header`, which keeps the local header workflow active for demos and development while routing request identity through a pluggable provider boundary in the application.
+The current default authentication mode is `local_header`, which keeps the local header workflow active for demos and development while routing request identity through a pluggable provider boundary in the application. Phase 11 also adds a `trusted_proxy` provider foundation for future SSO or reverse-proxy-based enterprise identity.
 
 ## Current endpoints
 
@@ -84,6 +84,7 @@ The current supported authentication mode is `local_header`, which keeps the loc
 - `GET /v1/enterprise/deployment-promotion-guide` returns environment promotion and rollback guidance for administrators.
 - `GET /v1/admin/identity-directory` returns the current durable organization, user, membership, and role-assignment directory model for administrators.
 - `GET /v1/admin/access-review` returns an organization-scoped access-review report with role assignments, audit-policy metadata, and oversight-safe access rationale for administrators.
+- `GET /v1/workspace/overview`, `POST /v1/workspace/projects`, `POST /v1/workspace/projects/{projectId}/briefs`, `POST /v1/workspace/assignments`, and `POST /v1/workspace/views` expose the Phase 11 team workspace for projects, queues, saved views, evidence workspaces, workflow configs, and identity-foundation storytelling.
 - `POST /v1/architecture-reviews` returns a bounded architecture-review artifact for a non-sensitive scenario using grounded evidence and curated standards touchpoints.
 - `POST /v1/codegen/starter-artifacts` generates example-only starter code from an approved work-item export and preserves traceability back to the reviewed artifact.
 - `POST /v1/retrieval/search` performs PostgreSQL full-text retrieval and returns citeable source/version/page metadata.

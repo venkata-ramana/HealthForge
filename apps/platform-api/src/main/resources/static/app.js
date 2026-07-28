@@ -15,6 +15,10 @@ const roleRequirements = {
   reviewFinding: 'reviewer',
   approveBrief: 'approver',
   exportWorkItems: 'approver',
+  workspaceOverview: 'reviewer',
+  workspaceProject: 'reviewer',
+  workspaceAssignment: 'reviewer',
+  workspaceSavedView: 'reviewer',
   auditExport: 'auditor',
   complianceDashboard: 'auditor',
   enterprisePosture: 'auditor',
@@ -65,6 +69,11 @@ const docLinks = [
     title: 'README overview',
     path: '/README.md',
     description: 'High-level product overview, quick start, demo prompts, and capability boundaries.'
+  },
+  {
+    title: 'Phase 11 collaboration workspace',
+    path: '/docs/40-phase11-team-workspaces-and-auth-foundation.md',
+    description: 'Projects, saved views, reviewer queues, reusable configs, and enterprise identity foundation.'
   },
   {
     title: 'Client API surface',
@@ -135,6 +144,15 @@ const evidence = document.getElementById('evidence');
 const briefs = document.getElementById('briefs');
 const content = document.getElementById('content');
 const enterprisePanel = document.getElementById('enterprisePanel');
+const workspaceProjects = document.getElementById('workspaceProjects');
+const workspaceQueues = document.getElementById('workspaceQueues');
+const workspaceAssignments = document.getElementById('workspaceAssignments');
+const workspaceSavedViews = document.getElementById('workspaceSavedViews');
+const workspaceCollections = document.getElementById('workspaceCollections');
+const workspaceConfigs = document.getElementById('workspaceConfigs');
+const workspaceIdentity = document.getElementById('workspaceIdentity');
+let currentBriefId = null;
+let workspaceOverviewState = null;
 
 function actorHeaders(json = true) {
   const headers = {
@@ -212,6 +230,9 @@ function refreshSessionUi() {
   if (!can('identityDirectory')) {
     notes.push('Identity directory and access review stay gated to administrators.');
   }
+  if (can('workspaceOverview')) {
+    notes.push('Team Workspace groups briefs into projects, queues, saved views, and reusable workflow configurations.');
+  }
   sessionNote.innerHTML = notes.map((note) => `<div>${esc(note)}</div>`).join('');
 
   document.getElementById('briefActions').innerHTML = [
@@ -275,6 +296,260 @@ function renderDocCards() {
       <p>${esc(doc.description)}</p>
     </article>
   `).join('');
+}
+
+function projectSelectOptions(includeBlank = false) {
+  const projects = workspaceOverviewState?.projects || [];
+  const options = projects.map((project) => `<option value="${esc(project.project_id)}">${esc(project.name)}</option>`).join('');
+  return includeBlank ? `<option value="">No project scope</option>${options}` : options;
+}
+
+function refreshWorkspaceSelectors() {
+  document.getElementById('linkProjectSelect').innerHTML = projectSelectOptions(false);
+  document.getElementById('savedViewProject').innerHTML = projectSelectOptions(true);
+}
+
+function projectCard(project) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(project.name)}</h3>
+      <p>${esc(project.description)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(project.kind)}</span>
+        <span class="pill">${esc(project.brief_count)} briefs</span>
+        ${project.tags.map((tag) => `<span class="pill">${esc(tag)}</span>`).join('')}
+      </div>
+      <div class="helper">Owner: ${esc(project.owner_actor_id)}</div>
+      ${project.brief_ids.length ? `<div class="helper">Linked briefs: ${project.brief_ids.map((briefId) => esc(briefId)).join(', ')}</div>` : '<div class="helper">No linked briefs yet.</div>'}
+    </article>
+  `;
+}
+
+function queueCard(queue) {
+  return `
+    <article class="testing-card">
+      <h3>${esc(queue.queue_name)}</h3>
+      <div class="metric-grid">
+        ${renderMetricCard('assignments', queue.total_assignments)}
+        ${renderMetricCard('draft', queue.draft_briefs)}
+        ${renderMetricCard('in review', queue.in_review_briefs)}
+        ${renderMetricCard('changes requested', queue.changes_requested_briefs)}
+        ${renderMetricCard('approved', queue.approved_briefs)}
+      </div>
+    </article>
+  `;
+}
+
+function assignmentCard(item) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(item.brief_question)}</h3>
+      <p>${esc(item.handoff_summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(item.queue_name)}</span>
+        <span class="pill">${esc(item.assignee_role)}</span>
+        <span class="pill">${esc(item.brief_status)}</span>
+      </div>
+      <div class="helper">${esc(item.assignee_actor_id)} · ${esc(item.brief_id)}</div>
+    </article>
+  `;
+}
+
+function savedViewCard(view) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(view.name)}</h3>
+      <p>${esc(view.summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(view.view_type)}</span>
+        ${view.project_name ? `<span class="pill">${esc(view.project_name)}</span>` : '<span class="pill">org-scoped</span>'}
+      </div>
+      <pre>${esc(view.query_text)}</pre>
+    </article>
+  `;
+}
+
+function collectionCard(collection) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(collection.name)}</h3>
+      <p>${esc(collection.summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(collection.project_name || 'shared')}</span>
+        <span class="pill">${esc(collection.source_count)} sources</span>
+      </div>
+    </article>
+  `;
+}
+
+function configCard(config) {
+  return `
+    <article class="doc-card">
+      <h3>${esc(config.name)}</h3>
+      <p>${esc(config.summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(config.config_type)}</span>
+        <span class="pill">${esc(config.version_label)}</span>
+        <span class="pill">${esc(config.status)}</span>
+      </div>
+      <div class="helper">Prompt: ${esc(config.prompt_profile)} · Retrieval: ${esc(config.retrieval_profile)} · Workflow: ${esc(config.workflow_profile)}</div>
+    </article>
+  `;
+}
+
+function identityCard(identity) {
+  return `
+    <article class="doc-card">
+      <h3>${esc(identity.display_name)}</h3>
+      <p>${esc(identity.provider_type)} · ${esc(identity.status)}</p>
+      <div class="helper">Fallback: ${esc(identity.fallback_mode)}</div>
+    </article>
+  `;
+}
+
+function groupMappingCard(mapping) {
+  return `
+    <article class="doc-card">
+      <h3>${esc(mapping.group_name)}</h3>
+      <p>Maps to <b>${esc(mapping.actor_role)}</b></p>
+      <div class="helper">${esc(mapping.scope_summary)}</div>
+    </article>
+  `;
+}
+
+function renderWorkspaceOverview(data) {
+  workspaceOverviewState = data;
+  refreshWorkspaceSelectors();
+  workspaceProjects.innerHTML = data.projects.length ? data.projects.map(projectCard).join('') : '<div class="empty-state"><h3>No projects yet</h3><p>Create the first team workspace for this organization.</p></div>';
+  workspaceQueues.innerHTML = data.queues.length ? data.queues.map(queueCard).join('') : '<div class="empty-state"><h3>No queue activity yet</h3><p>Create a brief or assignment to populate the reviewer queues.</p></div>';
+  workspaceAssignments.innerHTML = data.assignments.length ? data.assignments.map(assignmentCard).join('') : '<div class="empty-state"><h3>No assignments yet</h3><p>Assignments will show who should act next on each brief.</p></div>';
+  workspaceSavedViews.innerHTML = data.saved_views.length ? data.saved_views.map(savedViewCard).join('') : '<div class="empty-state"><h3>No saved views yet</h3><p>Save a repeated query to preserve analysis paths.</p></div>';
+  workspaceCollections.innerHTML = data.evidence_collections.length ? data.evidence_collections.map(collectionCard).join('') : '<div class="empty-state"><h3>No evidence workspaces yet</h3><p>Link briefs to projects to build reusable evidence collections.</p></div>';
+  workspaceConfigs.innerHTML = data.workflow_configurations.length ? data.workflow_configurations.map(configCard).join('') : '<div class="empty-state"><h3>No workflow configs yet</h3><p>Configuration profiles will appear here.</p></div>';
+  workspaceIdentity.innerHTML = `
+    <article class="doc-card">
+      <h3>Auth foundation</h3>
+      <p>${esc(data.auth_foundation.mode_summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(data.auth_foundation.active_mode)}</span>
+        ${data.auth_foundation.supported_modes.map((mode) => `<span class="pill">${esc(mode)}</span>`).join('')}
+      </div>
+    </article>
+    ${data.auth_foundation.identity_providers.map(identityCard).join('')}
+    ${data.auth_foundation.group_role_mappings.map(groupMappingCard).join('')}
+  `;
+}
+
+async function loadWorkspaceOverview(openView = false) {
+  if (!can('workspaceOverview')) {
+    workspaceProjects.innerHTML = `<div class="alert warning">${esc(permissionText('workspaceOverview'))}</div>`;
+    return;
+  }
+  if (openView) {
+    setView('workspace');
+  }
+  workspaceProjects.innerHTML = '<div class="alert warning">Loading team workspace…</div>';
+  try {
+    const data = await apiJson('/v1/workspace/overview', { method: 'GET', headers: actorHeaders(false) });
+    renderWorkspaceOverview(data);
+  } catch (error) {
+    workspaceProjects.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
+  }
+}
+
+async function createWorkspaceProject() {
+  if (!can('workspaceProject')) {
+    alert(permissionText('workspaceProject'));
+    return;
+  }
+  const payload = {
+    name: document.getElementById('workspaceProjectName').value.trim(),
+    kind: document.getElementById('workspaceProjectKind').value.trim(),
+    description: document.getElementById('workspaceProjectDescription').value.trim(),
+    tags: document.getElementById('workspaceProjectTags').value.trim()
+  };
+  if (!payload.name || !payload.description) {
+    alert('Project name and description are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/workspace/projects', { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('workspaceProjectName').value = '';
+    document.getElementById('workspaceProjectDescription').value = '';
+    document.getElementById('workspaceProjectTags').value = '';
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function linkCurrentBriefToProject() {
+  if (!currentBriefId) {
+    alert('Open a brief first so we know which brief to link.');
+    return;
+  }
+  const projectId = document.getElementById('linkProjectSelect').value;
+  if (!projectId) {
+    alert('Choose a project first.');
+    return;
+  }
+  try {
+    await apiJson(`/v1/workspace/projects/${encodeURIComponent(projectId)}/briefs`, {
+      method: 'POST',
+      body: JSON.stringify({ brief_id: currentBriefId })
+    });
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function createWorkspaceAssignment() {
+  if (!currentBriefId) {
+    alert('Open a brief first so we know which brief to assign.');
+    return;
+  }
+  const payload = {
+    brief_id: currentBriefId,
+    assignee_actor_id: document.getElementById('assignmentActorId').value.trim(),
+    assignee_role: document.getElementById('assignmentRole').value.trim(),
+    queue_name: document.getElementById('assignmentQueue').value.trim(),
+    handoff_summary: document.getElementById('assignmentSummary').value.trim()
+  };
+  if (!payload.assignee_actor_id || !payload.queue_name || !payload.handoff_summary) {
+    alert('Assignment actor, queue, and handoff summary are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/workspace/assignments', { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('assignmentSummary').value = '';
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function createWorkspaceSavedView() {
+  const payload = {
+    project_id: document.getElementById('savedViewProject').value,
+    view_type: document.getElementById('savedViewType').value.trim(),
+    name: document.getElementById('savedViewName').value.trim(),
+    query_text: document.getElementById('savedViewQuery').value.trim(),
+    summary: document.getElementById('savedViewSummary').value.trim()
+  };
+  if (!payload.name || !payload.query_text || !payload.summary) {
+    alert('Saved view name, query, and summary are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/workspace/views', { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('savedViewName').value = '';
+    document.getElementById('savedViewQuery').value = '';
+    document.getElementById('savedViewSummary').value = '';
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
 }
 
 function applyDemoRole(role) {
@@ -422,6 +697,7 @@ function reviewDecisionForm(briefId, findingId) {
 
 async function openBrief(id) {
   try {
+    currentBriefId = id;
     const brief = await apiJson(`${api}/${id}`, { method: 'GET', headers: actorHeaders(false) });
     const findings = brief.findings.map((finding) => `
       <article class="finding" id="finding-${esc(finding.finding_id)}">
@@ -834,10 +1110,16 @@ document.querySelectorAll('.nav-button').forEach((button) => {
 });
 
 document.getElementById('loadBriefsBtn').addEventListener('click', loadBriefs);
+document.getElementById('openWorkspaceBtn').addEventListener('click', () => loadWorkspaceOverview(true));
 document.getElementById('openAdminBtn').addEventListener('click', () => openAdminPanel('evaluation'));
 document.getElementById('previewEvidenceBtn').addEventListener('click', previewEvidence);
 document.getElementById('createBriefBtn').addEventListener('click', createBrief);
 document.getElementById('resetPromptBtn').addEventListener('click', resetPrompt);
+document.getElementById('refreshWorkspaceBtn').addEventListener('click', () => loadWorkspaceOverview(true));
+document.getElementById('createProjectBtn').addEventListener('click', createWorkspaceProject);
+document.getElementById('linkBriefBtn').addEventListener('click', linkCurrentBriefToProject);
+document.getElementById('createAssignmentBtn').addEventListener('click', createWorkspaceAssignment);
+document.getElementById('createSavedViewBtn').addEventListener('click', createWorkspaceSavedView);
 actorId.addEventListener('change', refreshSessionUi);
 actorOrg.addEventListener('change', refreshSessionUi);
 actorRole.addEventListener('change', refreshSessionUi);
@@ -852,3 +1134,4 @@ renderDocCards();
 refreshSessionUi();
 resetPrompt();
 loadBriefs();
+loadWorkspaceOverview();

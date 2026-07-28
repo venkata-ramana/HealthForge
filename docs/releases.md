@@ -19,6 +19,7 @@ HealthForge currently includes:
 - governed delivery scaffolding for tracker, collaboration, documentation, and webhook workflows
 - trust and evaluation reporting for operators and enterprise evaluators
 - a Phase 10 showcase workspace with guided demo paths and a clearer admin console
+- a Phase 11 team workspace with projects, queues, assignments, saved views, reusable configs, and enterprise auth foundation
 
 ## Milestone history
 
@@ -71,14 +72,22 @@ HealthForge currently includes:
 - added stronger onboarding, testing paths, and presentation-ready architecture narratives
 - added content and community pipeline templates tied to shipped milestones
 
+### Team collaboration and enterprise identity foundation
+
+- added org-scoped projects and workspaces above individual briefs
+- added reviewer queues, explicit brief assignments, and handoff summaries
+- added saved views and evidence collections for repeated analysis
+- added reusable workflow configuration visibility for prompts, retrieval, and workflow profiles
+- added a trusted-proxy authentication foundation and group-to-role mapping model alongside the local demo path
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
-As of July 28, 2026:
+As of Tuesday, July 28, 2026:
 
-- Phase 10 is complete
-- the next major planning step is to define the following five phases
+- Phase 11 is complete
+- the next major planning step is to execute Phases 12 through 15
 
 ## Suggested future release-note structure
 
