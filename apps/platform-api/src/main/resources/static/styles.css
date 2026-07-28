@@ -152,6 +152,7 @@ input:focus,select:focus,textarea:focus,button:focus{
 }
 .demo-card h3,.doc-card h3,.testing-card h3,.brief-card h3{margin:0 0 6px}
 .demo-card p,.doc-card p,.testing-card p,.brief-card p{margin:0;color:var(--muted)}
+.demo-card .meta-row,.doc-card .meta-row,.testing-card .meta-row{margin-top:10px}
 .demo-card .button-row{margin-top:12px}
 
 .nav-button{
@@ -166,6 +167,7 @@ input:focus,select:focus,textarea:focus,button:focus{
 .workspace-view{display:none}
 .workspace-view.active{display:block}
 .workspace-columns{display:grid;grid-template-columns:420px minmax(0,1fr);gap:18px}
+.workspace-columns + .workspace-columns{margin-top:18px}
 
 .brief-card{
   width:100%;

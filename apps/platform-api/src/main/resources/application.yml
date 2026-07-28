@@ -46,6 +46,22 @@ healthforge:
   auth:
     mode: ${HEALTHFORGE_AUTH_MODE:local_header}
     default-organization-id: ${HEALTHFORGE_DEFAULT_ORGANIZATION_ID:local.default}
+    trusted-subject-header: ${HEALTHFORGE_TRUSTED_SUBJECT_HEADER:X-HealthForge-Subject}
+    trusted-display-name-header: ${HEALTHFORGE_TRUSTED_DISPLAY_NAME_HEADER:X-HealthForge-Display-Name}
+    trusted-groups-header: ${HEALTHFORGE_TRUSTED_GROUPS_HEADER:X-HealthForge-Groups}
+    group-role-mappings:
+      - group: reviewers
+        role: reviewer
+        scope: Maps enterprise review groups into HealthForge reviewer access.
+      - group: approvers
+        role: approver
+        scope: Maps enterprise approval groups into approval and governed export access.
+      - group: auditors
+        role: auditor
+        scope: Maps enterprise audit groups into oversight dashboards and safety reporting.
+      - group: administrators
+        role: administrator
+        scope: Maps platform operators into identity, access review, and deployment administration.
   audit:
     policy:
       policy-version: ${HEALTHFORGE_AUDIT_POLICY_VERSION:private-demo-v1}

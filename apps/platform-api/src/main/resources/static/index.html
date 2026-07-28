@@ -57,6 +57,7 @@
       </div>
       <div class="nav-list">
         <button class="nav-button active" data-view="briefs">Brief Studio</button>
+        <button class="nav-button" data-view="workspace">Team Workspace</button>
         <button class="nav-button" data-view="admin">Admin Console</button>
         <button class="nav-button" data-view="testing">Testing Paths</button>
         <button class="nav-button" data-view="docs">Documentation</button>
@@ -67,14 +68,15 @@
   <main class="content">
     <header class="hero">
       <div>
-        <span class="eyebrow">Phase 10 showcase workspace</span>
-        <h2>A clearer product experience for reviewers, operators, and evaluators</h2>
+        <span class="eyebrow">Phase 11 team workspace</span>
+        <h2>A clearer product experience for reviewers, operators, administrators, and enterprise teams</h2>
         <p id="heroText">
-          HealthForge turns public regulations, standards, and workflow guidance into grounded engineering outputs with human review, approvals, auditability, and evaluation signals.
+          HealthForge turns public regulations, standards, and workflow guidance into grounded engineering outputs with human review, approvals, auditability, evaluation signals, and reusable team workspaces.
         </p>
       </div>
       <div class="hero-actions">
         <button id="loadBriefsBtn">Refresh briefs</button>
+        <button class="secondary" id="openWorkspaceBtn">Open team workspace</button>
         <button class="secondary" id="openAdminBtn">Open admin console</button>
       </div>
     </header>
@@ -152,6 +154,113 @@
             <p>Use the actions above to inspect compliance, evaluation, posture, access review, identity directory, deployment guidance, or the synthetic FHIR catalog.</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="view-workspace" class="workspace-view">
+      <div class="workspace-columns">
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Projects and workspaces</h2>
+            <button class="secondary" id="refreshWorkspaceBtn">Refresh</button>
+          </div>
+          <p class="helper">Group briefs and artifacts by initiative, customer, demo path, or delivery stream.</p>
+          <label>Project name
+            <input id="workspaceProjectName" placeholder="Provider prior auth modernization">
+          </label>
+          <label>Type
+            <select id="workspaceProjectKind">
+              <option value="program">program</option>
+              <option value="workspace">workspace</option>
+              <option value="customer">customer</option>
+            </select>
+          </label>
+          <label>Description
+            <textarea id="workspaceProjectDescription" placeholder="Reusable workspace for a provider-facing prior auth initiative."></textarea>
+          </label>
+          <label>Tags
+            <input id="workspaceProjectTags" placeholder="prior-auth,provider,pilot">
+          </label>
+          <div class="button-row">
+            <button id="createProjectBtn">Create project</button>
+          </div>
+          <div id="workspaceProjects" class="demo-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Collaboration and review queues</h2>
+          </div>
+          <p class="helper">Assign the current brief, inspect queue pressure, and make the next handoff explicit.</p>
+          <label>Link current brief to project
+            <select id="linkProjectSelect"></select>
+          </label>
+          <div class="button-row">
+            <button id="linkBriefBtn">Link current brief</button>
+          </div>
+          <label>Assign current brief to
+            <input id="assignmentActorId" placeholder="local.reviewer">
+          </label>
+          <label>Assignee role
+            <select id="assignmentRole">
+              <option value="reviewer">reviewer</option>
+              <option value="approver">approver</option>
+              <option value="auditor">auditor</option>
+              <option value="administrator">administrator</option>
+            </select>
+          </label>
+          <label>Queue
+            <input id="assignmentQueue" value="reviewer-queue">
+          </label>
+          <label>Handoff summary
+            <textarea id="assignmentSummary" placeholder="Highlight what the next reviewer should inspect."></textarea>
+          </label>
+          <div class="button-row">
+            <button id="createAssignmentBtn">Create assignment</button>
+          </div>
+          <div id="workspaceQueues" class="testing-grid"></div>
+          <div id="workspaceAssignments" class="demo-list"></div>
+        </section>
+      </div>
+
+      <div class="workspace-columns">
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Saved views and evidence workspaces</h2>
+          </div>
+          <label>Saved view name
+            <input id="savedViewName" placeholder="Needs reviewer action">
+          </label>
+          <label>View type
+            <select id="savedViewType">
+              <option value="brief_queue">brief_queue</option>
+              <option value="oversight">oversight</option>
+              <option value="evidence">evidence</option>
+            </select>
+          </label>
+          <label>Project (optional)
+            <select id="savedViewProject"></select>
+          </label>
+          <label>Query
+            <input id="savedViewQuery" placeholder="status in (draft, changes_requested)">
+          </label>
+          <label>Summary
+            <textarea id="savedViewSummary" placeholder="Reusable view for briefs that still need reviewer follow-up."></textarea>
+          </label>
+          <div class="button-row">
+            <button id="createSavedViewBtn">Save view</button>
+          </div>
+          <div id="workspaceSavedViews" class="demo-list"></div>
+          <div id="workspaceCollections" class="demo-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Workflow configs and identity foundation</h2>
+          </div>
+          <div id="workspaceConfigs" class="doc-grid"></div>
+          <div id="workspaceIdentity" class="doc-grid"></div>
+        </section>
       </div>
     </section>
 
