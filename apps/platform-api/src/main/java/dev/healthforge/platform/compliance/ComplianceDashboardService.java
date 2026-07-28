@@ -39,9 +39,9 @@ public class ComplianceDashboardService {
                         "Organization-scoped reads and writes are enforced for Briefs, approvals, audit events, validation telemetry, and tracker-export telemetry.",
                         "Human review remains mandatory for regulatory interpretation, implementation guidance, and downstream exports.",
                         "Only synthetic or non-sensitive FHIR examples are supported in this phase.",
-                        "Tracked export previews remain preview-only with explicit retention metadata for downstream evidence governance."
+                        "Tracked export, collaboration notification, documentation export, and webhook automation flows are explicit, auditable, and organization scoped with retention metadata for downstream evidence governance."
                 ),
-                "This dashboard summarizes the current organization boundary, review activity, validation evidence, and export telemetry for enterprise oversight."
+                "This dashboard summarizes the current organization boundary, review activity, validation evidence, and governed integration telemetry for enterprise oversight."
         );
     }
 
@@ -97,12 +97,23 @@ public class ComplianceDashboardService {
         var jira = count("""
                 select count(*) from tracked_export_event where organization_id = ? and target_system = 'jira'
                 """, organizationId);
+        var attempts = count("""
+                select count(*) from tracked_export_event where organization_id = ? and export_mode = 'governed_writeback'
+                """, organizationId);
+        var successful = count("""
+                select count(*) from tracked_export_event
+                where organization_id = ? and execution_status in ('writeback_executed', 'writeback_retried')
+                """, organizationId);
+        var blocked = count("""
+                select count(*) from tracked_export_event
+                where organization_id = ? and execution_status = 'writeback_blocked'
+                """, organizationId);
         var latestRetentionUntil = jdbcTemplate.query("""
                 select max(retention_until) as latest_retention_until
                 from tracked_export_event
                 where organization_id = ?
                 """, rs -> rs.next() ? timestamp(rs.getTimestamp("latest_retention_until")) : null, organizationId);
-        return new ComplianceDashboardResponse.ExportMetrics(total, github, jira, latestRetentionUntil);
+        return new ComplianceDashboardResponse.ExportMetrics(total, github, jira, attempts, successful, blocked, latestRetentionUntil);
     }
 
     private List<ComplianceDashboardResponse.AuditEventSummary> recentAuditEvents(String organizationId) {

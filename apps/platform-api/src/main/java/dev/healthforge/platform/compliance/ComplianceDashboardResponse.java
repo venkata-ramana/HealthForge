@@ -33,9 +33,12 @@ public record ComplianceDashboardResponse(
     }
 
     public record ExportMetrics(
-            int totalPreviewExports,
-            int githubPreviewExports,
-            int jiraPreviewExports,
+            int totalTrackedExports,
+            int githubTrackedExports,
+            int jiraTrackedExports,
+            int writebackAttempts,
+            int successfulWritebacks,
+            int blockedWritebacks,
             Instant latestRetentionUntil
     ) {
     }

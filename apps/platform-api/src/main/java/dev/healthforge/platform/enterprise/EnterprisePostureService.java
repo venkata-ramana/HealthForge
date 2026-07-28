@@ -25,7 +25,8 @@ public class EnterprisePostureService {
                 List.of(
                         "Organization-scoped persistence for briefs, approvals, validation telemetry, export telemetry, and audit history",
                         "Role-gated approval and audit export actions",
-                        "Preview-only tracker export workflow with explicit retention-until metadata",
+                        "Governed tracker preview and writeback workflow with explicit approval and retention-until metadata",
+                        "Governed collaboration, documentation export, and webhook automation scaffolding for enterprise workflow handoffs",
                         "Synthetic/non-sensitive validation boundary",
                         "Private deployment scaffolding through Docker Compose and Terraform starter infrastructure"
                 ),
@@ -43,7 +44,7 @@ public class EnterprisePostureService {
                 List.of(
                         "This remains a human-review-first platform and is not production PHI infrastructure.",
                         "Identity is still header-backed in the local/private deployment path and is ready for future SSO replacement.",
-                        "External tracker writeback is intentionally disabled in this phase.",
+                        "External tracker writeback, documentation publishing, and collaboration/webhook delivery are governed, auditable, and intended for controlled environments rather than broad unattended automation.",
                         "Access review and audit policy reporting are enterprise-demo safe and organization scoped."
                 ),
                 List.of(

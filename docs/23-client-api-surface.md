@@ -13,9 +13,13 @@ The supported client-facing workflows are:
 - FHIR knowledge assistant
 - Regulation explainer
 - Prior-authorization copilot
-- Tracked GitHub/Jira-ready export previews
+- Tracked GitHub/Jira-ready export previews and governed writeback requests
+- Collaboration notification packaging for Slack and Teams
+- Documentation-system export packaging for Confluence, SharePoint, and Notion-style targets
+- Workflow automation subscriptions, events, and webhook delivery status
 - Compliance dashboard
 - Enterprise posture inspection
+- Deployment promotion guide
 - Synthetic FHIR scenario generation
 - Identity directory inspection
 
@@ -30,7 +34,7 @@ It is **not** yet intended for:
 - public internet exposure;
 - production identity hardening;
 - PHI-bearing workloads; or
-- direct third-party tracker writeback.
+- unattended third-party tracker automation without approval or operator review.
 
 ## Local authentication assumptions
 

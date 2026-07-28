@@ -14,6 +14,8 @@ public record TrackedWorkItemExportResponse(
         List<PreviewItem> items,
         List<String> nonGoals,
         boolean writebackEnabled,
+        ApprovalGate approvalGate,
+        WritebackExecution writebackExecution,
         String reviewNotice
 ) {
     public record PreviewItem(
@@ -39,6 +41,25 @@ public record TrackedWorkItemExportResponse(
             String description,
             String issueType,
             List<String> labels
+    ) {
+    }
+
+    public record ApprovalGate(
+            String approvalId,
+            String approvedBy,
+            String approvedRole,
+            Instant approvedAt
+    ) {
+    }
+
+    public record WritebackExecution(
+            String executionStatus,
+            String executionResult,
+            String targetLocator,
+            String externalReference,
+            int retryCount,
+            String retriedFromExportId,
+            Instant executedAt
     ) {
     }
 }

@@ -2,6 +2,7 @@ package dev.healthforge.platform.brief;
 
 import dev.healthforge.platform.answer.GroundedAnswerRequest;
 import dev.healthforge.platform.answer.GroundedAnswerService;
+import dev.healthforge.platform.automation.WorkflowAutomationService;
 import dev.healthforge.platform.auth.AuthenticatedActor;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,16 +24,19 @@ public class BriefService {
     private final JdbcTemplate jdbcTemplate;
     private final GroundedAnswerService groundedAnswerService;
     private final BriefAuditEventService auditEventService;
+    private final WorkflowAutomationService automationService;
     private final Clock clock = Clock.systemUTC();
 
     public BriefService(
             JdbcTemplate jdbcTemplate,
             GroundedAnswerService groundedAnswerService,
-            BriefAuditEventService auditEventService
+            BriefAuditEventService auditEventService,
+            WorkflowAutomationService automationService
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.groundedAnswerService = groundedAnswerService;
         this.auditEventService = auditEventService;
+        this.automationService = automationService;
     }
 
     public BriefResponse create(BriefRequest request, AuthenticatedActor actor) {
@@ -98,6 +102,16 @@ public class BriefService {
         auditEventService.record(briefId, actor, "review_decision_recorded",
                 "Recorded review decision '" + request.decision() + "' for a Brief finding.",
                 "finding_id=" + request.findingId() + ", status=" + status);
+        automationService.emit(
+                briefId,
+                actor,
+                "review",
+                "decision_recorded",
+                "Review decision '" + request.decision() + "' recorded for finding " + request.findingId() + ".",
+                "private_demo",
+                true,
+                null
+        );
         return get(briefId, actor);
     }
 
@@ -125,6 +139,16 @@ public class BriefService {
         auditEventService.record(briefId, actor, "brief_approved",
                 "Recorded final approval for the Brief.",
                 "approval_id=" + approvalId + ", status=approved");
+        automationService.emit(
+                briefId,
+                actor,
+                "governance",
+                "brief_approved",
+                "Final approval recorded for Brief " + briefId + ".",
+                "private_demo",
+                true,
+                null
+        );
         return get(briefId, actor);
     }
 
