@@ -1,6 +1,7 @@
 package dev.healthforge.platform;
 
 import dev.healthforge.platform.enterprise.AuditPolicyProperties;
+import dev.healthforge.platform.enterprise.OperationsPolicyProperties;
 import dev.healthforge.platform.integration.IntegrationProperties;
 import dev.healthforge.platform.ingestion.MvpSourceProperties;
 import dev.healthforge.platform.ingestion.WorkspaceProperties;
@@ -12,7 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties({MvpSourceProperties.class, ArtifactStorageProperties.class, WorkspaceProperties.class, ModelProperties.class, AuthProperties.class, AuditPolicyProperties.class, IntegrationProperties.class})
+@EnableConfigurationProperties({MvpSourceProperties.class, ArtifactStorageProperties.class, WorkspaceProperties.class, ModelProperties.class, AuthProperties.class, AuditPolicyProperties.class, IntegrationProperties.class, OperationsPolicyProperties.class})
 public class PlatformApiApplication {
 
     public static void main(String[] args) {

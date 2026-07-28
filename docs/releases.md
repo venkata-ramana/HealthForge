@@ -22,6 +22,7 @@ HealthForge currently includes:
 - a Phase 11 team workspace with projects, queues, assignments, saved views, reusable configs, and enterprise auth foundation
 - a Phase 12 governed integration layer with connector receipts, inbound intake, recovery tooling, and orchestration templates
 - a Phase 13 intelligence layer with retrieval feedback, evidence gaps, similarity clusters, and bounded recommendations
+- a Phase 14 private-operations layer with config policy, observability, continuity guidance, usage/quota reporting, and operator attestations
 
 ## Milestone history
 
@@ -98,14 +99,22 @@ HealthForge currently includes:
 - added persona-aware next-step recommendations
 - added workflow-tuning recommendations tied to evaluation and review signals
 
+### Private deployment and enterprise operations
+
+- added configuration and secret-boundary visibility surfaces
+- added observability, incident, and retention-oriented operator tooling
+- added continuity guidance for backup, restore, migration, and recovery rehearsals
+- added tenant-aware usage summaries, advisory quotas, and cost-control proxy signals
+- added policy attestation workflows and operator sign-off history
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
 As of Tuesday, July 28, 2026:
 
-- Phase 13 is complete
-- the next major planning step is to execute Phases 14 and 15
+- Phase 14 is complete
+- the next major planning step is to execute Phase 15
 
 ## Suggested future release-note structure
 

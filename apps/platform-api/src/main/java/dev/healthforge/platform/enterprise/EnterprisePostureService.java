@@ -9,9 +9,14 @@ import java.util.List;
 public class EnterprisePostureService {
 
     private final AuditPolicyProperties auditPolicyProperties;
+    private final OperationsPolicyProperties operationsPolicyProperties;
 
-    public EnterprisePostureService(AuditPolicyProperties auditPolicyProperties) {
+    public EnterprisePostureService(
+            AuditPolicyProperties auditPolicyProperties,
+            OperationsPolicyProperties operationsPolicyProperties
+    ) {
         this.auditPolicyProperties = auditPolicyProperties;
+        this.operationsPolicyProperties = operationsPolicyProperties;
     }
 
     public EnterprisePostureResponse posture(AuthenticatedActor actor) {
@@ -28,6 +33,7 @@ public class EnterprisePostureService {
                         "Governed tracker preview and writeback workflow with explicit approval and retention-until metadata",
                         "Governed collaboration, documentation export, and webhook automation scaffolding for enterprise workflow handoffs",
                         "Evaluation dashboard and policy-safety reporting backed by pinned regression artifacts and runtime telemetry",
+                        "Operations configuration, observability, continuity, quota, and attestation surfaces for private deployment operators",
                         "Synthetic/non-sensitive validation boundary",
                         "Private deployment scaffolding through Docker Compose and Terraform starter infrastructure"
                 ),
@@ -47,13 +53,14 @@ public class EnterprisePostureService {
                         "Identity is still header-backed in the local/private deployment path and is ready for future SSO replacement.",
                         "External tracker writeback, documentation publishing, and collaboration/webhook delivery are governed, auditable, and intended for controlled environments rather than broad unattended automation.",
                         "Phase 9 trust reporting improves visibility, but it does not convert evaluation scores into compliance or production guarantees.",
-                        "Access review and audit policy reporting are enterprise-demo safe and organization scoped."
+                        "Access review, operations reporting, and audit policy views are enterprise-demo safe and organization scoped."
                 ),
                 List.of(
                         "Replace local header identity with SSO + group mapping.",
                         "Add automated retention jobs and configurable policy tiers.",
-                        "Add tenant-aware policy routing and production secret management.",
-                        "Add policy attestation workflows and operator sign-off history."
+                        "Add tenant-aware policy routing and production secret management beyond the current reference surfaces.",
+                        "Move from operator-guided sign-off history into stronger policy automation and enforced change windows.",
+                        "Harden the current " + operationsPolicyProperties.getDeploymentTier() + " deployment tier into production-oriented infrastructure controls where needed."
                 )
         );
     }
