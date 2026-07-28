@@ -21,6 +21,7 @@ HealthForge currently includes:
 - a Phase 10 showcase workspace with guided demo paths and a clearer admin console
 - a Phase 11 team workspace with projects, queues, assignments, saved views, reusable configs, and enterprise auth foundation
 - a Phase 12 governed integration layer with connector receipts, inbound intake, recovery tooling, and orchestration templates
+- a Phase 13 intelligence layer with retrieval feedback, evidence gaps, similarity clusters, and bounded recommendations
 
 ## Milestone history
 
@@ -89,14 +90,22 @@ HealthForge currently includes:
 - added reusable orchestration templates for common interoperability programs
 - clarified simulated vs live-capable connector behavior through environment-managed settings
 
+### Intelligence loops and bounded recommendations
+
+- added retrieval-feedback capture from Brief findings
+- added evidence-gap summaries and public-source expansion suggestions
+- added lightweight similarity clustering for repeated Brief themes
+- added persona-aware next-step recommendations
+- added workflow-tuning recommendations tied to evaluation and review signals
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
 As of Tuesday, July 28, 2026:
 
-- Phase 12 is complete
-- the next major planning step is to execute Phases 13 through 15
+- Phase 13 is complete
+- the next major planning step is to execute Phases 14 and 15
 
 ## Suggested future release-note structure
 

@@ -62,6 +62,8 @@ The current default authentication mode is `local_header`, which keeps the local
 
 Phase 12 adds environment-managed connector configuration for GitHub, Jira, Notion, SharePoint, and Confluence. The default local posture stays simulation-friendly until an operator explicitly enables a connector and allows live execution in the environment.
 
+Phase 13 adds an advisory intelligence layer backed by persisted telemetry. Retrieval feedback, evidence-gap summaries, similarity clusters, and workflow-tuning recommendations remain reviewable and non-authoritative.
+
 ## Current endpoints
 
 - `POST /v1/ingestions` accepts only a configured public CMS source/version/content type, requires explicit allowed-use and terms-review metadata, captures an immutable artifact checksum, and creates page-level passages.
@@ -82,6 +84,7 @@ Phase 12 adds environment-managed connector configuration for GitHub, Jira, Noti
 - `GET /v1/integrations/status` and `POST /v1/integrations/recoveries` expose the Phase 12 connector health, receipts, retry, and operator recovery surface.
 - `GET /v1/intake/cases` and `POST /v1/intake/cases` expose inbound case intake and optional case-to-Brief orchestration.
 - `GET /v1/orchestration/templates` returns reusable orchestration templates for common interoperability program paths.
+- `GET /v1/intelligence/overview` and `POST /v1/intelligence/retrieval-feedback` expose the Phase 13 advisory intelligence layer for retrieval loops, evidence gaps, similarity clusters, persona recommendations, and workflow tuning.
 - `GET /v1/compliance/dashboard` summarizes org-scoped Brief, validation, and export telemetry for auditors and administrators.
 - `GET /v1/evaluation/dashboard` returns regression, evidence, review-quality, and workflow-quality signals for auditors and administrators.
 - `GET /v1/evaluation/policy-safety-report` returns a clearer policy and safety summary around unsupported outputs, approval policy, and governed integrations.
