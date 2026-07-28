@@ -45,7 +45,10 @@ class TrackedWorkItemExportControllerIntegrationTest {
                                   "work_item_ids": [],
                                   "approval_acknowledgement": true,
                                   "writeback_requested": false,
-                                  "export_reason": "Prepare engineering backlog preview."
+                                  "export_reason": "Prepare engineering backlog preview.",
+                                  "writeback_approval_id": null,
+                                  "target_locator": null,
+                                  "retry_from_export_id": null
                                 }
                                 """)
                         .header("X-HealthForge-Actor", "approver.one")
@@ -71,7 +74,10 @@ class TrackedWorkItemExportControllerIntegrationTest {
                                   "work_item_ids": [],
                                   "approval_acknowledgement": true,
                                   "writeback_requested": false,
-                                  "export_reason": "Prepare engineering backlog preview."
+                                  "export_reason": "Prepare engineering backlog preview.",
+                                  "writeback_approval_id": null,
+                                  "target_locator": null,
+                                  "retry_from_export_id": null
                                 }
                                 """)
                         .header("X-HealthForge-Actor", "reviewer.one")
@@ -94,6 +100,16 @@ class TrackedWorkItemExportControllerIntegrationTest {
                 List.of(),
                 List.of("Preview only."),
                 false,
+                null,
+                new TrackedWorkItemExportResponse.WritebackExecution(
+                        "preview_generated",
+                        "Preview payload generated without external writeback.",
+                        null,
+                        null,
+                        0,
+                        null,
+                        null
+                ),
                 "Human review remains required."
         );
     }

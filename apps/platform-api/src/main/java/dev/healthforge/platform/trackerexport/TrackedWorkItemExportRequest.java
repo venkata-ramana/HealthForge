@@ -10,6 +10,9 @@ public record TrackedWorkItemExportRequest(
         List<String> workItemIds,
         boolean approvalAcknowledgement,
         boolean writebackRequested,
-        String exportReason
+        String exportReason,
+        String writebackApprovalId,
+        String targetLocator,
+        String retryFromExportId
 ) {
 }
