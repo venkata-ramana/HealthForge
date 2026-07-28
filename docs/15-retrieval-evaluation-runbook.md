@@ -23,3 +23,9 @@ The gate returns:
 - exit code `0` when the candidate passes the approved baseline thresholds;
 - exit code `2` when material regression requires human review; and
 - exit code `1` when the candidate falls below the pinned minimum metrics.
+
+For a quick operator-readable summary of the current baseline and the latest report, run:
+
+```bash
+scripts/summarize-evaluation-state.sh
+```

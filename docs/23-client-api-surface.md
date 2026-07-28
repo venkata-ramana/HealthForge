@@ -17,6 +17,8 @@ The supported client-facing workflows are:
 - Collaboration notification packaging for Slack and Teams
 - Documentation-system export packaging for Confluence, SharePoint, and Notion-style targets
 - Workflow automation subscriptions, events, and webhook delivery status
+- Evaluation dashboard
+- Policy and safety report
 - Compliance dashboard
 - Enterprise posture inspection
 - Deployment promotion guide
@@ -247,6 +249,24 @@ Inspect the compliance dashboard:
 
 ```bash
 curl http://localhost:8080/v1/compliance/dashboard \
+  -H 'X-HealthForge-Actor: local.auditor' \
+  -H 'X-HealthForge-Role: auditor' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Inspect the evaluation dashboard:
+
+```bash
+curl http://localhost:8080/v1/evaluation/dashboard \
+  -H 'X-HealthForge-Actor: local.auditor' \
+  -H 'X-HealthForge-Role: auditor' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Inspect the policy and safety report:
+
+```bash
+curl http://localhost:8080/v1/evaluation/policy-safety-report \
   -H 'X-HealthForge-Actor: local.auditor' \
   -H 'X-HealthForge-Role: auditor' \
   -H 'X-HealthForge-Organization: tenant.alpha'
