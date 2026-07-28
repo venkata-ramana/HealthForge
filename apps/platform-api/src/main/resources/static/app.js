@@ -19,6 +19,9 @@ const roleRequirements = {
   workspaceProject: 'reviewer',
   workspaceAssignment: 'reviewer',
   workspaceSavedView: 'reviewer',
+  inboundCases: 'reviewer',
+  orchestrationTemplates: 'reviewer',
+  integrationStatus: 'administrator',
   auditExport: 'auditor',
   complianceDashboard: 'auditor',
   enterprisePosture: 'auditor',
@@ -76,6 +79,11 @@ const docLinks = [
     description: 'Projects, saved views, reviewer queues, reusable configs, and enterprise identity foundation.'
   },
   {
+    title: 'Phase 12 governed integrations',
+    path: '/docs/41-phase12-governed-integrations-and-orchestration.md',
+    description: 'Governed connector status, inbound intake, recovery tooling, and orchestration templates.'
+  },
+  {
     title: 'Client API surface',
     path: '/docs/23-client-api-surface.md',
     description: 'Supported local workflows, auth headers, and example requests.'
@@ -128,6 +136,16 @@ const testingPaths = [
       'Review the deployable editions doc.',
       'Walk through capability boundaries in the README.',
       'Use the showcase narrative doc for external conversations.'
+    ]
+  },
+  {
+    title: 'Governed connector operations walkthrough',
+    body: 'Inspect connector health, review delivery receipts, recover blocked deliveries, and walk an inbound case into a Brief.',
+    steps: [
+      'Open connector health from the admin console.',
+      'Review recent receipts and blocked retry items.',
+      'Create an inbound case from the intake view.',
+      'Inspect orchestration templates for repeatable delivery paths.'
     ]
   }
 ];
@@ -249,6 +267,9 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Access review', action: 'accessReview', onClick: 'openAdminPanel("accessReview")' }),
     buttonHtml({ label: 'Identity directory', action: 'identityDirectory', onClick: 'openAdminPanel("identity")' }),
     buttonHtml({ label: 'Deployment guide', action: 'deploymentGuide', onClick: 'openAdminPanel("deployment")' }),
+    buttonHtml({ label: 'Connector health', action: 'integrationStatus', className: 'secondary', onClick: 'openAdminPanel("integrations")' }),
+    buttonHtml({ label: 'Inbound intake', action: 'inboundCases', className: 'secondary', onClick: 'openAdminPanel("intake")' }),
+    buttonHtml({ label: 'Templates', action: 'orchestrationTemplates', className: 'secondary', onClick: 'openAdminPanel("templates")' }),
     '<button class="secondary" onclick="openAdminPanel(\'synthetic\')">Synthetic catalog</button>'
   ].join('');
 }
@@ -1076,9 +1097,108 @@ async function openAdminPanel(panel) {
           </div>
         </article>
       `;
+      return;
+    }
+
+    if (panel === 'integrations') {
+      if (!can('integrationStatus')) throw new Error(permissionText('integrationStatus'));
+      const status = await apiJson('/v1/integrations/status', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Connector health and receipts</h3>
+          <p class="helper">Operators can distinguish simulated vs live-capable connectors, inspect receipts, and see retry pressure.</p>
+          <div class="doc-grid">
+            ${status.connectors.map((connector) => `
+              <article class="metric-card">
+                <strong>${esc(connector.connector_type)}</strong>
+                <span>${esc(connector.execution_mode)} · ${connector.enabled ? 'enabled' : 'disabled'}</span>
+                <span>success ${esc(connector.success_count)} · blocked ${esc(connector.blocked_count)} · retries ${esc(connector.retry_count)}</span>
+                <span>${esc(connector.operator_summary)}</span>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Recent receipts</h4>
+          <ul class="stack-list">${status.recent_receipts.map((receipt) => `<li><b>${esc(receipt.connector_type)}</b> · ${esc(receipt.status)} · ${esc(receipt.source_id)}${receipt.external_reference ? ` · ${esc(receipt.external_reference)}` : ''}</li>`).join('') || '<li>No receipts yet.</li>'}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Retry queue</h4>
+          <ul class="stack-list">${status.retry_queue.map((item) => `<li><b>${esc(item.connector_type)}</b> · ${esc(item.current_status)} · ${esc(item.source_id)}<br><span class="helper">${esc(item.retry_hint)}</span></li>`).join('') || '<li>No blocked or retryable items right now.</li>'}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'intake') {
+      if (!can('inboundCases')) throw new Error(permissionText('inboundCases'));
+      const cases = await apiJson('/v1/intake/cases', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Inbound case intake</h3>
+          <p class="helper">This shows the reverse direction: inbound requests can become structured HealthForge review workflows.</p>
+          <div class="button-row">
+            <button onclick="createSampleInboundCase()">Create sample intake case</button>
+          </div>
+        </article>
+        <article class="admin-card">
+          <ul class="stack-list">${cases.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.source_system)} · ${esc(item.intake_status)}${item.linked_brief_id ? ` · linked ${esc(item.linked_brief_id)}` : ''}</li>`).join('') || '<li>No inbound cases yet.</li>'}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'templates') {
+      if (!can('orchestrationTemplates')) throw new Error(permissionText('orchestrationTemplates'));
+      const templates = await apiJson('/v1/orchestration/templates', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Orchestration templates</h3>
+          <p class="helper">Repeatable program paths for prior authorization and interoperability workflows.</p>
+          <div class="doc-grid">
+            ${templates.map((template) => `
+              <article class="doc-card">
+                <h3>${esc(template.name)}</h3>
+                <p>${esc(template.summary)}</p>
+                <div class="meta-row">
+                  <span class="pill">${esc(template.template_type)}</span>
+                  <span class="pill">${esc(template.default_queue)}</span>
+                  <span class="pill">${esc(template.default_target_system)}</span>
+                </div>
+                <ul class="stack-list">${template.guardrails.map((guardrail) => `<li>${esc(guardrail)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+      `;
     }
   } catch (error) {
     enterprisePanel.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
+  }
+}
+
+async function createSampleInboundCase() {
+  try {
+    await apiJson('/v1/intake/cases', {
+      method: 'POST',
+      body: JSON.stringify({
+        source_system: 'jira',
+        external_case_id: `DEMO-${Date.now()}`,
+        title: 'Inbound prior auth workflow request',
+        summary: 'Create a grounded workflow brief from a synthetic inbound interoperability planning request.',
+        requested_role: 'reviewer',
+        requested_assignee: actorId.value.trim(),
+        source_locator: 'DEMO/healthforge',
+        create_brief: true,
+        corpus_id: defaultCorpusId,
+        corpus_version: defaultCorpusVersion,
+        brief_question: 'How should a provider workflow handle documentation and status exchange for prior authorization?',
+        project_context: 'Synthetic inbound case routed into the HealthForge team workspace.'
+      })
+    });
+    await openAdminPanel('intake');
+  } catch (error) {
+    alert(error.message);
   }
 }
 

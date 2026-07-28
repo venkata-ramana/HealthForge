@@ -59,7 +59,9 @@ public record TrackedWorkItemExportResponse(
             String externalReference,
             int retryCount,
             String retriedFromExportId,
-            Instant executedAt
+            Instant executedAt,
+            boolean simulated,
+            String receiptType
     ) {
     }
 }

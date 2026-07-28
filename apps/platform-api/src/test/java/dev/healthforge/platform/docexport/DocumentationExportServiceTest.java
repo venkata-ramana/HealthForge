@@ -7,6 +7,7 @@ import dev.healthforge.platform.brief.BriefAuditExportResponse;
 import dev.healthforge.platform.brief.BriefResponse;
 import dev.healthforge.platform.brief.BriefService;
 import dev.healthforge.platform.brief.BriefWorkItemExportResponse;
+import dev.healthforge.platform.integration.GovernedConnectorGateway;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -26,7 +27,8 @@ class DocumentationExportServiceTest {
         var briefService = mock(BriefService.class);
         var jdbcTemplate = mock(JdbcTemplate.class);
         var automationService = mock(WorkflowAutomationService.class);
-        var service = new DocumentationExportService(briefService, jdbcTemplate, automationService);
+        var connectorGateway = mock(GovernedConnectorGateway.class);
+        var service = new DocumentationExportService(briefService, jdbcTemplate, automationService, connectorGateway);
 
         when(briefService.get(eq("brief-1"), any())).thenReturn(new BriefResponse(
                 "brief-1",
@@ -81,5 +83,6 @@ class DocumentationExportServiceTest {
 
         assertThat(response.deliveryStatus()).isEqualTo("preview_generated");
         assertThat(response.packageBody()).contains("HealthForge approved artifact package");
+        assertThat(response.receiptType()).isEqualTo("documentation_receipt");
     }
 }

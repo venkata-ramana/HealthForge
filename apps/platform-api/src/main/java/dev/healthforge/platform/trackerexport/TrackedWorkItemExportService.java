@@ -5,6 +5,7 @@ import dev.healthforge.platform.automation.WorkflowAutomationService;
 import dev.healthforge.platform.brief.BriefAuditEventService;
 import dev.healthforge.platform.brief.BriefService;
 import dev.healthforge.platform.brief.BriefWorkItemExportResponse;
+import dev.healthforge.platform.integration.GovernedConnectorGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,13 +30,14 @@ public class TrackedWorkItemExportService {
     private final BriefAuditEventService auditEventService;
     private final JdbcTemplate jdbcTemplate;
     private final WorkflowAutomationService automationService;
+    private final GovernedConnectorGateway connectorGateway;
     private final Clock clock = Clock.systemUTC();
 
     public TrackedWorkItemExportService(
             BriefService briefService,
             BriefAuditEventService auditEventService
     ) {
-        this(briefService, auditEventService, null, null);
+        this(briefService, auditEventService, null, null, null);
     }
 
     @Autowired
@@ -44,19 +46,21 @@ public class TrackedWorkItemExportService {
             BriefAuditEventService auditEventService,
             JdbcTemplate jdbcTemplate
     ) {
-        this(briefService, auditEventService, jdbcTemplate, null);
+        this(briefService, auditEventService, jdbcTemplate, null, null);
     }
 
     public TrackedWorkItemExportService(
             BriefService briefService,
             BriefAuditEventService auditEventService,
             JdbcTemplate jdbcTemplate,
-            WorkflowAutomationService automationService
+            WorkflowAutomationService automationService,
+            GovernedConnectorGateway connectorGateway
     ) {
         this.briefService = briefService;
         this.auditEventService = auditEventService;
         this.jdbcTemplate = jdbcTemplate;
         this.automationService = automationService;
+        this.connectorGateway = connectorGateway;
     }
 
     public TrackedWorkItemExportResponse preview(TrackedWorkItemExportRequest request, AuthenticatedActor actor) {
@@ -121,7 +125,7 @@ public class TrackedWorkItemExportService {
         }
 
         var eventType = switch (execution.executionStatus()) {
-            case "writeback_executed", "writeback_retried" -> "tracker_writeback_executed";
+            case "writeback_executed", "writeback_retried", "simulated_execution", "simulated_retry", "live_execution", "live_retry" -> "tracker_writeback_executed";
             case "writeback_blocked" -> "tracker_writeback_blocked";
             default -> "tracker_export_preview_generated";
         };
@@ -185,7 +189,9 @@ public class TrackedWorkItemExportService {
                             null,
                             0,
                             null,
-                            null
+                            null,
+                            true,
+                            "tracker_receipt"
                     )
             );
         }
@@ -201,7 +207,9 @@ public class TrackedWorkItemExportService {
                             null,
                             0,
                             request.retryFromExportId(),
-                            occurredAt
+                            occurredAt,
+                            true,
+                            "tracker_receipt"
                     )
             );
         }
@@ -216,7 +224,9 @@ public class TrackedWorkItemExportService {
                             null,
                             0,
                             request.retryFromExportId(),
-                            occurredAt
+                            occurredAt,
+                            true,
+                            "tracker_receipt"
                     )
             );
         }
@@ -232,22 +242,31 @@ public class TrackedWorkItemExportService {
                             null,
                             0,
                             request.retryFromExportId(),
-                            occurredAt
+                            occurredAt,
+                            true,
+                            "tracker_receipt"
                     )
             );
         }
 
         var retryCount = retryMetadata == null ? 0 : retryMetadata.retryCount() + 1;
+        var connectorExecution = connectorGateway == null
+                ? null
+                : connectorGateway.executeTracker(target, request.targetLocator(), true, retryCount);
         return new ExecutionBundle(
                 approvalGate,
                 new TrackedWorkItemExportResponse.WritebackExecution(
-                        retryCount == 0 ? "writeback_executed" : "writeback_retried",
-                        "Governed writeback executed through the local integration stub with explicit approval traceability. Production connector credentials remain environment-governed.",
+                        connectorExecution == null ? retryCount == 0 ? "writeback_executed" : "writeback_retried" : connectorExecution.status(),
+                        connectorExecution == null
+                                ? "Governed writeback executed through the local integration stub with explicit approval traceability. Production connector credentials remain environment-governed."
+                                : connectorExecution.resultSummary(),
                         request.targetLocator(),
-                        externalReference(target, request.targetLocator(), retryCount),
+                        connectorExecution == null ? externalReference(target, request.targetLocator(), retryCount) : connectorExecution.externalReference(),
                         retryCount,
                         retryMetadata == null ? null : retryMetadata.eventId(),
-                        occurredAt
+                        occurredAt,
+                        connectorExecution == null || connectorExecution.simulated(),
+                        connectorExecution == null ? "tracker_receipt" : connectorExecution.receiptType()
                 )
         );
     }

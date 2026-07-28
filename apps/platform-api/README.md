@@ -60,6 +60,8 @@ For private deployment and operator guidance beyond local development, see [`doc
 
 The current default authentication mode is `local_header`, which keeps the local header workflow active for demos and development while routing request identity through a pluggable provider boundary in the application. Phase 11 also adds a `trusted_proxy` provider foundation for future SSO or reverse-proxy-based enterprise identity.
 
+Phase 12 adds environment-managed connector configuration for GitHub, Jira, Notion, SharePoint, and Confluence. The default local posture stays simulation-friendly until an operator explicitly enables a connector and allows live execution in the environment.
+
 ## Current endpoints
 
 - `POST /v1/ingestions` accepts only a configured public CMS source/version/content type, requires explicit allowed-use and terms-review metadata, captures an immutable artifact checksum, and creates page-level passages.
@@ -77,6 +79,9 @@ The current default authentication mode is `local_header`, which keeps the local
 - `POST /v1/collaboration/notifications` packages review-ready, approval-needed, or workflow-handoff notifications for governed collaboration delivery.
 - `POST /v1/documentation-exports` packages approved artifacts for documentation-system delivery paths such as Notion-, SharePoint-, or Confluence-style targets.
 - `POST /v1/automation/webhook-subscriptions`, `POST /v1/automation/events`, and `GET /v1/automation/status` expose the Phase 8 workflow-event and governed webhook framework.
+- `GET /v1/integrations/status` and `POST /v1/integrations/recoveries` expose the Phase 12 connector health, receipts, retry, and operator recovery surface.
+- `GET /v1/intake/cases` and `POST /v1/intake/cases` expose inbound case intake and optional case-to-Brief orchestration.
+- `GET /v1/orchestration/templates` returns reusable orchestration templates for common interoperability program paths.
 - `GET /v1/compliance/dashboard` summarizes org-scoped Brief, validation, and export telemetry for auditors and administrators.
 - `GET /v1/evaluation/dashboard` returns regression, evidence, review-quality, and workflow-quality signals for auditors and administrators.
 - `GET /v1/evaluation/policy-safety-report` returns a clearer policy and safety summary around unsupported outputs, approval policy, and governed integrations.

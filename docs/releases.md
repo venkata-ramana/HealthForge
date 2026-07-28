@@ -20,6 +20,7 @@ HealthForge currently includes:
 - trust and evaluation reporting for operators and enterprise evaluators
 - a Phase 10 showcase workspace with guided demo paths and a clearer admin console
 - a Phase 11 team workspace with projects, queues, assignments, saved views, reusable configs, and enterprise auth foundation
+- a Phase 12 governed integration layer with connector receipts, inbound intake, recovery tooling, and orchestration templates
 
 ## Milestone history
 
@@ -80,14 +81,22 @@ HealthForge currently includes:
 - added reusable workflow configuration visibility for prompts, retrieval, and workflow profiles
 - added a trusted-proxy authentication foundation and group-to-role mapping model alongside the local demo path
 
+### Governed integrations and orchestration
+
+- added a governed connector layer for tracker and documentation delivery systems
+- added connector health summaries, recent receipts, retry queue visibility, and recovery actions
+- added inbound case intake with optional case-to-Brief orchestration
+- added reusable orchestration templates for common interoperability programs
+- clarified simulated vs live-capable connector behavior through environment-managed settings
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
 As of Tuesday, July 28, 2026:
 
-- Phase 11 is complete
-- the next major planning step is to execute Phases 12 through 15
+- Phase 12 is complete
+- the next major planning step is to execute Phases 13 through 15
 
 ## Suggested future release-note structure
 

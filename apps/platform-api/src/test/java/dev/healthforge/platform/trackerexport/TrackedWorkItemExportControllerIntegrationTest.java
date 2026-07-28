@@ -108,7 +108,9 @@ class TrackedWorkItemExportControllerIntegrationTest {
                         null,
                         0,
                         null,
-                        null
+                        null,
+                        true,
+                        "tracker_receipt"
                 ),
                 "Human review remains required."
         );

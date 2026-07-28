@@ -3,6 +3,7 @@ package dev.healthforge.platform.docexport;
 import dev.healthforge.platform.auth.AuthenticatedActor;
 import dev.healthforge.platform.automation.WorkflowAutomationService;
 import dev.healthforge.platform.brief.BriefService;
+import dev.healthforge.platform.integration.GovernedConnectorGateway;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -23,16 +24,19 @@ public class DocumentationExportService {
     private final BriefService briefService;
     private final JdbcTemplate jdbcTemplate;
     private final WorkflowAutomationService automationService;
+    private final GovernedConnectorGateway connectorGateway;
     private final Clock clock = Clock.systemUTC();
 
     public DocumentationExportService(
             BriefService briefService,
             JdbcTemplate jdbcTemplate,
-            WorkflowAutomationService automationService
+            WorkflowAutomationService automationService,
+            GovernedConnectorGateway connectorGateway
     ) {
         this.briefService = briefService;
         this.jdbcTemplate = jdbcTemplate;
         this.automationService = automationService;
+        this.connectorGateway = connectorGateway;
     }
 
     public DocumentationExportResponse export(
@@ -61,7 +65,7 @@ public class DocumentationExportService {
         var createdAt = Instant.now(clock);
         var mode = request.publishRequested() ? "governed_publish" : "preview_only";
         var blocked = request.publishRequested() && (approval == null || request.targetLocator() == null || request.targetLocator().isBlank());
-        var status = blocked ? "publish_blocked" : request.publishRequested() ? "published" : "preview_generated";
+        var publishOperation = request.targetLocator() != null && request.targetLocator().contains("/") ? "update" : "create";
         var traceability = List.of(
                 "Brief: " + brief.briefId(),
                 "Approvals: " + brief.approvals().size(),
@@ -69,8 +73,16 @@ public class DocumentationExportService {
                 "Corpus snapshot: " + brief.input().corpusId() + " / " + brief.input().corpusVersion()
         );
         var packageBody = packageBody(format, brief, export, request.exportReason());
+        var connectorExecution = blocked || connectorGateway == null
+                ? null
+                : connectorGateway.executeDocumentation(target, request.targetLocator(), request.publishRequested(), 0);
+        var status = blocked ? "publish_blocked"
+                : connectorExecution == null ? request.publishRequested() ? "published" : "preview_generated"
+                : connectorExecution.status();
         var externalReference = request.publishRequested() && !blocked
-                ? target + "://" + request.targetLocator() + "/approved-brief/sim-1"
+                ? connectorExecution == null
+                    ? target + "://" + request.targetLocator() + "/approved-brief/sim-1"
+                    : connectorExecution.externalReference()
                 : null;
 
         jdbcTemplate.update("""
@@ -114,11 +126,14 @@ public class DocumentationExportService {
                 target,
                 mode,
                 format,
+                publishOperation,
                 createdAt,
                 status,
                 externalReference,
                 traceability,
                 packageBody,
+                connectorExecution == null || connectorExecution.simulated(),
+                connectorExecution == null ? "documentation_receipt" : connectorExecution.receiptType(),
                 blocked
                         ? "Publishing was blocked until a valid approval record and target_locator are supplied."
                         : "The documentation package preserves evidence traceability and keeps direct publishing governed."

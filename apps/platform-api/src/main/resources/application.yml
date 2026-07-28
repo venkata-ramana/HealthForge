@@ -62,6 +62,38 @@ healthforge:
       - group: administrators
         role: administrator
         scope: Maps platform operators into identity, access review, and deployment administration.
+  integrations:
+    github:
+      enabled: ${HEALTHFORGE_GITHUB_CONNECTOR_ENABLED:false}
+      execution-mode: ${HEALTHFORGE_GITHUB_CONNECTOR_MODE:simulated}
+      allow-live-calls: ${HEALTHFORGE_GITHUB_CONNECTOR_LIVE:false}
+      base-url: ${HEALTHFORGE_GITHUB_CONNECTOR_BASE_URL:https://api.github.com}
+      credential-reference: ${HEALTHFORGE_GITHUB_CONNECTOR_CREDENTIAL:env:HEALTHFORGE_GITHUB_TOKEN}
+    jira:
+      enabled: ${HEALTHFORGE_JIRA_CONNECTOR_ENABLED:false}
+      execution-mode: ${HEALTHFORGE_JIRA_CONNECTOR_MODE:simulated}
+      allow-live-calls: ${HEALTHFORGE_JIRA_CONNECTOR_LIVE:false}
+      base-url: ${HEALTHFORGE_JIRA_CONNECTOR_BASE_URL:https://jira.example.local}
+      credential-reference: ${HEALTHFORGE_JIRA_CONNECTOR_CREDENTIAL:env:HEALTHFORGE_JIRA_TOKEN}
+      project-key: ${HEALTHFORGE_JIRA_PROJECT_KEY:HF}
+    notion:
+      enabled: ${HEALTHFORGE_NOTION_CONNECTOR_ENABLED:false}
+      execution-mode: ${HEALTHFORGE_NOTION_CONNECTOR_MODE:simulated}
+      allow-live-calls: ${HEALTHFORGE_NOTION_CONNECTOR_LIVE:false}
+      base-url: ${HEALTHFORGE_NOTION_CONNECTOR_BASE_URL:https://api.notion.com}
+      credential-reference: ${HEALTHFORGE_NOTION_CONNECTOR_CREDENTIAL:env:HEALTHFORGE_NOTION_TOKEN}
+    sharepoint:
+      enabled: ${HEALTHFORGE_SHAREPOINT_CONNECTOR_ENABLED:false}
+      execution-mode: ${HEALTHFORGE_SHAREPOINT_CONNECTOR_MODE:simulated}
+      allow-live-calls: ${HEALTHFORGE_SHAREPOINT_CONNECTOR_LIVE:false}
+      base-url: ${HEALTHFORGE_SHAREPOINT_CONNECTOR_BASE_URL:https://graph.microsoft.com}
+      credential-reference: ${HEALTHFORGE_SHAREPOINT_CONNECTOR_CREDENTIAL:env:HEALTHFORGE_SHAREPOINT_TOKEN}
+    confluence:
+      enabled: ${HEALTHFORGE_CONFLUENCE_CONNECTOR_ENABLED:false}
+      execution-mode: ${HEALTHFORGE_CONFLUENCE_CONNECTOR_MODE:simulated}
+      allow-live-calls: ${HEALTHFORGE_CONFLUENCE_CONNECTOR_LIVE:false}
+      base-url: ${HEALTHFORGE_CONFLUENCE_CONNECTOR_BASE_URL:https://confluence.example.local}
+      credential-reference: ${HEALTHFORGE_CONFLUENCE_CONNECTOR_CREDENTIAL:env:HEALTHFORGE_CONFLUENCE_TOKEN}
   audit:
     policy:
       policy-version: ${HEALTHFORGE_AUDIT_POLICY_VERSION:private-demo-v1}
