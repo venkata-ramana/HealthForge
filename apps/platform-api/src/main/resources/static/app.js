@@ -21,6 +21,7 @@ const roleRequirements = {
   workspaceSavedView: 'reviewer',
   inboundCases: 'reviewer',
   orchestrationTemplates: 'reviewer',
+  intelligenceOverview: 'reviewer',
   integrationStatus: 'administrator',
   auditExport: 'auditor',
   complianceDashboard: 'auditor',
@@ -82,6 +83,11 @@ const docLinks = [
     title: 'Phase 12 governed integrations',
     path: '/docs/41-phase12-governed-integrations-and-orchestration.md',
     description: 'Governed connector status, inbound intake, recovery tooling, and orchestration templates.'
+  },
+  {
+    title: 'Phase 13 intelligence loops',
+    path: '/docs/42-phase13-intelligence-loops-and-recommendations.md',
+    description: 'Retrieval feedback, evidence gaps, similarity clusters, and bounded recommendations.'
   },
   {
     title: 'Client API surface',
@@ -146,6 +152,16 @@ const testingPaths = [
       'Review recent receipts and blocked retry items.',
       'Create an inbound case from the intake view.',
       'Inspect orchestration templates for repeatable delivery paths.'
+    ]
+  },
+  {
+    title: 'Intelligence and recommendation walkthrough',
+    body: 'Capture retrieval feedback, inspect advisory clusters, and review evidence-gap and tuning recommendations.',
+    steps: [
+      'Open a brief and record retrieval feedback on a finding.',
+      'Open the intelligence panel from the admin console.',
+      'Inspect retrieval, evidence-gap, and workflow-tuning recommendations.',
+      'Use the clusters and persona recommendations to explain next steps.'
     ]
   }
 ];
@@ -270,6 +286,7 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Connector health', action: 'integrationStatus', className: 'secondary', onClick: 'openAdminPanel("integrations")' }),
     buttonHtml({ label: 'Inbound intake', action: 'inboundCases', className: 'secondary', onClick: 'openAdminPanel("intake")' }),
     buttonHtml({ label: 'Templates', action: 'orchestrationTemplates', className: 'secondary', onClick: 'openAdminPanel("templates")' }),
+    buttonHtml({ label: 'Intelligence', action: 'intelligenceOverview', className: 'secondary', onClick: 'openAdminPanel("intelligence")' }),
     '<button class="secondary" onclick="openAdminPanel(\'synthetic\')">Synthetic catalog</button>'
   ].join('');
 }
@@ -716,6 +733,27 @@ function reviewDecisionForm(briefId, findingId) {
   `;
 }
 
+async function recordRetrievalFeedback(briefId, findingId, sourceId) {
+  const feedbackType = prompt('Feedback type: helpful, missing_evidence, ranking_issue, duplicate_result');
+  if (!feedbackType) return;
+  const note = prompt('Optional feedback note') || '';
+  try {
+    await apiJson('/v1/intelligence/retrieval-feedback', {
+      method: 'POST',
+      body: JSON.stringify({
+        brief_id: briefId,
+        finding_id: findingId,
+        feedback_type: feedbackType,
+        source_id: sourceId,
+        note
+      })
+    });
+    alert('Retrieval feedback recorded.');
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
 async function openBrief(id) {
   try {
     currentBriefId = id;
@@ -731,6 +769,7 @@ async function openBrief(id) {
         </div>
         <div class="button-row">
           ${buttonHtml({ label: 'Review this finding', action: 'reviewFinding', onClick: `showForm('${esc(brief.brief_id)}','${esc(finding.finding_id)}')` })}
+          ${buttonHtml({ label: 'Retrieval feedback', action: 'intelligenceOverview', className: 'secondary', onClick: `recordRetrievalFeedback('${esc(brief.brief_id)}','${esc(finding.finding_id)}','${esc(finding.citation.source_id)}')` })}
         </div>
         <div class="review-slot" id="review-slot-${esc(finding.finding_id)}"></div>
       </article>
@@ -1171,6 +1210,57 @@ async function openAdminPanel(panel) {
           </div>
         </article>
       `;
+      return;
+    }
+
+    if (panel === 'intelligence') {
+      if (!can('intelligenceOverview')) throw new Error(permissionText('intelligenceOverview'));
+      const intel = await apiJson('/v1/intelligence/overview', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Advisory intelligence overview</h3>
+          <p class="helper">${esc(intel.summary)}</p>
+          <ul class="stack-list">${intel.guardrails.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Retrieval improvements</h4>
+          <div class="doc-grid">
+            ${intel.retrieval_improvements.map((item) => `
+              <article class="doc-card">
+                <h3>${esc(item.title)}</h3>
+                <p>${esc(item.rationale)}</p>
+                <div class="meta-row"><span class="pill">${esc(item.priority)}</span></div>
+                <ul class="stack-list">${item.evidence.map((evidence) => `<li>${esc(evidence)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Evidence gaps</h4>
+          <div class="doc-grid">
+            ${intel.evidence_gaps.map((gap) => `
+              <article class="doc-card">
+                <h3>${esc(gap.summary)}</h3>
+                <p>Severity: ${esc(gap.severity)}</p>
+                <ul class="stack-list">${gap.suggested_sources.map((source) => `<li>${esc(source)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Similarity clusters</h4>
+          <ul class="stack-list">${intel.similarity_clusters.map((cluster) => `<li><b>${esc(cluster.theme)}</b> · ${esc(cluster.artifact_count)} related artifacts · ${cluster.brief_ids.map((briefId) => esc(briefId)).join(', ')}</li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Persona recommendations</h4>
+          <ul class="stack-list">${intel.persona_recommendations.map((item) => `<li><b>${esc(item.persona)}</b> · ${esc(item.next_action)}<br><span class="helper">${esc(item.explanation)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Workflow tuning recommendations</h4>
+          <ul class="stack-list">${intel.workflow_tuning_recommendations.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.priority)}<br><span class="helper">${esc(item.summary)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
     }
   } catch (error) {
     enterprisePanel.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
