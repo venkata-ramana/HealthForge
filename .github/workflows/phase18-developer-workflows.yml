@@ -1,0 +1,39 @@
+name: Phase 18 Developer Workflows
+
+on:
+  push:
+    branches:
+      - main
+      - "codex/**"
+  pull_request:
+
+jobs:
+  platform-api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Run platform API tests
+        working-directory: apps/platform-api
+        run: mvn -q test
+
+  developer-surface-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install VS Code extension dependencies
+        working-directory: apps/vscode-extension
+        run: npm install --no-package-lock
+      - name: Compile VS Code extension
+        working-directory: apps/vscode-extension
+        run: npm run compile
+      - name: CLI smoke check
+        run: node apps/cli/bin/healthforge.js help
+      - name: SDK import smoke check
+        run: node -e "const sdk = require('./packages/sdk-js/src'); if (!sdk.HealthForgeClient) { process.exit(1); } console.log('sdk-ok');"

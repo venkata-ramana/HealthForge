@@ -1,0 +1,7 @@
+{
+  "name": "@healthforge/sdk-js",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "description": "Local JavaScript client helpers for supported HealthForge workflows."
+}
