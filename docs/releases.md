@@ -28,6 +28,7 @@ HealthForge currently includes:
 - a Phase 17 synthetic lab layer with reusable workflow scenarios, assertions, replay/diff tooling, and coverage reporting
 - a Phase 18 developer workflow layer with repo-aware guidance, a richer VS Code companion, local CLI/SDK packaging, and CI-ready builder automation patterns
 - a Phase 19 multi-tenant product foundation with tenant administration, provisioning workflows, isolation views, and customer analytics
+- a Phase 20 regulated deployment readiness layer with security posture, compliance evidence packs, deployment architecture views, release governance, and resilience artifacts
 
 ## Milestone history
 
@@ -152,14 +153,22 @@ HealthForge currently includes:
 - added admin-console support for tenant administration workflows
 - clarified the current hosted-product posture without overstating production SaaS maturity
 
+### Regulated deployment readiness
+
+- added a regulated-readiness surface for security posture, supply-chain evidence, and audit-facing packaging
+- added reusable compliance control mappings tied to current HealthForge artifacts
+- added deployment architecture packs for private and hosted enterprise narratives
+- added release governance and evidence-retention automation narratives
+- added resilience and disaster-recovery readiness artifacts for regulated deployment discussions
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
 As of Wednesday, July 29, 2026:
 
-- Phase 19 is complete
-- the next major planning step is to execute Phase 20
+- Phase 20 is complete
+- the currently planned open-phase backlog is complete
 
 ## Suggested future release-note structure
 

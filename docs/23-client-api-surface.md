@@ -25,6 +25,7 @@ The supported client-facing workflows are:
 - Synthetic FHIR scenario generation
 - Developer overview and repo-aware engineering guidance
 - Tenant administration, provisioning, and analytics workflows
+- Regulated deployment readiness and evidence packaging workflows
 - Identity directory inspection
 
 The current API is intended for:
@@ -330,6 +331,15 @@ Inspect tenant analytics:
 curl http://localhost:8080/v1/admin/tenants/analytics \
   -H 'X-HealthForge-Actor: local.admin' \
   -H 'X-HealthForge-Role: administrator' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Inspect regulated deployment readiness:
+
+```bash
+curl http://localhost:8080/v1/admin/regulated-readiness \
+  -H 'X-HealthForge-Actor: local.auditor' \
+  -H 'X-HealthForge-Role: auditor' \
   -H 'X-HealthForge-Organization: tenant.alpha'
 ```
 
