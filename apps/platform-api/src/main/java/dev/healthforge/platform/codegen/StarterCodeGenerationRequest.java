@@ -6,6 +6,6 @@ import jakarta.validation.constraints.Pattern;
 public record StarterCodeGenerationRequest(
         @NotBlank String briefId,
         @NotBlank String workItemId,
-        @NotBlank @Pattern(regexp = "spring_boot_endpoint_stub|spring_service_stub") String artifactType
+        @NotBlank @Pattern(regexp = "spring_boot_endpoint_stub|spring_service_stub|fhir_client_stub|workflow_adapter_stub") String artifactType
 ) {
 }

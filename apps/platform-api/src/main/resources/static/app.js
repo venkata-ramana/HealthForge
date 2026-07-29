@@ -40,7 +40,8 @@ const roleRequirements = {
   solutionPacks: 'reviewer',
   stakeholderReport: 'auditor',
   futureRoadmap: 'auditor',
-  pilotSuccess: 'reviewer'
+  pilotSuccess: 'reviewer',
+  implementationBundle: 'approver'
 };
 
 const demoScenarios = [
@@ -108,6 +109,11 @@ const docLinks = [
     title: 'Phase 15 pilot readiness and solution packs',
     path: '/docs/44-phase15-pilot-readiness-and-solution-packs.md',
     description: 'Pilot readiness, audience-tailored solution packs, stakeholder reporting, future control roadmap, and success-plan workflows.'
+  },
+  {
+    title: 'Phase 16 implementation acceleration',
+    path: '/docs/45-phase16-implementation-acceleration.md',
+    description: 'Implementation bundles, richer starter code, test plans, reference patterns, engineering handoff packs, and change-impact guidance.'
   },
   {
     title: 'Client API surface',
@@ -202,6 +208,16 @@ const testingPaths = [
       'Switch to reviewer and open Solution packs plus Pilot success.',
       'Switch back to auditor and open Future roadmap.',
       'Use the Phase 15 doc to explain private pilot readiness without overstating production maturity.'
+    ]
+  },
+  {
+    title: 'Implementation acceleration walkthrough',
+    body: 'Turn an approved Brief into implementation starter code, test planning, handoff artifacts, and change-impact guidance.',
+    steps: [
+      'Create and approve a Brief from the reviewer + approver flow.',
+      'Open the approved Brief and load the Implementation pack.',
+      'Inspect starter artifacts, acceptance criteria, and reference patterns.',
+      'Export the implementation bundle JSON for downstream engineering handoff.'
     ]
   }
 ];
@@ -804,10 +820,81 @@ async function recordRetrievalFeedback(briefId, findingId, sourceId) {
   }
 }
 
+function renderImplementationBundle(bundle) {
+  return `
+    <section class="brief-section">
+      <h3>Implementation acceleration pack</h3>
+      <p>${esc(bundle.handoff_summary.summary)}</p>
+      <div class="metric-grid">
+        ${renderMetricCard('work items', bundle.handoff_summary.work_item_count)}
+        ${renderMetricCard('tracks', bundle.handoff_summary.implementation_track_count)}
+        ${renderMetricCard('starter artifacts', bundle.starter_artifacts.length)}
+        ${renderMetricCard('change signals', bundle.change_impact.source_change_signals.length)}
+      </div>
+      <div class="button-row compact">
+        ${buttonHtml({ label: 'Download implementation pack', action: 'implementationBundle', className: 'secondary', onClick: `downloadJsonWithHeaders('/v1/implementation/briefs/${esc(bundle.brief_id)}/bundle','${esc(bundle.brief_id)}-implementation-pack.json')` })}
+      </div>
+    </section>
+
+    <section class="brief-section">
+      <h3>Reference architecture patterns</h3>
+      <div class="doc-grid">
+        ${bundle.architecture_patterns.map((pattern) => `
+          <article class="doc-card">
+            <h3>${esc(pattern.title)}</h3>
+            <p>${esc(pattern.rationale)}</p>
+            <div class="meta-row"><span class="pill">${esc(pattern.workflow)}</span></div>
+            <ul class="stack-list">${pattern.implementation_notes.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+
+    <section class="brief-section">
+      <h3>Acceptance criteria and validation</h3>
+      <ul class="stack-list">${bundle.test_plan.acceptance_criteria.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.owner_focus)}<br><span class="helper">${esc(item.expected_outcome)}</span></li>`).join('')}</ul>
+      <h4>Negative cases</h4>
+      <ul class="stack-list">${bundle.test_plan.negative_cases.map((item) => `<li><b>${esc(item.title)}</b><br><span class="helper">${esc(item.expectation)}</span></li>`).join('')}</ul>
+    </section>
+
+    <section class="brief-section">
+      <h3>Starter code artifacts</h3>
+      <div class="doc-grid">
+        ${bundle.starter_artifacts.map((artifact) => `
+          <article class="doc-card">
+            <h3>${esc(artifact.file_name)}</h3>
+            <p>${esc(artifact.artifact_type)}</p>
+            <pre>${esc(artifact.code)}</pre>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+
+    <section class="brief-section">
+      <h3>Change impact</h3>
+      <ul class="stack-list">${bundle.change_impact.source_change_signals.map((item) => `<li><b>${esc(item.source_id)}</b> · ${esc(item.change_status)}<br><span class="helper">${esc(item.brief_source_version)} → ${esc(item.latest_known_version)} · ${esc(item.action_hint)}</span></li>`).join('')}</ul>
+    </section>
+  `;
+}
+
+async function loadImplementationBundle(briefId) {
+  if (!can('implementationBundle')) {
+    alert(permissionText('implementationBundle'));
+    return '';
+  }
+  try {
+    const bundle = await apiJson(`/v1/implementation/briefs/${encodeURIComponent(briefId)}/bundle`, { method: 'GET', headers: actorHeaders(false) });
+    return renderImplementationBundle(bundle);
+  } catch (error) {
+    return `<section class="brief-section"><div class="alert error">${esc(error.message)}</div></section>`;
+  }
+}
+
 async function openBrief(id) {
   try {
     currentBriefId = id;
     const brief = await apiJson(`${api}/${id}`, { method: 'GET', headers: actorHeaders(false) });
+    const implementationPack = brief.status === 'approved' ? await loadImplementationBundle(brief.brief_id) : '';
     const findings = brief.findings.map((finding) => `
       <article class="finding" id="finding-${esc(finding.finding_id)}">
         <div class="brief-status">${esc(finding.kind)} · ${esc(finding.confidence)}</div>
@@ -840,6 +927,7 @@ async function openBrief(id) {
         <div class="button-row compact">
           ${buttonHtml({ label: 'Record approval', action: 'approveBrief', onClick: `approveBrief('${esc(brief.brief_id)}')` })}
           ${buttonHtml({ label: 'Work-item export', action: 'exportWorkItems', className: 'secondary', onClick: `downloadJsonWithHeaders('${api}/${esc(brief.brief_id)}/work-item-export','${esc(brief.brief_id)}-work-items.json')` })}
+          ${buttonHtml({ label: 'Implementation pack', action: 'implementationBundle', className: 'secondary', onClick: `openBrief('${esc(brief.brief_id)}')` })}
           ${buttonHtml({ label: 'Audit export', action: 'auditExport', className: 'secondary', onClick: `downloadJsonWithHeaders('${api}/${esc(brief.brief_id)}/audit-export','${esc(brief.brief_id)}-audit.json')` })}
         </div>
       </div>
@@ -902,6 +990,8 @@ async function openBrief(id) {
           ${(brief.audit_events || []).map((event) => `<li><b>${esc(event.event_type)}</b> · ${esc(event.actor_id)} (${esc(event.actor_role)})<br>${esc(event.summary)}${event.details ? `<br><span class="helper">${esc(event.details)}</span>` : ''}</li>`).join('') || '<li>No audit events yet.</li>'}
         </ul>
       </section>
+
+      ${implementationPack}
     `;
     setView('briefs');
   } catch (error) {
