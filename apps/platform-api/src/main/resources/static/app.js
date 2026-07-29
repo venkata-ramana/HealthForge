@@ -43,7 +43,8 @@ const roleRequirements = {
   pilotSuccess: 'reviewer',
   implementationBundle: 'approver',
   syntheticLabs: 'reviewer',
-  tenantAdministration: 'administrator'
+  tenantAdministration: 'administrator',
+  regulatedReadiness: 'auditor'
 };
 
 const demoScenarios = [
@@ -131,6 +132,11 @@ const docLinks = [
     title: 'Phase 19 multi-tenant foundations',
     path: '/docs/48-phase19-multi-tenant-foundations.md',
     description: 'Tenant administration, provisioning workflows, isolation boundaries, customer analytics, and hosted packaging artifacts.'
+  },
+  {
+    title: 'Phase 20 regulated deployment readiness',
+    path: '/docs/49-phase20-regulated-deployment-readiness.md',
+    description: 'Security posture, compliance evidence packaging, deployment architecture packs, release governance, and resilience readiness.'
   },
   {
     title: 'Client API surface',
@@ -255,6 +261,16 @@ const testingPaths = [
       'Review customer tenants, isolation boundaries, and delegated roles.',
       'Create one provisioning request for a private customer space.',
       'Use tenant analytics and packaging views to explain hosted product direction.'
+    ]
+  },
+  {
+    title: 'Regulated deployment readiness walkthrough',
+    body: 'Use the regulated-readiness pack to explain security posture, compliance evidence, deployment controls, release governance, and resilience direction.',
+    steps: [
+      'Switch to auditor or administrator and open Regulated readiness from the admin console.',
+      'Review dependency evidence, supply-chain controls, and compliance mappings.',
+      'Walk through deployment architecture, release controls, and evidence retention narratives.',
+      'Use the resilience pack to distinguish current continuity posture from future regulated DR maturity.'
     ]
   }
 ];
@@ -388,6 +404,7 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Pilot success', action: 'pilotSuccess', className: 'secondary', onClick: 'openAdminPanel("pilotSuccess")' }),
     buttonHtml({ label: 'Synthetic labs', action: 'syntheticLabs', className: 'secondary', onClick: 'openAdminPanel("syntheticLabs")' }),
     buttonHtml({ label: 'Tenant admin', action: 'tenantAdministration', className: 'secondary', onClick: 'openAdminPanel("tenantAdministration")' }),
+    buttonHtml({ label: 'Regulated readiness', action: 'regulatedReadiness', className: 'secondary', onClick: 'openAdminPanel("regulatedReadiness")' }),
     buttonHtml({ label: 'Connector health', action: 'integrationStatus', className: 'secondary', onClick: 'openAdminPanel("integrations")' }),
     buttonHtml({ label: 'Inbound intake', action: 'inboundCases', className: 'secondary', onClick: 'openAdminPanel("intake")' }),
     buttonHtml({ label: 'Templates', action: 'orchestrationTemplates', className: 'secondary', onClick: 'openAdminPanel("templates")' }),
@@ -1610,6 +1627,66 @@ async function openAdminPanel(panel) {
         <article class="admin-card">
           <h4>Hosted packaging artifacts</h4>
           <ul class="stack-list">${overview.hosted_packaging_artifacts.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.audience)}<br><span class="helper">${esc(item.summary)} · ${item.included_capabilities.map((capability) => esc(capability)).join(', ')}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'regulatedReadiness') {
+      if (!can('regulatedReadiness')) throw new Error(permissionText('regulatedReadiness'));
+      const readiness = await apiJson('/v1/admin/regulated-readiness', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Regulated deployment readiness</h3>
+          <p class="helper">${esc(readiness.regulated_deployment_narratives[0])}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('dependency evidence', readiness.security_posture.dependency_evidence.length)}
+            ${renderMetricCard('control mappings', readiness.compliance_evidence_pack.control_mappings.length)}
+            ${renderMetricCard('architecture packs', readiness.deployment_architecture_pack.architecture_views.length)}
+            ${renderMetricCard('release controls', readiness.release_governance_pack.release_controls.length)}
+            ${renderMetricCard('recovery artifacts', readiness.resilience_readiness_pack.recovery_artifacts.length)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Security posture and supply chain</h4>
+          <p class="helper">${esc(readiness.security_posture.summary)}</p>
+          <ul class="stack-list">${readiness.security_posture.dependency_evidence.map((item) => `<li><b>${esc(item.component)}</b> · ${esc(item.evidence_type)}<br><span class="helper">${esc(item.current_state)} · ${esc(item.enterprise_narrative)}</span></li>`).join('')}</ul>
+          <h4>Supply-chain controls</h4>
+          <ul class="stack-list">${readiness.security_posture.supply_chain_controls.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Compliance evidence pack</h4>
+          <p class="helper">${esc(readiness.compliance_evidence_pack.summary)}</p>
+          <ul class="stack-list">${readiness.compliance_evidence_pack.control_mappings.map((item) => `<li><b>${esc(item.control_id)}</b> · ${esc(item.title)}<br><span class="helper">${esc(item.mapped_surface)} · ${esc(item.evidence_artifact)} · ${esc(item.current_coverage)}</span></li>`).join('')}</ul>
+          <h4>Audit-facing artifacts</h4>
+          <ul class="stack-list">${readiness.compliance_evidence_pack.audit_facing_artifacts.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Deployment architecture packs</h4>
+          <div class="doc-grid">
+            ${readiness.deployment_architecture_pack.architecture_views.map((item) => `
+              <article class="doc-card">
+                <h3>${esc(item.title)}</h3>
+                <p>${esc(item.summary)}</p>
+                <div class="meta-row"><span class="pill">${esc(item.deployment_target)}</span></div>
+                <ul class="stack-list">${item.design_notes.map((note) => `<li>${esc(note)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Release governance</h4>
+          <p class="helper">${esc(readiness.release_governance_pack.summary)}</p>
+          <ul class="stack-list">${readiness.release_governance_pack.release_controls.map((item) => `<li><b>${esc(item.control_id)}</b> · ${esc(item.title)}<br><span class="helper">${esc(item.change_stage)} · ${esc(item.evidence_requirement)}</span></li>`).join('')}</ul>
+          <h4>Retention and change artifacts</h4>
+          <ul class="stack-list">${readiness.release_governance_pack.change_management_artifacts.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Resilience readiness</h4>
+          <p class="helper">${esc(readiness.resilience_readiness_pack.summary)}</p>
+          <ul class="stack-list">${readiness.resilience_readiness_pack.recovery_artifacts.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.resilience_area)} · ${esc(item.status)}<br><span class="helper">${esc(item.summary)}</span></li>`).join('')}</ul>
+          <h4>Future roadmap signals</h4>
+          <ul class="stack-list">${readiness.resilience_readiness_pack.future_roadmap_signals.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
         </article>
       `;
       return;
