@@ -1,183 +1,100 @@
 # HealthForge release notes
 
-This document keeps the detailed delivery history out of the main README and provides a release-style view of product progress.
+This document carries the detailed progress story that does not belong in the main README.
 
-## Current summary
+## Current release story
 
-HealthForge currently includes:
+HealthForge has grown from a grounded-answer prototype into a broader healthcare interoperability workflow platform.
 
-- evidence ingestion, passage extraction, and corpus snapshots
-- grounded answer generation over approved public sources
-- reviewable Brief workflow with approvals and audit trail
-- tenant-aware review boundaries and RBAC-aligned workflows
-- deterministic FHIR validation for synthetic or non-sensitive examples
-- curated standards and FHIR artifact lookup
-- regulation explainer and architecture review workflows
-- prior-authorization workflow tools for PAS, CRD, and DTR scenarios
-- richer implementation planning exports for payer/provider/shared tracks
-- local web UI, API, and VS Code prototype support
-- governed delivery scaffolding for tracker, collaboration, documentation, and webhook workflows
-- trust and evaluation reporting for operators and enterprise evaluators
-- a Phase 10 showcase workspace with guided demo paths and a clearer admin console
-- a Phase 11 team workspace with projects, queues, assignments, saved views, reusable configs, and enterprise auth foundation
-- a Phase 12 governed integration layer with connector receipts, inbound intake, recovery tooling, and orchestration templates
-- a Phase 13 intelligence layer with retrieval feedback, evidence gaps, similarity clusters, and bounded recommendations
-- a Phase 14 private-operations layer with config policy, observability, continuity guidance, usage/quota reporting, and operator attestations
-- a Phase 15 pilot layer with readiness checklists, audience solution packs, stakeholder reporting, future control roadmap assets, and success-plan workflows
-- a Phase 16 implementation layer with starter code packs, test planning, handoff bundles, reference patterns, and change-impact guidance
-- a Phase 17 synthetic lab layer with reusable workflow scenarios, assertions, replay/diff tooling, and coverage reporting
-- a Phase 18 developer workflow layer with repo-aware guidance, a richer VS Code companion, local CLI/SDK packaging, and CI-ready builder automation patterns
-- a Phase 19 multi-tenant product foundation with tenant administration, provisioning workflows, isolation views, and customer analytics
-- a Phase 20 regulated deployment readiness layer with security posture, compliance evidence packs, deployment architecture views, release governance, and resilience artifacts
+Today the product includes:
 
-## Milestone history
+- public-source ingestion, provenance, and snapshotting
+- cited retrieval and grounded answer generation
+- reviewable Brief creation with approvals and audit history
+- FHIR validation, standards lookup, and synthetic workflow tooling
+- prior-authorization planning, journey, and bundle-review workflows
+- team workspace, reviewer queues, assignments, and saved views
+- governed delivery scaffolding for trackers, documentation, collaboration, and webhook-style automation
+- trust, evaluation, enterprise posture, and regulated-readiness surfaces
+- builder-facing API, CLI, SDK, and VS Code prototype entry points
+
+## What this means in practice
+
+HealthForge is now credible for:
+
+- product demonstrations
+- architecture and interoperability planning discussions
+- internal workflow rehearsal
+- synthetic prior-authorization and FHIR planning scenarios
+- enterprise-style governance and readiness storytelling
+
+HealthForge is not yet claiming:
+
+- PHI-bearing production operation
+- customer-live SaaS maturity
+- unattended autonomous approvals
+- full real-system operationalization of every governed connector path
+
+## What shipped through Phase 20
 
 ### Foundation
 
-- established problem framing, source-corpus boundaries, review model, and local-first architecture
-- created the initial Regulation-to-Engineering Brief workflow
-- introduced retrieval, citations, review decisions, approvals, and auditability
+- established source boundaries, evidence rules, and local-first architecture
+- created the initial regulation-to-engineering Brief workflow
+- added retrieval, citations, review decisions, approvals, and auditability
 
-### Standards and engineering workflows
+### Standards and planning workflows
 
 - added pinned FHIR validation catalog support
-- added curated standards artifact registry
+- added curated standards artifact lookup
 - added synthetic FHIR fixtures and validation demos
 - added architecture review and guarded starter artifact generation
 
-### Product workflow expansion
+### Prior-authorization and interoperability expansion
 
 - added FHIR knowledge assistant
 - added regulation explainer
-- added tracked export preview support
-- added prior-authorization copilot workflows
+- added prior-authorization copilot, journey, bundle-review, and standards-crosswalk workflows
+- added richer payer, provider, and shared implementation handoff artifacts
 
-### Enterprise and review hardening
+### Governance, trust, and enterprise workflows
 
-- added organization-aware review boundaries
-- added stronger role-aware controls and access review reporting
-- added compliance and posture reporting
-- added private deployment starter scaffolding
-
-### Prior-authorization interoperability workflows
-
-- added PAS/CRD/DTR workflow journeys
-- added bundle-level scenario review for synthetic prior-authorization exchanges
-- added policy-to-standards crosswalk generation
-- added richer payer/provider/shared implementation-track exports from approved Briefs
-
-### Governed delivery and trust layer
-
-- added governed tracker writeback with approval gates and visible retry/blocked states
-- added collaboration notification, documentation export, and webhook automation scaffolding
+- added enterprise boundaries and org-aware review controls
 - added evaluation dashboard and policy/safety reporting
-- added runtime telemetry for insufficient-evidence and unsupported-output patterns
+- added governed writeback, documentation, notification, and webhook scaffolding
+- added private deployment, operations, pilot-readiness, and regulated-readiness narratives
 
-### Showcase and productization
+### Productization and builder workflow expansion
 
-- redesigned the web workspace into a clearer showcase experience
-- added a guided sandbox/demo path and stronger admin/operator walkthrough surface
-- clarified deployable editions and capability boundaries
-- added stronger onboarding, testing paths, and presentation-ready architecture narratives
-- added content and community pipeline templates tied to shipped milestones
+- added a clearer showcase web workspace and demo path
+- added projects, queues, evidence collections, and assignment workflows
+- added CLI, SDK, CI, and VS Code companion surfaces
+- added tenant administration, tenant analytics, and enterprise packaging views
 
-### Team collaboration and enterprise identity foundation
+## Product positioning summary
 
-- added org-scoped projects and workspaces above individual briefs
-- added reviewer queues, explicit brief assignments, and handoff summaries
-- added saved views and evidence collections for repeated analysis
-- added reusable workflow configuration visibility for prompts, retrieval, and workflow profiles
-- added a trusted-proxy authentication foundation and group-to-role mapping model alongside the local demo path
+If you need one sentence:
 
-### Governed integrations and orchestration
+HealthForge is a governed AI workflow platform for turning public healthcare interoperability evidence into reviewable, implementation-oriented artifacts.
 
-- added a governed connector layer for tracker and documentation delivery systems
-- added connector health summaries, recent receipts, retry queue visibility, and recovery actions
-- added inbound case intake with optional case-to-Brief orchestration
-- added reusable orchestration templates for common interoperability programs
-- clarified simulated vs live-capable connector behavior through environment-managed settings
+If you need one paragraph:
 
-### Intelligence loops and bounded recommendations
+HealthForge helps healthcare teams move from public regulations and standards references to grounded answers, reviewable Briefs, explicit approvals, and governed planning handoff. It is strongest today as a bounded research, review, and demo platform for synthetic and non-sensitive interoperability work.
 
-- added retrieval-feedback capture from Brief findings
-- added evidence-gap summaries and public-source expansion suggestions
-- added lightweight similarity clustering for repeated Brief themes
-- added persona-aware next-step recommendations
-- added workflow-tuning recommendations tied to evaluation and review signals
+## Milestone archive
 
-### Private deployment and enterprise operations
-
-- added configuration and secret-boundary visibility surfaces
-- added observability, incident, and retention-oriented operator tooling
-- added continuity guidance for backup, restore, migration, and recovery rehearsals
-- added tenant-aware usage summaries, advisory quotas, and cost-control proxy signals
-- added policy attestation workflows and operator sign-off history
-
-### Pilot readiness and solution packaging
-
-- added pilot-readiness checklist and deployment certification-style artifacts
-- added provider, payer, and platform/interoperability solution packs
-- added stakeholder reporting pack and export-ready oversight summaries
-- added future-state identity and compliance-control roadmap assets
-- added pilot adoption, milestone, and success-plan workflows
-
-### Implementation acceleration
-
-- added implementation acceleration bundle for approved Briefs
-- added richer starter code generation for Spring, FHIR client, and workflow adapter examples
-- added acceptance criteria, validation scenarios, and negative-case planning from approved work items
-- added reference architecture patterns tied to implementation tracks
-- added change-impact summaries for newer indexed source versions
-
-### Synthetic interoperability labs
-
-- added richer synthetic workflow templates for provider, payer, CRD, DTR, and negative bundle drills
-- added end-to-end synthetic lab runs that combine bundle review, validation, and workflow journeys
-- added assertions and expected outcomes for scenario-based regression-style rehearsals
-- added replay and comparison tooling for workflow runs
-- added coverage and validation-gap reporting for the current synthetic lab surface
-
-### Developer workflows
-
-- added a developer overview and repo-guidance API surface for approved-brief-to-repo workflows
-- expanded the VS Code companion into a richer engineering workspace entry point
-- added a local CLI for brief, workspace, developer, and synthetic-lab workflows
-- added a small JavaScript SDK for builder-facing integrations and demos
-- added GitHub Actions patterns to validate the platform API and builder-facing surfaces together
-
-### Multi-tenant product foundations
-
-- added a tenant administration surface for customer overview, role delegation, and isolation boundaries
-- added provisioning request workflows for private customer spaces and hosted evaluation setups
-- added tenant analytics and hosted packaging views for customer-success and product discussions
-- added admin-console support for tenant administration workflows
-- clarified the current hosted-product posture without overstating production SaaS maturity
-
-### Regulated deployment readiness
-
-- added a regulated-readiness surface for security posture, supply-chain evidence, and audit-facing packaging
-- added reusable compliance control mappings tied to current HealthForge artifacts
-- added deployment architecture packs for private and hosted enterprise narratives
-- added release governance and evidence-retention automation narratives
-- added resilience and disaster-recovery readiness artifacts for regulated deployment discussions
-
-## Phase archive
-
-For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
+For internal planning, the project has been delivered through phased milestones. Those details are intentionally not the center of the main README, but they remain useful here as the historical record.
 
 As of Wednesday, July 29, 2026:
 
 - Phase 20 is complete
-- the currently planned open-phase backlog is complete
+- the previously planned open-phase backlog is complete
 
-## Suggested future release-note structure
+## Suggested future release-note format
 
-As HealthForge continues to grow, this file can be extended using a simple format such as:
+As HealthForge grows, each future release note can stay short and useful:
 
-- release name or date
 - what shipped
 - why it matters
-- demo-worthy additions
-- breaking or compatibility notes
-
-That keeps the main README focused on product overview while preserving a clear historical record here.
+- what to demo
+- what remains intentionally bounded

@@ -2,45 +2,43 @@
 
 HealthForge is an open-source AI engineering platform for healthcare interoperability.
 
-It helps teams turn public regulations, implementation guides, and standards references into grounded, reviewable engineering outputs instead of disconnected notes, unsupported interpretations, and one-off planning artifacts.
+It turns public regulations, implementation guides, and standards references into grounded, reviewable engineering outputs that teams can inspect, challenge, approve, and carry into downstream planning.
 
-## What it is
+## Why it matters
 
-HealthForge creates a local evidence layer from approved public sources and then helps teams:
+Healthcare interoperability work usually breaks down between four steps:
 
-- retrieve cited evidence from pinned snapshots
-- generate grounded answers with explicit limits
-- create reviewable Briefs with approvals and audit history
-- inspect workflow, standards, and FHIR planning artifacts
-- evaluate trust, safety, and workflow quality over time
-- prepare governed downstream delivery artifacts for engineering and operator teams
+- finding the right evidence
+- interpreting it consistently
+- getting human review and approval
+- turning approved thinking into implementation-ready artifacts
 
-## Why it exists
+HealthForge is built to close that gap without pretending an LLM should become the system of record.
 
-Healthcare interoperability work is rarely blocked by missing documents.
+## What you can do with it today
 
-It is usually blocked by the gap between:
-
-- what regulations and implementation guides say
-- what engineering teams think they mean
-- what reviewers and approvers are willing to sign off on
-- what operators can safely demonstrate or govern
-
-HealthForge is designed to reduce that gap with traceability, reviewability, bounded outputs, and operator-visible trust signals.
-
-## Product highlights
-
-| Area | What it helps with |
+| Workflow | What HealthForge does |
 | --- | --- |
-| Grounded evidence | Ask bounded questions against pinned source snapshots and inspect cited findings |
-| Brief workflow | Turn grounded findings into human-reviewed artifacts with decisions, approvals, and audit trail |
-| Team workspace | Organize briefs into projects, reviewer queues, assignments, saved views, and evidence workspaces |
-| FHIR and workflow tooling | Explore standards, validate synthetic examples, review bundles, and inspect prior-auth planning paths |
-| Governed delivery | Prepare tracker, collaboration, documentation, webhook, and inbound-case workflows with explicit controls and receipts |
-| Trust, evaluation, intelligence, operations, pilots, implementation acceleration, and synthetic labs | Inspect quality gates, evidence sufficiency, disagreement patterns, policy/safety reporting, enterprise auth posture, bounded recommendations, private-deployment operator controls, pilot-readiness assets, implementation-ready handoff packs, and synthetic workflow labs |
-| Showcase and builder UX | Use the web workspace, API, docs, VS Code companion, CLI, and starter SDK for demo-safe workflows |
+| Grounded evidence search | Retrieves cited evidence from approved public-source snapshots |
+| Brief creation | Turns evidence into a structured, reviewable Brief with explicit limits |
+| Review and approval | Captures reviewer decisions, approvals, and audit history |
+| FHIR and prior-auth planning | Supports synthetic standards lookup, validation, journey mapping, and prior-authorization analysis |
+| Team workspace | Organizes work into projects, queues, assignments, saved views, and evidence collections |
+| Trust and governance | Exposes evaluation, safety, compliance, and operator-readiness views |
+| Implementation handoff | Prepares work-item exports, architecture guidance, solution packs, and starter artifacts |
 
-## How it works
+## Product surfaces
+
+| Surface | What it is for |
+| --- | --- |
+| Web workspace | Reviewer, approver, auditor, administrator, and demo workflows |
+| Platform API | Local and bounded client-facing workflow APIs |
+| VS Code prototype | Builder-side workflow exploration and implementation guidance |
+| CLI | Scriptable local workflows for demos and engineering tasks |
+| JavaScript SDK | Simple builder-facing integrations and examples |
+| Documentation set | Demo, architecture, release-story, and operator walkthroughs |
+
+## How the system works
 
 ```mermaid
 flowchart LR
@@ -48,22 +46,57 @@ flowchart LR
     B --> C["Snapshots and citeable passages"]
     C --> D["Retrieval and grounded answers"]
     D --> E["Brief review, approvals, and audit"]
-    E --> F["Projects, queues, saved views, and reusable configs"]
-    F --> G["Planning exports, implementation packs, and governed integrations"]
-    F --> H["Evaluation, safety, operator reporting, auth foundation, private deployment controls, and pilot readiness"]
+    E --> F["Projects, queues, and evidence workspaces"]
+    F --> G["Implementation exports, integrations, and delivery artifacts"]
+    F --> H["Evaluation, safety, compliance, and operator reporting"]
 ```
+
+## What makes HealthForge different
+
+- Evidence stays visible instead of disappearing behind a generated answer.
+- Human review is a first-class workflow, not an afterthought.
+- Outputs are bounded for synthetic and non-sensitive interoperability work.
+- The platform separates research, approval, and delivery so governance stays inspectable.
+
+## What to demo in 10 minutes
+
+1. Ask a prior-authorization or standards-planning question.
+2. Show the cited findings and create a Brief.
+3. Switch roles to review, approve, and inspect audit history.
+4. Close with workspace, trust, and governed delivery surfaces.
+
+Recommended prompt:
+
+- Question: `What changes do we need for CMS prior authorization workflows?`
+- Context: `Synthetic provider EHR planning scenario for prior authorization APIs.`
+
+Additional prompts:
+
+- Question: `How should a provider workflow handle documentation and status exchange for prior authorization?`
+  Context: `Synthetic architecture review for a provider-facing utilization management workflow.`
+
+- Question: `What evidence-quality and approval signals should an enterprise evaluator inspect?`
+  Context: `Synthetic enterprise evaluation walkthrough using the HealthForge trust layer.`
+
+## Who it is for
+
+- interoperability product and platform teams
+- healthcare architects and implementation leads
+- reviewers, approvers, and auditors who need traceability
+- internal champions who need a safe, credible demo
+- builders who want a local-first interoperability workflow sandbox
 
 ## Capability boundaries
 
 HealthForge is intentionally bounded today:
 
-- public, non-sensitive sources only
-- synthetic or non-sensitive FHIR examples only
-- human review required for recommendations and governed downstream actions
+- public, approved, non-sensitive sources only
+- synthetic or explicitly non-sensitive FHIR examples only
+- human review required for recommendations and governed actions
 - no PHI handling
-- no claim of compliance certification or production-readiness
+- no claim of production certification or compliance attestation
 
-Those boundaries are a feature, not a missing disclaimer: they make the product easier to trust and easier to demo honestly.
+Those boundaries are part of the product posture. They keep the system more honest, easier to evaluate, and safer to demo.
 
 ## Quick start
 
@@ -73,10 +106,11 @@ Prerequisites:
 - Maven 3.9+
 - Docker Desktop
 
-Start the local stack:
+Run the local stack:
 
 ```bash
-docker compose -f infra/docker/docker-compose.yml up --build -d
+cp infra/docker/.env.example infra/docker/.env
+docker compose --env-file infra/docker/.env -f infra/docker/docker-compose.yml up --build -d
 ```
 
 Open:
@@ -84,63 +118,31 @@ Open:
 - UI: `http://localhost:8080`
 - Health: `http://localhost:8080/actuator/health`
 
-For API-only local development:
+For API-first local development:
 
 ```bash
-docker compose -f infra/docker/docker-compose.yml up -d
+docker compose --env-file infra/docker/.env -f infra/docker/docker-compose.yml up -d
 cd apps/platform-api
 mvn spring-boot:run
 ```
 
-## Best demo prompts
+## Start here
 
-Try these in the local UI:
+- Want the fastest walkthrough? Read [the end-to-end demo guide](docs/36-end-to-end-demo-and-contributor-onboarding.md).
+- Want a presentation-ready explanation? Read [the showcase architecture and solution narratives](docs/38-showcase-architecture-and-solution-narratives.md).
+- Want a meeting-friendly story? Read [the demo and release story guide](docs/50-demo-and-release-story.md).
+- Want the current product posture and next build recommendation? Read [the product readiness sweep](docs/51-product-readiness-sweep.md).
 
-- Question: `What changes do we need for CMS prior authorization workflows?`
-  Context: `Synthetic provider EHR planning scenario for prior authorization APIs.`
-
-- Question: `How should a provider workflow handle documentation and status exchange for prior authorization?`
-  Context: `Synthetic architecture review for a provider-facing utilization management workflow.`
-
-- Question: `What evidence-quality and approval signals should an enterprise evaluator inspect?`
-  Context: `Synthetic enterprise evaluation walkthrough using the HealthForge trust layer.`
-
-## Choose your path
-
-- Want to understand the product quickly? Start with [the end-to-end demo and onboarding guide](docs/36-end-to-end-demo-and-contributor-onboarding.md).
-- Want the supported API boundary? Read [the client API surface](docs/23-client-api-surface.md).
-- Want the operator story? Read [the private deployment operator guide](docs/31-private-deployment-operator-guide.md).
-- Want the team workspace story? Read [the Phase 11 collaboration workspace guide](docs/40-phase11-team-workspaces-and-auth-foundation.md).
-- Want the governed connector story? Read [the Phase 12 integrations and orchestration guide](docs/41-phase12-governed-integrations-and-orchestration.md).
-- Want the recommendation story? Read [the Phase 13 intelligence loops guide](docs/42-phase13-intelligence-loops-and-recommendations.md).
-- Want the private deployment operations story? Read [the Phase 14 enterprise operations guide](docs/43-phase14-private-deployment-and-enterprise-operations.md).
-- Want the pilot-readiness story? Read [the Phase 15 pilot readiness and solution packs guide](docs/44-phase15-pilot-readiness-and-solution-packs.md).
-- Want the implementation acceleration story? Read [the Phase 16 implementation acceleration guide](docs/45-phase16-implementation-acceleration.md).
-- Want the synthetic testing story? Read [the Phase 17 synthetic interoperability labs guide](docs/46-phase17-synthetic-interoperability-labs.md).
-- Want the builder workflow story? Read [the Phase 18 developer workflows guide](docs/47-phase18-developer-workflows.md).
-- Want the multi-tenant product story? Read [the Phase 19 multi-tenant foundations guide](docs/48-phase19-multi-tenant-foundations.md).
-- Want the regulated enterprise story? Read [the Phase 20 regulated deployment readiness guide](docs/49-phase20-regulated-deployment-readiness.md).
-- Want the trust layer? Read [Phase 9 evaluation and trust](docs/34-phase-9-evaluation-and-trust.md).
-- Want the packaging story? Read [deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md).
-
-## Documentation
+## Documentation map
 
 - [Platform API guide](apps/platform-api/README.md)
 - [Client API surface](docs/23-client-api-surface.md)
 - [End-to-end demo and contributor onboarding](docs/36-end-to-end-demo-and-contributor-onboarding.md)
 - [Showcase architecture and solution narratives](docs/38-showcase-architecture-and-solution-narratives.md)
-- [Phase 11 collaboration workspace and auth foundation](docs/40-phase11-team-workspaces-and-auth-foundation.md)
-- [Phase 12 governed integrations and orchestration](docs/41-phase12-governed-integrations-and-orchestration.md)
-- [Phase 13 intelligence loops and recommendations](docs/42-phase13-intelligence-loops-and-recommendations.md)
-- [Phase 14 private deployment and enterprise operations](docs/43-phase14-private-deployment-and-enterprise-operations.md)
-- [Phase 15 pilot readiness and solution packs](docs/44-phase15-pilot-readiness-and-solution-packs.md)
-- [Phase 16 implementation acceleration](docs/45-phase16-implementation-acceleration.md)
-- [Phase 17 synthetic interoperability labs](docs/46-phase17-synthetic-interoperability-labs.md)
-- [Phase 18 developer workflows](docs/47-phase18-developer-workflows.md)
-- [Phase 19 multi-tenant foundations](docs/48-phase19-multi-tenant-foundations.md)
-- [Phase 20 regulated deployment readiness](docs/49-phase20-regulated-deployment-readiness.md)
+- [Demo and release story guide](docs/50-demo-and-release-story.md)
+- [Product readiness sweep](docs/51-product-readiness-sweep.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
-- [Content and community pipeline](docs/39-content-and-community-pipeline.md)
+- [Private deployment operator guide](docs/31-private-deployment-operator-guide.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
 - [HealthForge CLI](apps/cli/README.md)
 - [HealthForge JavaScript SDK](packages/sdk-js/README.md)
@@ -148,4 +150,4 @@ Try these in the local UI:
 
 ## Release notes
 
-Detailed delivery history, milestone progress, and release-style updates live in [docs/releases.md](docs/releases.md).
+Detailed milestone history and release-style progress updates live in [docs/releases.md](docs/releases.md).
