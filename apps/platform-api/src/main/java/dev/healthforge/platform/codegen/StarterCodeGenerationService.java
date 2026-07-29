@@ -32,12 +32,16 @@ public class StarterCodeGenerationService {
         var fileName = switch (request.artifactType()) {
             case "spring_boot_endpoint_stub" -> sanitizeName(workItem.title()) + "Controller.java";
             case "spring_service_stub" -> sanitizeName(workItem.title()) + "Service.java";
+            case "fhir_client_stub" -> sanitizeName(workItem.title()) + "FhirClient.java";
+            case "workflow_adapter_stub" -> sanitizeName(workItem.title()) + "WorkflowAdapter.java";
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported starter artifact type");
         };
 
         var code = switch (request.artifactType()) {
             case "spring_boot_endpoint_stub" -> endpointStub(export, workItem);
             case "spring_service_stub" -> serviceStub(export, workItem);
+            case "fhir_client_stub" -> fhirClientStub(export, workItem);
+            case "workflow_adapter_stub" -> workflowAdapterStub(export, workItem);
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported starter artifact type");
         };
 
@@ -134,6 +138,71 @@ public class StarterCodeGenerationService {
                 workItem.humanReviewStatus(),
                 className,
                 workItem.rationale().replace("\"", "'")
+        );
+    }
+
+    private String fhirClientStub(BriefWorkItemExportResponse export, BriefWorkItemExportResponse.WorkItem workItem) {
+        var className = sanitizeName(workItem.title()) + "FhirClient";
+        return """
+                // EXAMPLE STARTER CODE ONLY
+                // Derived from approved HealthForge work-item export.
+                // Brief ID: %s
+                // Work Item ID: %s
+                // Standards Touchpoints: %s
+                package dev.healthforge.generated.example;
+
+                import ca.uhn.fhir.context.FhirContext;
+                import ca.uhn.fhir.rest.client.api.IGenericClient;
+                import org.hl7.fhir.r4.model.Bundle;
+
+                public class %s {
+
+                    private final FhirContext fhirContext = FhirContext.forR4();
+
+                    public Bundle submit(String baseUrl, Bundle payload) {
+                        // TODO: replace with reviewed auth, endpoint, and operation handling.
+                        IGenericClient client = fhirContext.newRestfulGenericClient(baseUrl);
+                        return payload;
+                    }
+                }
+                """.formatted(
+                export.briefId(),
+                workItem.workItemId(),
+                String.join(", ", workItem.standardsTouchpoints()),
+                className
+        );
+    }
+
+    private String workflowAdapterStub(BriefWorkItemExportResponse export, BriefWorkItemExportResponse.WorkItem workItem) {
+        var className = sanitizeName(workItem.title()) + "WorkflowAdapter";
+        return """
+                // EXAMPLE STARTER CODE ONLY
+                // Derived from approved HealthForge work-item export.
+                // Brief ID: %s
+                // Work Item ID: %s
+                // Dependencies: %s
+                package dev.healthforge.generated.example;
+
+                import java.util.Map;
+
+                public class %s {
+
+                    public Map<String, Object> buildWorkflowState(Map<String, Object> input) {
+                        // TODO: map approved workflow stages into your local orchestration or integration boundary.
+                        return Map.of(
+                                "workItemId", "%s",
+                                "workflowStage", "%s",
+                                "input", input
+                        );
+                    }
+                }
+                """.formatted(
+                export.briefId(),
+                workItem.workItemId(),
+                String.join(", ", workItem.dependencies()),
+                className,
+                workItem.workItemId(),
+                workItem.workflowStage()
         );
     }
 
