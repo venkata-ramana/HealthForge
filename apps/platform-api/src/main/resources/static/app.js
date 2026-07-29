@@ -41,7 +41,8 @@ const roleRequirements = {
   stakeholderReport: 'auditor',
   futureRoadmap: 'auditor',
   pilotSuccess: 'reviewer',
-  implementationBundle: 'approver'
+  implementationBundle: 'approver',
+  syntheticLabs: 'reviewer'
 };
 
 const demoScenarios = [
@@ -114,6 +115,11 @@ const docLinks = [
     title: 'Phase 16 implementation acceleration',
     path: '/docs/45-phase16-implementation-acceleration.md',
     description: 'Implementation bundles, richer starter code, test plans, reference patterns, engineering handoff packs, and change-impact guidance.'
+  },
+  {
+    title: 'Phase 17 synthetic interoperability labs',
+    path: '/docs/46-phase17-synthetic-interoperability-labs.md',
+    description: 'Scenario-based testing labs, richer synthetic rehearsals, replay/diff tooling, assertions, and coverage views.'
   },
   {
     title: 'Client API surface',
@@ -218,6 +224,16 @@ const testingPaths = [
       'Open the approved Brief and load the Implementation pack.',
       'Inspect starter artifacts, acceptance criteria, and reference patterns.',
       'Export the implementation bundle JSON for downstream engineering handoff.'
+    ]
+  },
+  {
+    title: 'Synthetic lab walkthrough',
+    body: 'Run synthetic workflow rehearsals, compare a happy path to a negative path, and inspect coverage gaps.',
+    steps: [
+      'Open Synthetic labs from the admin console.',
+      'Run Provider PAS submission baseline.',
+      'Compare it with Negative bundle structure.',
+      'Use coverage and validation gaps to explain what is and is not modeled yet.'
     ]
   }
 ];
@@ -349,6 +365,7 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Stakeholder report', action: 'stakeholderReport', className: 'secondary', onClick: 'openAdminPanel("stakeholderReport")' }),
     buttonHtml({ label: 'Future roadmap', action: 'futureRoadmap', className: 'secondary', onClick: 'openAdminPanel("futureRoadmap")' }),
     buttonHtml({ label: 'Pilot success', action: 'pilotSuccess', className: 'secondary', onClick: 'openAdminPanel("pilotSuccess")' }),
+    buttonHtml({ label: 'Synthetic labs', action: 'syntheticLabs', className: 'secondary', onClick: 'openAdminPanel("syntheticLabs")' }),
     buttonHtml({ label: 'Connector health', action: 'integrationStatus', className: 'secondary', onClick: 'openAdminPanel("integrations")' }),
     buttonHtml({ label: 'Inbound intake', action: 'inboundCases', className: 'secondary', onClick: 'openAdminPanel("intake")' }),
     buttonHtml({ label: 'Templates', action: 'orchestrationTemplates', className: 'secondary', onClick: 'openAdminPanel("templates")' }),
@@ -1609,6 +1626,52 @@ async function openAdminPanel(panel) {
       return;
     }
 
+    if (panel === 'syntheticLabs') {
+      if (!can('syntheticLabs')) throw new Error(permissionText('syntheticLabs'));
+      const labs = await apiJson('/v1/synthetic-labs/overview', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Synthetic interoperability labs</h3>
+          <p class="helper">${esc(labs.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('templates', labs.coverage_summary.total_templates)}
+            ${renderMetricCard('valid paths', labs.coverage_summary.valid_templates)}
+            ${renderMetricCard('negative drills', labs.coverage_summary.negative_templates)}
+            ${renderMetricCard('journeys', labs.coverage_summary.supported_journeys.length)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Scenario templates</h4>
+          <div class="doc-grid">
+            ${labs.templates.map((template) => `
+              <article class="doc-card">
+                <h3>${esc(template.title)}</h3>
+                <p>${esc(template.description)}</p>
+                <div class="meta-row">
+                  <span class="pill">${esc(template.journey_type)}</span>
+                  <span class="pill">${esc(template.expected_validation_status)}</span>
+                </div>
+                <ul class="stack-list">${template.coverage_tags.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <div class="button-row">
+                  <button onclick="runSyntheticLab('${esc(template.template_id)}')">Run lab</button>
+                  <button class="secondary" onclick="compareSyntheticLabs('${esc(template.template_id)}','negative_bundle_structure')">Compare to negative</button>
+                </div>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Support matrix</h4>
+          <ul class="stack-list">${labs.support_matrix.map((item) => `<li><b>${esc(item.workflow_area)}</b> · ${esc(item.coverage_status)}<br><span class="helper">${esc(item.notes)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Validation gaps</h4>
+          <ul class="stack-list">${labs.validation_gaps.map((item) => `<li><b>${esc(item.area)}</b> · ${esc(item.severity)}<br><span class="helper">${esc(item.gap)} · next: ${esc(item.suggested_next_template)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
     if (panel === 'synthetic') {
       const catalog = await apiJson('/v1/fhir-synthetic/catalog', { method: 'GET', headers: actorHeaders(false) });
       enterprisePanel.innerHTML = `
@@ -1842,6 +1905,81 @@ async function recordPilotCheckpoint() {
     await openAdminPanel('pilotSuccess');
   } catch (error) {
     alert(error.message);
+  }
+}
+
+async function runSyntheticLab(templateId) {
+  enterprisePanel.innerHTML = '<div class="alert warning">Running synthetic workflow rehearsal…</div>';
+  try {
+    const run = await apiJson('/v1/synthetic-labs/runs', {
+      method: 'POST',
+      body: JSON.stringify({ template_id: templateId })
+    });
+    enterprisePanel.innerHTML = `
+      <article class="admin-card">
+        <h3>${esc(run.title)}</h3>
+        <p class="helper">${esc(run.summary)}</p>
+        <div class="metric-grid">
+          ${renderMetricCard('journey', run.journey.journey_type)}
+          ${renderMetricCard('bundle type', run.replay_metadata.bundle_type)}
+          ${renderMetricCard('assertions', run.assertions.length)}
+          ${renderMetricCard('validation', run.bundle_review.validation.status)}
+        </div>
+        <div class="button-row compact">
+          <button class="secondary" onclick="openAdminPanel('syntheticLabs')">Back to labs</button>
+        </div>
+      </article>
+      <article class="admin-card">
+        <h4>Assertions</h4>
+        <ul class="stack-list">${run.assertions.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.status)}<br><span class="helper">${esc(item.detail)}</span></li>`).join('')}</ul>
+      </article>
+      <article class="admin-card">
+        <h4>Timeline</h4>
+        <ul class="stack-list">${run.timeline.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.owner_actor)}<br><span class="helper">${esc(item.expected_output)}</span></li>`).join('')}</ul>
+      </article>
+      <article class="admin-card">
+        <h4>Expected outcomes</h4>
+        <ul class="stack-list">${run.expected_outcomes.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+      </article>
+      <article class="admin-card">
+        <h4>Bundle review highlights</h4>
+        <ul class="stack-list">${run.bundle_review.scenario_findings.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.severity)}<br><span class="helper">${esc(item.detail)}</span></li>`).join('')}</ul>
+      </article>
+    `;
+  } catch (error) {
+    enterprisePanel.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
+  }
+}
+
+async function compareSyntheticLabs(primaryTemplateId, comparisonTemplateId) {
+  enterprisePanel.innerHTML = '<div class="alert warning">Comparing synthetic workflow rehearsals…</div>';
+  try {
+    const comparison = await apiJson('/v1/synthetic-labs/compare', {
+      method: 'POST',
+      body: JSON.stringify({
+        primary_template_id: primaryTemplateId,
+        comparison_template_id: comparisonTemplateId
+      })
+    });
+    enterprisePanel.innerHTML = `
+      <article class="admin-card">
+        <h3>Synthetic lab comparison</h3>
+        <p class="helper">${esc(comparison.summary)}</p>
+        <div class="button-row compact">
+          <button class="secondary" onclick="openAdminPanel('syntheticLabs')">Back to labs</button>
+        </div>
+      </article>
+      <article class="admin-card">
+        <h4>Differences</h4>
+        <ul class="stack-list">${comparison.differences.map((item) => `<li><b>${esc(item.area)}</b><br><span class="helper">${esc(item.primary_value)} vs ${esc(item.comparison_value)}</span><br><span class="helper">${esc(item.impact)}</span></li>`).join('')}</ul>
+      </article>
+      <article class="admin-card">
+        <h4>Timeline comparison</h4>
+        <ul class="stack-list">${comparison.timeline_comparisons.map((item) => `<li><b>${esc(item.primary_title)}</b> ↔ <b>${esc(item.comparison_title)}</b><br><span class="helper">${esc(item.note)}</span></li>`).join('')}</ul>
+      </article>
+    `;
+  } catch (error) {
+    enterprisePanel.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
   }
 }
 

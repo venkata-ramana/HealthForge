@@ -28,35 +28,90 @@ public class SyntheticFhirService {
                 "Prior authorization claim (valid)",
                 "Synthetic Claim example for a prior-authorization planning workflow.",
                 "knowledge/fixtures/fhir-validation/prior-auth-claim-valid.request.json",
-                "valid"
+                "valid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Claim"
         ));
         scenarios.put("prior_auth_claim_invalid_missing_status", new ScenarioDefinition(
                 "prior_auth_claim_invalid_missing_status",
                 "Prior authorization claim (invalid: missing status)",
                 "Synthetic Claim example intentionally missing status to demonstrate validation findings.",
                 "knowledge/fixtures/fhir-validation/prior-auth-claim-invalid-missing-status.request.json",
-                "invalid"
+                "invalid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Claim"
         ));
         scenarios.put("prior_auth_coverage_valid", new ScenarioDefinition(
                 "prior_auth_coverage_valid",
                 "Coverage example (valid)",
                 "Synthetic Coverage example for eligibility and authorization workflow demos.",
                 "knowledge/fixtures/fhir-validation/prior-auth-coverage-valid.request.json",
-                "valid"
+                "valid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Coverage"
         ));
         scenarios.put("prior_auth_bundle_valid", new ScenarioDefinition(
                 "prior_auth_bundle_valid",
                 "Prior authorization bundle (valid)",
                 "Synthetic multi-resource prior-authorization bundle for workflow and validation demos.",
                 "knowledge/fixtures/fhir-validation/prior-auth-bundle-valid.request.json",
-                "valid"
+                "valid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Bundle"
         ));
         scenarios.put("prior_auth_bundle_invalid_missing_type", new ScenarioDefinition(
                 "prior_auth_bundle_invalid_missing_type",
                 "Prior authorization bundle (invalid: missing type)",
                 "Synthetic Bundle example intentionally missing bundle type for validation demos.",
                 "knowledge/fixtures/fhir-validation/prior-auth-bundle-invalid-missing-type.request.json",
-                "invalid"
+                "invalid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Bundle"
+        ));
+        scenarios.put("provider_intake_claim_valid", new ScenarioDefinition(
+                "provider_intake_claim_valid",
+                "Provider intake claim scenario",
+                "Synthetic provider-facing claim scenario for request assembly and intake walkthroughs.",
+                "knowledge/fixtures/fhir-validation/prior-auth-claim-valid.request.json",
+                "valid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Claim"
+        ));
+        scenarios.put("coverage_discovery_valid", new ScenarioDefinition(
+                "coverage_discovery_valid",
+                "Coverage discovery scenario",
+                "Synthetic coverage-oriented scenario for CRD-style discovery and eligibility walkthroughs.",
+                "knowledge/fixtures/fhir-validation/prior-auth-coverage-valid.request.json",
+                "valid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Coverage"
+        ));
+        scenarios.put("payer_decision_bundle_valid", new ScenarioDefinition(
+                "payer_decision_bundle_valid",
+                "Payer decision bundle scenario",
+                "Synthetic multi-resource scenario emphasizing payer review and follow-up handling.",
+                "knowledge/fixtures/fhir-validation/prior-auth-bundle-valid.request.json",
+                "valid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Bundle"
+        ));
+        scenarios.put("documentation_followup_bundle_invalid", new ScenarioDefinition(
+                "documentation_followup_bundle_invalid",
+                "Documentation follow-up bundle (invalid)",
+                "Synthetic negative DTR-style bundle scenario that highlights structural bundle issues for regression and debug drills.",
+                "knowledge/fixtures/fhir-validation/prior-auth-bundle-invalid-missing-type.request.json",
+                "invalid",
+                "hl7.fhir.r4.core",
+                "4.0.1",
+                "http://hl7.org/fhir/StructureDefinition/Bundle"
         ));
     }
 
@@ -123,54 +178,10 @@ public class SyntheticFhirService {
             String title,
             String description,
             String relativePath,
-            String expectedStatus
+            String expectedStatus,
+            String packageId,
+            String packageVersion,
+            String profileUrl
     ) {
-        String packageId() {
-            return loadString("package_id");
-        }
-
-        String packageVersion() {
-            return loadString("package_version");
-        }
-
-        String profileUrl() {
-            return loadString("profile_url");
-        }
-
-        private String loadString(String field) {
-            return switch (scenarioId) {
-                case "prior_auth_claim_valid" -> switch (field) {
-                    case "package_id" -> "hl7.fhir.r4.core";
-                    case "package_version" -> "4.0.1";
-                    case "profile_url" -> "http://hl7.org/fhir/StructureDefinition/Claim";
-                    default -> "";
-                };
-                case "prior_auth_claim_invalid_missing_status" -> switch (field) {
-                    case "package_id" -> "hl7.fhir.r4.core";
-                    case "package_version" -> "4.0.1";
-                    case "profile_url" -> "http://hl7.org/fhir/StructureDefinition/Claim";
-                    default -> "";
-                };
-                case "prior_auth_coverage_valid" -> switch (field) {
-                    case "package_id" -> "hl7.fhir.r4.core";
-                    case "package_version" -> "4.0.1";
-                    case "profile_url" -> "http://hl7.org/fhir/StructureDefinition/Coverage";
-                    default -> "";
-                };
-                case "prior_auth_bundle_valid" -> switch (field) {
-                    case "package_id" -> "hl7.fhir.r4.core";
-                    case "package_version" -> "4.0.1";
-                    case "profile_url" -> "http://hl7.org/fhir/StructureDefinition/Bundle";
-                    default -> "";
-                };
-                case "prior_auth_bundle_invalid_missing_type" -> switch (field) {
-                    case "package_id" -> "hl7.fhir.r4.core";
-                    case "package_version" -> "4.0.1";
-                    case "profile_url" -> "http://hl7.org/fhir/StructureDefinition/Bundle";
-                    default -> "";
-                };
-                default -> "";
-            };
-        }
     }
 }

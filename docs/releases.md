@@ -25,6 +25,7 @@ HealthForge currently includes:
 - a Phase 14 private-operations layer with config policy, observability, continuity guidance, usage/quota reporting, and operator attestations
 - a Phase 15 pilot layer with readiness checklists, audience solution packs, stakeholder reporting, future control roadmap assets, and success-plan workflows
 - a Phase 16 implementation layer with starter code packs, test planning, handoff bundles, reference patterns, and change-impact guidance
+- a Phase 17 synthetic lab layer with reusable workflow scenarios, assertions, replay/diff tooling, and coverage reporting
 
 ## Milestone history
 
@@ -125,14 +126,22 @@ HealthForge currently includes:
 - added reference architecture patterns tied to implementation tracks
 - added change-impact summaries for newer indexed source versions
 
+### Synthetic interoperability labs
+
+- added richer synthetic workflow templates for provider, payer, CRD, DTR, and negative bundle drills
+- added end-to-end synthetic lab runs that combine bundle review, validation, and workflow journeys
+- added assertions and expected outcomes for scenario-based regression-style rehearsals
+- added replay and comparison tooling for workflow runs
+- added coverage and validation-gap reporting for the current synthetic lab surface
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
 As of Wednesday, July 29, 2026:
 
-- Phase 16 is complete
-- the next major planning step is to execute Phase 17
+- Phase 17 is complete
+- the next major planning step is to execute Phase 18
 
 ## Suggested future release-note structure
 
