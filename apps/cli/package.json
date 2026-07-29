@@ -1,0 +1,12 @@
+{
+  "name": "healthforge-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local CLI for builder-facing HealthForge workflows.",
+  "bin": {
+    "healthforge": "./bin/healthforge.js"
+  },
+  "scripts": {
+    "smoke": "node ./bin/healthforge.js help"
+  }
+}

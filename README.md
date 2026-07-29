@@ -38,7 +38,7 @@ HealthForge is designed to reduce that gap with traceability, reviewability, bou
 | FHIR and workflow tooling | Explore standards, validate synthetic examples, review bundles, and inspect prior-auth planning paths |
 | Governed delivery | Prepare tracker, collaboration, documentation, webhook, and inbound-case workflows with explicit controls and receipts |
 | Trust, evaluation, intelligence, operations, pilots, implementation acceleration, and synthetic labs | Inspect quality gates, evidence sufficiency, disagreement patterns, policy/safety reporting, enterprise auth posture, bounded recommendations, private-deployment operator controls, pilot-readiness assets, implementation-ready handoff packs, and synthetic workflow labs |
-| Showcase and builder UX | Use the web workspace, API, docs, and VS Code prototype for demo-safe workflows |
+| Showcase and builder UX | Use the web workspace, API, docs, VS Code companion, CLI, and starter SDK for demo-safe workflows |
 
 ## How it works
 
@@ -117,6 +117,7 @@ Try these in the local UI:
 - Want the pilot-readiness story? Read [the Phase 15 pilot readiness and solution packs guide](docs/44-phase15-pilot-readiness-and-solution-packs.md).
 - Want the implementation acceleration story? Read [the Phase 16 implementation acceleration guide](docs/45-phase16-implementation-acceleration.md).
 - Want the synthetic testing story? Read [the Phase 17 synthetic interoperability labs guide](docs/46-phase17-synthetic-interoperability-labs.md).
+- Want the builder workflow story? Read [the Phase 18 developer workflows guide](docs/47-phase18-developer-workflows.md).
 - Want the trust layer? Read [Phase 9 evaluation and trust](docs/34-phase-9-evaluation-and-trust.md).
 - Want the packaging story? Read [deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md).
 
@@ -133,9 +134,12 @@ Try these in the local UI:
 - [Phase 15 pilot readiness and solution packs](docs/44-phase15-pilot-readiness-and-solution-packs.md)
 - [Phase 16 implementation acceleration](docs/45-phase16-implementation-acceleration.md)
 - [Phase 17 synthetic interoperability labs](docs/46-phase17-synthetic-interoperability-labs.md)
+- [Phase 18 developer workflows](docs/47-phase18-developer-workflows.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Content and community pipeline](docs/39-content-and-community-pipeline.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
+- [HealthForge CLI](apps/cli/README.md)
+- [HealthForge JavaScript SDK](packages/sdk-js/README.md)
 - [Release notes](docs/releases.md)
 
 ## Release notes

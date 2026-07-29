@@ -26,6 +26,7 @@ HealthForge currently includes:
 - a Phase 15 pilot layer with readiness checklists, audience solution packs, stakeholder reporting, future control roadmap assets, and success-plan workflows
 - a Phase 16 implementation layer with starter code packs, test planning, handoff bundles, reference patterns, and change-impact guidance
 - a Phase 17 synthetic lab layer with reusable workflow scenarios, assertions, replay/diff tooling, and coverage reporting
+- a Phase 18 developer workflow layer with repo-aware guidance, a richer VS Code companion, local CLI/SDK packaging, and CI-ready builder automation patterns
 
 ## Milestone history
 
@@ -134,14 +135,22 @@ HealthForge currently includes:
 - added replay and comparison tooling for workflow runs
 - added coverage and validation-gap reporting for the current synthetic lab surface
 
+### Developer workflows
+
+- added a developer overview and repo-guidance API surface for approved-brief-to-repo workflows
+- expanded the VS Code companion into a richer engineering workspace entry point
+- added a local CLI for brief, workspace, developer, and synthetic-lab workflows
+- added a small JavaScript SDK for builder-facing integrations and demos
+- added GitHub Actions patterns to validate the platform API and builder-facing surfaces together
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
 As of Wednesday, July 29, 2026:
 
-- Phase 17 is complete
-- the next major planning step is to execute Phase 18
+- Phase 18 is complete
+- the next major planning step is to execute Phase 19
 
 ## Suggested future release-note structure
 

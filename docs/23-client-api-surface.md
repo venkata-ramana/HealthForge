@@ -23,6 +23,7 @@ The supported client-facing workflows are:
 - Enterprise posture inspection
 - Deployment promotion guide
 - Synthetic FHIR scenario generation
+- Developer overview and repo-aware engineering guidance
 - Identity directory inspection
 
 The current API is intended for:
@@ -261,6 +262,37 @@ curl http://localhost:8080/v1/evaluation/dashboard \
   -H 'X-HealthForge-Actor: local.auditor' \
   -H 'X-HealthForge-Role: auditor' \
   -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Inspect the developer workflow overview:
+
+```bash
+curl http://localhost:8080/v1/developer/overview \
+  -H 'X-HealthForge-Actor: local.reviewer' \
+  -H 'X-HealthForge-Role: reviewer' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Generate repo-aware guidance from an approved Brief:
+
+```bash
+curl -X POST http://localhost:8080/v1/developer/repo-guidance \
+  -H 'Content-Type: application/json' \
+  -H 'X-HealthForge-Actor: local.approver' \
+  -H 'X-HealthForge-Role: approver' \
+  -H 'X-HealthForge-Organization: tenant.alpha' \
+  -d '{
+    "brief_id": "brief_example",
+    "repository_name": "HealthForge",
+    "workspace_root": "/Users/ivn/code/HealthForge",
+    "repository_inventory": [
+      "apps/platform-api/src/main/java/dev/healthforge/platform/brief/BriefController.java",
+      "apps/platform-api/src/main/resources/static/app.js"
+    ],
+    "changed_files": [
+      "apps/platform-api/src/main/resources/static/app.js"
+    ]
+  }'
 ```
 
 Inspect the policy and safety report:

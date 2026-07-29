@@ -13,7 +13,11 @@
   "activationEvents": [
     "onCommand:healthforge.createBriefDraft",
     "onCommand:healthforge.validateFhirExample",
-    "onCommand:healthforge.fhirStandardsAssistant"
+    "onCommand:healthforge.fhirStandardsAssistant",
+    "onCommand:healthforge.openWorkspaceOverview",
+    "onCommand:healthforge.listApprovedBriefs",
+    "onCommand:healthforge.generateRepoGuidance",
+    "onCommand:healthforge.runSyntheticLab"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -29,6 +33,22 @@
       {
         "command": "healthforge.fhirStandardsAssistant",
         "title": "HealthForge: FHIR Standards Assistant"
+      },
+      {
+        "command": "healthforge.openWorkspaceOverview",
+        "title": "HealthForge: Open Workspace Overview"
+      },
+      {
+        "command": "healthforge.listApprovedBriefs",
+        "title": "HealthForge: List Approved Briefs"
+      },
+      {
+        "command": "healthforge.generateRepoGuidance",
+        "title": "HealthForge: Generate Repo Guidance"
+      },
+      {
+        "command": "healthforge.runSyntheticLab",
+        "title": "HealthForge: Run Synthetic Lab"
       }
     ],
     "configuration": {
@@ -48,10 +68,16 @@
           "type": "string",
           "enum": [
             "reviewer",
+            "approver",
             "administrator"
           ],
           "default": "reviewer",
           "description": "Actor role sent to reviewer/admin workflow endpoints."
+        },
+        "healthforge.organizationId": {
+          "type": "string",
+          "default": "tenant.alpha",
+          "description": "Organization ID sent to local org-scoped HealthForge workflows."
         }
       }
     }
@@ -61,6 +87,7 @@
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
+    "@types/node": "^22.10.2",
     "@types/vscode": "^1.95.0",
     "typescript": "^5.6.3"
   }
