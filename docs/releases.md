@@ -23,6 +23,7 @@ HealthForge currently includes:
 - a Phase 12 governed integration layer with connector receipts, inbound intake, recovery tooling, and orchestration templates
 - a Phase 13 intelligence layer with retrieval feedback, evidence gaps, similarity clusters, and bounded recommendations
 - a Phase 14 private-operations layer with config policy, observability, continuity guidance, usage/quota reporting, and operator attestations
+- a Phase 15 pilot layer with readiness checklists, audience solution packs, stakeholder reporting, future control roadmap assets, and success-plan workflows
 
 ## Milestone history
 
@@ -107,14 +108,22 @@ HealthForge currently includes:
 - added tenant-aware usage summaries, advisory quotas, and cost-control proxy signals
 - added policy attestation workflows and operator sign-off history
 
+### Pilot readiness and solution packaging
+
+- added pilot-readiness checklist and deployment certification-style artifacts
+- added provider, payer, and platform/interoperability solution packs
+- added stakeholder reporting pack and export-ready oversight summaries
+- added future-state identity and compliance-control roadmap assets
+- added pilot adoption, milestone, and success-plan workflows
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
-As of Tuesday, July 28, 2026:
+As of Wednesday, July 29, 2026:
 
-- Phase 14 is complete
-- the next major planning step is to execute Phase 15
+- Phase 15 is complete
+- the next major planning step is to plan and execute the next phase set
 
 ## Suggested future release-note structure
 

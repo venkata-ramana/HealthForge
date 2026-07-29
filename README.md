@@ -37,7 +37,7 @@ HealthForge is designed to reduce that gap with traceability, reviewability, bou
 | Team workspace | Organize briefs into projects, reviewer queues, assignments, saved views, and evidence workspaces |
 | FHIR and workflow tooling | Explore standards, validate synthetic examples, review bundles, and inspect prior-auth planning paths |
 | Governed delivery | Prepare tracker, collaboration, documentation, webhook, and inbound-case workflows with explicit controls and receipts |
-| Trust, evaluation, intelligence, and operations | Inspect quality gates, evidence sufficiency, disagreement patterns, policy/safety reporting, enterprise auth posture, bounded recommendations, and private-deployment operator controls |
+| Trust, evaluation, intelligence, operations, and pilots | Inspect quality gates, evidence sufficiency, disagreement patterns, policy/safety reporting, enterprise auth posture, bounded recommendations, private-deployment operator controls, and pilot-readiness assets |
 | Showcase and builder UX | Use the web workspace, API, docs, and VS Code prototype for demo-safe workflows |
 
 ## How it works
@@ -50,7 +50,7 @@ flowchart LR
     D --> E["Brief review, approvals, and audit"]
     E --> F["Projects, queues, saved views, and reusable configs"]
     F --> G["Planning exports and governed integrations"]
-    F --> H["Evaluation, safety, operator reporting, auth foundation, and private deployment controls"]
+    F --> H["Evaluation, safety, operator reporting, auth foundation, private deployment controls, and pilot readiness"]
 ```
 
 ## Capability boundaries
@@ -114,6 +114,7 @@ Try these in the local UI:
 - Want the governed connector story? Read [the Phase 12 integrations and orchestration guide](docs/41-phase12-governed-integrations-and-orchestration.md).
 - Want the recommendation story? Read [the Phase 13 intelligence loops guide](docs/42-phase13-intelligence-loops-and-recommendations.md).
 - Want the private deployment operations story? Read [the Phase 14 enterprise operations guide](docs/43-phase14-private-deployment-and-enterprise-operations.md).
+- Want the pilot-readiness story? Read [the Phase 15 pilot readiness and solution packs guide](docs/44-phase15-pilot-readiness-and-solution-packs.md).
 - Want the trust layer? Read [Phase 9 evaluation and trust](docs/34-phase-9-evaluation-and-trust.md).
 - Want the packaging story? Read [deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md).
 
@@ -127,6 +128,7 @@ Try these in the local UI:
 - [Phase 12 governed integrations and orchestration](docs/41-phase12-governed-integrations-and-orchestration.md)
 - [Phase 13 intelligence loops and recommendations](docs/42-phase13-intelligence-loops-and-recommendations.md)
 - [Phase 14 private deployment and enterprise operations](docs/43-phase14-private-deployment-and-enterprise-operations.md)
+- [Phase 15 pilot readiness and solution packs](docs/44-phase15-pilot-readiness-and-solution-packs.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Content and community pipeline](docs/39-content-and-community-pipeline.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)

@@ -35,7 +35,12 @@ const roleRequirements = {
   operationsObservability: 'auditor',
   operationsContinuity: 'administrator',
   operationsUsage: 'auditor',
-  operationsAttestations: 'administrator'
+  operationsAttestations: 'administrator',
+  pilotReadiness: 'auditor',
+  solutionPacks: 'reviewer',
+  stakeholderReport: 'auditor',
+  futureRoadmap: 'auditor',
+  pilotSuccess: 'reviewer'
 };
 
 const demoScenarios = [
@@ -98,6 +103,11 @@ const docLinks = [
     title: 'Phase 14 private deployment operations',
     path: '/docs/43-phase14-private-deployment-and-enterprise-operations.md',
     description: 'Configuration boundaries, observability, continuity, quotas, and operator sign-off workflows.'
+  },
+  {
+    title: 'Phase 15 pilot readiness and solution packs',
+    path: '/docs/44-phase15-pilot-readiness-and-solution-packs.md',
+    description: 'Pilot readiness, audience-tailored solution packs, stakeholder reporting, future control roadmap, and success-plan workflows.'
   },
   {
     title: 'Client API surface',
@@ -182,6 +192,16 @@ const testingPaths = [
       'Switch to auditor and inspect Observability and Usage.',
       'Record one sample operator sign-off to show governance history.',
       'Use the Phase 14 doc to explain how private operations are being hardened.'
+    ]
+  },
+  {
+    title: 'Pilot readiness and buyer-pack walkthrough',
+    body: 'Use the new Phase 15 surfaces to explain pilot fit, audience narratives, reporting, and success tracking.',
+    steps: [
+      'Switch to auditor and open Pilot readiness plus Stakeholder report.',
+      'Switch to reviewer and open Solution packs plus Pilot success.',
+      'Switch back to auditor and open Future roadmap.',
+      'Use the Phase 15 doc to explain private pilot readiness without overstating production maturity.'
     ]
   }
 ];
@@ -308,6 +328,11 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Continuity', action: 'operationsContinuity', className: 'secondary', onClick: 'openAdminPanel("operationsContinuity")' }),
     buttonHtml({ label: 'Usage', action: 'operationsUsage', className: 'secondary', onClick: 'openAdminPanel("operationsUsage")' }),
     buttonHtml({ label: 'Attestations', action: 'operationsAttestations', className: 'secondary', onClick: 'openAdminPanel("operationsAttestations")' }),
+    buttonHtml({ label: 'Pilot readiness', action: 'pilotReadiness', className: 'secondary', onClick: 'openAdminPanel("pilotReadiness")' }),
+    buttonHtml({ label: 'Solution packs', action: 'solutionPacks', className: 'secondary', onClick: 'openAdminPanel("solutionPacks")' }),
+    buttonHtml({ label: 'Stakeholder report', action: 'stakeholderReport', className: 'secondary', onClick: 'openAdminPanel("stakeholderReport")' }),
+    buttonHtml({ label: 'Future roadmap', action: 'futureRoadmap', className: 'secondary', onClick: 'openAdminPanel("futureRoadmap")' }),
+    buttonHtml({ label: 'Pilot success', action: 'pilotSuccess', className: 'secondary', onClick: 'openAdminPanel("pilotSuccess")' }),
     buttonHtml({ label: 'Connector health', action: 'integrationStatus', className: 'secondary', onClick: 'openAdminPanel("integrations")' }),
     buttonHtml({ label: 'Inbound intake', action: 'inboundCases', className: 'secondary', onClick: 'openAdminPanel("intake")' }),
     buttonHtml({ label: 'Templates', action: 'orchestrationTemplates', className: 'secondary', onClick: 'openAdminPanel("templates")' }),
@@ -993,6 +1018,41 @@ function attestationForm() {
   `;
 }
 
+function pilotSuccessForm() {
+  return `
+    <article class="admin-card">
+      <h4>Record pilot milestone</h4>
+      <label>Milestone
+        <input id="pilotMilestoneName" placeholder="Evaluator walkthrough completed">
+      </label>
+      <label>Owner role
+        <select id="pilotOwnerRole">
+          <option value="reviewer">reviewer</option>
+          <option value="approver">approver</option>
+          <option value="auditor">auditor</option>
+          <option value="administrator">administrator</option>
+        </select>
+      </label>
+      <label>Target outcome
+        <textarea id="pilotTargetOutcome" placeholder="Evaluator sees a grounded brief workflow and current trust posture end to end."></textarea>
+      </label>
+      <label>Status
+        <select id="pilotStatus">
+          <option value="planned">planned</option>
+          <option value="in_progress">in_progress</option>
+          <option value="completed">completed</option>
+        </select>
+      </label>
+      <label>Note
+        <textarea id="pilotNote" placeholder="Capture what changed, what was learned, or what should happen next."></textarea>
+      </label>
+      <div class="button-row">
+        <button onclick="recordPilotCheckpoint()">Save milestone</button>
+      </div>
+    </article>
+  `;
+}
+
 async function openAdminPanel(panel) {
   setView('admin');
   enterprisePanel.innerHTML = '<div class="alert warning">Loading operator view…</div>';
@@ -1327,6 +1387,138 @@ async function openAdminPanel(panel) {
       return;
     }
 
+    if (panel === 'pilotReadiness') {
+      if (!can('pilotReadiness')) throw new Error(permissionText('pilotReadiness'));
+      const readiness = await apiJson('/v1/pilot/readiness', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Pilot readiness</h3>
+          <p class="helper">${esc(readiness.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('tier', readiness.readiness_summary.readiness_tier)}
+            ${renderMetricCard('completed checks', readiness.readiness_summary.completed_checks, `${readiness.readiness_summary.total_checks} total`)}
+            ${renderMetricCard('private pilot ready', readiness.readiness_summary.pilot_ready_for_private_evaluation ? 'yes' : 'not yet')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Checklist</h4>
+          <ul class="stack-list">${readiness.checklist.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.status)} · owner ${esc(item.owner_role)}<br><span class="helper">${esc(item.rationale)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Readiness artifacts</h4>
+          <ul class="stack-list">${readiness.artifacts.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.artifact_type)} · ${esc(item.intended_audience)}<br><span class="helper">${esc(item.description)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'solutionPacks') {
+      if (!can('solutionPacks')) throw new Error(permissionText('solutionPacks'));
+      const packs = await apiJson('/v1/pilot/solution-packs', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Solution packs</h3>
+          <p class="helper">${esc(packs.summary)}</p>
+        </article>
+        <article class="admin-card">
+          <div class="doc-grid">
+            ${packs.packs.map((pack) => `
+              <article class="doc-card">
+                <h3>${esc(pack.audience)}</h3>
+                <p>${esc(pack.positioning)}</p>
+                <h4>Workflows</h4>
+                <ul class="stack-list">${pack.workflows.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <h4>Demo angles</h4>
+                <ul class="stack-list">${pack.demo_angles.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <h4>Trust angles</h4>
+                <ul class="stack-list">${pack.trust_angles.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'stakeholderReport') {
+      if (!can('stakeholderReport')) throw new Error(permissionText('stakeholderReport'));
+      const report = await apiJson('/v1/pilot/stakeholder-report', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Stakeholder reporting pack</h3>
+          <p class="helper">${esc(report.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('briefs', report.executive_summary.total_briefs, `approved ${report.executive_summary.approved_briefs}`)}
+            ${renderMetricCard('projects', report.executive_summary.active_projects)}
+            ${renderMetricCard('blocked deliveries', report.executive_summary.blocked_deliveries)}
+            ${renderMetricCard('quality gate', report.executive_summary.quality_gate_decision)}
+            ${renderMetricCard('assignments', report.delivery_summary.assignments)}
+            ${renderMetricCard('attestations', report.trust_summary.attestations)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Reporting artifacts</h4>
+          <ul class="stack-list">${report.reporting_artifacts.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.audience)}<br><span class="helper">${esc(item.source_view)} · ${esc(item.use_case)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'futureRoadmap') {
+      if (!can('futureRoadmap')) throw new Error(permissionText('futureRoadmap'));
+      const roadmap = await apiJson('/v1/pilot/future-roadmap', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Future control roadmap</h3>
+          <p class="helper">${esc(roadmap.summary)}</p>
+        </article>
+        <article class="admin-card">
+          <h4>Current vs target state</h4>
+          <ul class="stack-list">${roadmap.current_state.map((item) => `<li><b>${esc(item.area)}</b><br><span class="helper">Current: ${esc(item.current_state)}</span><br><span class="helper">Target: ${esc(item.target_state)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Roadmap tracks</h4>
+          <div class="doc-grid">
+            ${roadmap.roadmap_tracks.map((track) => `
+              <article class="doc-card">
+                <h3>${esc(track.track)}</h3>
+                <p>${esc(track.focus)}</p>
+                <h4>Near term</h4>
+                <ul class="stack-list">${track.near_term_assets.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <h4>Future outcomes</h4>
+                <ul class="stack-list">${track.future_outcomes.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'pilotSuccess') {
+      if (!can('pilotSuccess')) throw new Error(permissionText('pilotSuccess'));
+      const success = await apiJson('/v1/pilot/success', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Pilot success plan</h3>
+          <p class="helper">${esc(success.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('projects', success.adoption_signals.active_projects)}
+            ${renderMetricCard('reviewer assignments', success.adoption_signals.reviewer_assignments)}
+            ${renderMetricCard('approved briefs', success.adoption_signals.approved_briefs)}
+            ${renderMetricCard('tracked exports', success.adoption_signals.tracked_exports)}
+            ${renderMetricCard('inbound cases', success.adoption_signals.inbound_cases)}
+          </div>
+        </article>
+        ${pilotSuccessForm()}
+        <article class="admin-card">
+          <h4>Milestones</h4>
+          <ul class="stack-list">${success.checkpoints.map((item) => `<li><b>${esc(item.milestone_name)}</b> · ${esc(item.status)} · owner ${esc(item.owner_role)}<br><span class="helper">${esc(item.target_outcome)}</span><br><span class="helper">${esc(item.note)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
     if (panel === 'synthetic') {
       const catalog = await apiJson('/v1/fhir-synthetic/catalog', { method: 'GET', headers: actorHeaders(false) });
       enterprisePanel.innerHTML = `
@@ -1540,6 +1732,24 @@ async function recordOperationsAttestation() {
       })
     });
     await openAdminPanel('operationsAttestations');
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function recordPilotCheckpoint() {
+  try {
+    await apiJson('/v1/pilot/success', {
+      method: 'POST',
+      body: JSON.stringify({
+        milestone_name: document.getElementById('pilotMilestoneName').value.trim(),
+        owner_role: document.getElementById('pilotOwnerRole').value.trim(),
+        target_outcome: document.getElementById('pilotTargetOutcome').value.trim(),
+        status: document.getElementById('pilotStatus').value.trim(),
+        note: document.getElementById('pilotNote').value.trim()
+      })
+    });
+    await openAdminPanel('pilotSuccess');
   } catch (error) {
     alert(error.message);
   }
