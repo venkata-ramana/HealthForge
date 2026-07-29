@@ -37,7 +37,7 @@ HealthForge is designed to reduce that gap with traceability, reviewability, bou
 | Team workspace | Organize briefs into projects, reviewer queues, assignments, saved views, and evidence workspaces |
 | FHIR and workflow tooling | Explore standards, validate synthetic examples, review bundles, and inspect prior-auth planning paths |
 | Governed delivery | Prepare tracker, collaboration, documentation, webhook, and inbound-case workflows with explicit controls and receipts |
-| Trust, evaluation, intelligence, operations, pilots, and implementation acceleration | Inspect quality gates, evidence sufficiency, disagreement patterns, policy/safety reporting, enterprise auth posture, bounded recommendations, private-deployment operator controls, pilot-readiness assets, and implementation-ready handoff packs |
+| Trust, evaluation, intelligence, operations, pilots, implementation acceleration, and synthetic labs | Inspect quality gates, evidence sufficiency, disagreement patterns, policy/safety reporting, enterprise auth posture, bounded recommendations, private-deployment operator controls, pilot-readiness assets, implementation-ready handoff packs, and synthetic workflow labs |
 | Showcase and builder UX | Use the web workspace, API, docs, and VS Code prototype for demo-safe workflows |
 
 ## How it works
@@ -116,6 +116,7 @@ Try these in the local UI:
 - Want the private deployment operations story? Read [the Phase 14 enterprise operations guide](docs/43-phase14-private-deployment-and-enterprise-operations.md).
 - Want the pilot-readiness story? Read [the Phase 15 pilot readiness and solution packs guide](docs/44-phase15-pilot-readiness-and-solution-packs.md).
 - Want the implementation acceleration story? Read [the Phase 16 implementation acceleration guide](docs/45-phase16-implementation-acceleration.md).
+- Want the synthetic testing story? Read [the Phase 17 synthetic interoperability labs guide](docs/46-phase17-synthetic-interoperability-labs.md).
 - Want the trust layer? Read [Phase 9 evaluation and trust](docs/34-phase-9-evaluation-and-trust.md).
 - Want the packaging story? Read [deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md).
 
@@ -131,6 +132,7 @@ Try these in the local UI:
 - [Phase 14 private deployment and enterprise operations](docs/43-phase14-private-deployment-and-enterprise-operations.md)
 - [Phase 15 pilot readiness and solution packs](docs/44-phase15-pilot-readiness-and-solution-packs.md)
 - [Phase 16 implementation acceleration](docs/45-phase16-implementation-acceleration.md)
+- [Phase 17 synthetic interoperability labs](docs/46-phase17-synthetic-interoperability-labs.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Content and community pipeline](docs/39-content-and-community-pipeline.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
