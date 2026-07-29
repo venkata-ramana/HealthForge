@@ -24,6 +24,7 @@ The supported client-facing workflows are:
 - Deployment promotion guide
 - Synthetic FHIR scenario generation
 - Developer overview and repo-aware engineering guidance
+- Tenant administration, provisioning, and analytics workflows
 - Identity directory inspection
 
 The current API is intended for:
@@ -293,6 +294,43 @@ curl -X POST http://localhost:8080/v1/developer/repo-guidance \
       "apps/platform-api/src/main/resources/static/app.js"
     ]
   }'
+```
+
+Inspect tenant administration overview:
+
+```bash
+curl http://localhost:8080/v1/admin/tenants/overview \
+  -H 'X-HealthForge-Actor: local.admin' \
+  -H 'X-HealthForge-Role: administrator' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
+```
+
+Create a tenant provisioning request:
+
+```bash
+curl -X POST http://localhost:8080/v1/admin/tenants/provisioning-requests \
+  -H 'Content-Type: application/json' \
+  -H 'X-HealthForge-Actor: local.admin' \
+  -H 'X-HealthForge-Role: administrator' \
+  -H 'X-HealthForge-Organization: tenant.alpha' \
+  -d '{
+    "tenant_key": "tenant_delta_provider",
+    "tenant_name": "Delta Provider Network",
+    "deployment_model": "private_customer_space",
+    "environment_shape": "single-tenant-private",
+    "delegated_admin": "delta.admin",
+    "requested_capabilities": ["team_workspace", "developer_workflows", "synthetic_labs"],
+    "onboarding_summary": "Private customer space for delegated provider workflow planning."
+  }'
+```
+
+Inspect tenant analytics:
+
+```bash
+curl http://localhost:8080/v1/admin/tenants/analytics \
+  -H 'X-HealthForge-Actor: local.admin' \
+  -H 'X-HealthForge-Role: administrator' \
+  -H 'X-HealthForge-Organization: tenant.alpha'
 ```
 
 Inspect the policy and safety report:

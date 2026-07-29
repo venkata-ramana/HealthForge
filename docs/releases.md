@@ -27,6 +27,7 @@ HealthForge currently includes:
 - a Phase 16 implementation layer with starter code packs, test planning, handoff bundles, reference patterns, and change-impact guidance
 - a Phase 17 synthetic lab layer with reusable workflow scenarios, assertions, replay/diff tooling, and coverage reporting
 - a Phase 18 developer workflow layer with repo-aware guidance, a richer VS Code companion, local CLI/SDK packaging, and CI-ready builder automation patterns
+- a Phase 19 multi-tenant product foundation with tenant administration, provisioning workflows, isolation views, and customer analytics
 
 ## Milestone history
 
@@ -143,14 +144,22 @@ HealthForge currently includes:
 - added a small JavaScript SDK for builder-facing integrations and demos
 - added GitHub Actions patterns to validate the platform API and builder-facing surfaces together
 
+### Multi-tenant product foundations
+
+- added a tenant administration surface for customer overview, role delegation, and isolation boundaries
+- added provisioning request workflows for private customer spaces and hosted evaluation setups
+- added tenant analytics and hosted packaging views for customer-success and product discussions
+- added admin-console support for tenant administration workflows
+- clarified the current hosted-product posture without overstating production SaaS maturity
+
 ## Phase archive
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally kept out of the main README, but this file can continue to carry milestone and release detail as the product grows.
 
 As of Wednesday, July 29, 2026:
 
-- Phase 18 is complete
-- the next major planning step is to execute Phase 19
+- Phase 19 is complete
+- the next major planning step is to execute Phase 20
 
 ## Suggested future release-note structure
 

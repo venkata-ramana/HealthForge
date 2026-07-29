@@ -42,7 +42,8 @@ const roleRequirements = {
   futureRoadmap: 'auditor',
   pilotSuccess: 'reviewer',
   implementationBundle: 'approver',
-  syntheticLabs: 'reviewer'
+  syntheticLabs: 'reviewer',
+  tenantAdministration: 'administrator'
 };
 
 const demoScenarios = [
@@ -120,6 +121,16 @@ const docLinks = [
     title: 'Phase 17 synthetic interoperability labs',
     path: '/docs/46-phase17-synthetic-interoperability-labs.md',
     description: 'Scenario-based testing labs, richer synthetic rehearsals, replay/diff tooling, assertions, and coverage views.'
+  },
+  {
+    title: 'Phase 18 developer workflows',
+    path: '/docs/47-phase18-developer-workflows.md',
+    description: 'Builder-facing API, CLI, SDK, VS Code companion, and repo-aware engineering guidance.'
+  },
+  {
+    title: 'Phase 19 multi-tenant foundations',
+    path: '/docs/48-phase19-multi-tenant-foundations.md',
+    description: 'Tenant administration, provisioning workflows, isolation boundaries, customer analytics, and hosted packaging artifacts.'
   },
   {
     title: 'Client API surface',
@@ -234,6 +245,16 @@ const testingPaths = [
       'Run Provider PAS submission baseline.',
       'Compare it with Negative bundle structure.',
       'Use coverage and validation gaps to explain what is and is not modeled yet.'
+    ]
+  },
+  {
+    title: 'Tenant administration walkthrough',
+    body: 'Explain multi-tenant product structure, delegated administration, provisioning, and hosted packaging without overstating production SaaS maturity.',
+    steps: [
+      'Switch to administrator and open Tenant admin from the admin console.',
+      'Review customer tenants, isolation boundaries, and delegated roles.',
+      'Create one provisioning request for a private customer space.',
+      'Use tenant analytics and packaging views to explain hosted product direction.'
     ]
   }
 ];
@@ -366,6 +387,7 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Future roadmap', action: 'futureRoadmap', className: 'secondary', onClick: 'openAdminPanel("futureRoadmap")' }),
     buttonHtml({ label: 'Pilot success', action: 'pilotSuccess', className: 'secondary', onClick: 'openAdminPanel("pilotSuccess")' }),
     buttonHtml({ label: 'Synthetic labs', action: 'syntheticLabs', className: 'secondary', onClick: 'openAdminPanel("syntheticLabs")' }),
+    buttonHtml({ label: 'Tenant admin', action: 'tenantAdministration', className: 'secondary', onClick: 'openAdminPanel("tenantAdministration")' }),
     buttonHtml({ label: 'Connector health', action: 'integrationStatus', className: 'secondary', onClick: 'openAdminPanel("integrations")' }),
     buttonHtml({ label: 'Inbound intake', action: 'inboundCases', className: 'secondary', onClick: 'openAdminPanel("intake")' }),
     buttonHtml({ label: 'Templates', action: 'orchestrationTemplates', className: 'secondary', onClick: 'openAdminPanel("templates")' }),
@@ -1160,6 +1182,70 @@ function pilotSuccessForm() {
   `;
 }
 
+function tenantProvisioningForm() {
+  return `
+    <article class="admin-card">
+      <h4>Create tenant provisioning request</h4>
+      <label>Tenant key
+        <input id="tenantProvisioningKey" placeholder="tenant_delta_provider">
+      </label>
+      <label>Tenant name
+        <input id="tenantProvisioningName" placeholder="Delta Provider Network">
+      </label>
+      <label>Deployment model
+        <select id="tenantProvisioningModel">
+          <option value="private_customer_space">private_customer_space</option>
+          <option value="hosted_evaluator_workspace">hosted_evaluator_workspace</option>
+        </select>
+      </label>
+      <label>Environment shape
+        <select id="tenantProvisioningShape">
+          <option value="single-tenant-private">single-tenant-private</option>
+          <option value="hosted-shared-control">hosted-shared-control</option>
+        </select>
+      </label>
+      <label>Delegated admin
+        <input id="tenantProvisioningAdmin" placeholder="delta.admin">
+      </label>
+      <label>Capabilities
+        <input id="tenantProvisioningCapabilities" placeholder="team_workspace,developer_workflows,synthetic_labs">
+      </label>
+      <label>Onboarding summary
+        <textarea id="tenantProvisioningSummary" placeholder="Private customer space for payer/provider workflow planning with delegated enterprise admin ownership."></textarea>
+      </label>
+      <div class="button-row">
+        <button onclick="createTenantProvisioningRequest()">Create request</button>
+      </div>
+    </article>
+  `;
+}
+
+async function createTenantProvisioningRequest() {
+  if (!can('tenantAdministration')) {
+    alert(permissionText('tenantAdministration'));
+    return;
+  }
+  const payload = {
+    tenant_key: document.getElementById('tenantProvisioningKey').value.trim(),
+    tenant_name: document.getElementById('tenantProvisioningName').value.trim(),
+    deployment_model: document.getElementById('tenantProvisioningModel').value,
+    environment_shape: document.getElementById('tenantProvisioningShape').value,
+    delegated_admin: document.getElementById('tenantProvisioningAdmin').value.trim(),
+    requested_capabilities: document.getElementById('tenantProvisioningCapabilities').value.split(',').map((item) => item.trim()).filter(Boolean),
+    onboarding_summary: document.getElementById('tenantProvisioningSummary').value.trim()
+  };
+  if (!payload.tenant_key || !payload.tenant_name || !payload.delegated_admin || !payload.onboarding_summary) {
+    alert('Tenant key, tenant name, delegated admin, and onboarding summary are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/admin/tenants/provisioning-requests', { method: 'POST', body: JSON.stringify(payload) });
+    await openAdminPanel('tenantAdministration');
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
 async function openAdminPanel(panel) {
   setView('admin');
   enterprisePanel.innerHTML = '<div class="alert warning">Loading operator view…</div>';
@@ -1471,6 +1557,59 @@ async function openAdminPanel(panel) {
         <article class="admin-card">
           <h4>Cost-control signals</h4>
           <ul class="stack-list">${usage.cost_signals.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.signal)}<br><span class="helper">${esc(item.explanation)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'tenantAdministration') {
+      if (!can('tenantAdministration')) throw new Error(permissionText('tenantAdministration'));
+      const [overview, analytics, provisioning] = await Promise.all([
+        apiJson('/v1/admin/tenants/overview', { method: 'GET', headers: actorHeaders(false) }),
+        apiJson('/v1/admin/tenants/analytics', { method: 'GET', headers: actorHeaders(false) }),
+        apiJson('/v1/admin/tenants/provisioning-requests', { method: 'GET', headers: actorHeaders(false) })
+      ]);
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Tenant administration and customer foundations</h3>
+          <p class="helper">${esc(overview.hosted_product_posture.tenancy_summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('customer tenants', overview.customer_tenants.length)}
+            ${renderMetricCard('isolation boundaries', overview.isolation_boundaries.length)}
+            ${renderMetricCard('delegated roles', overview.role_delegations.length)}
+            ${renderMetricCard('provisioning requests', overview.provisioning_requests.length)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Customer tenants</h4>
+          <ul class="stack-list">${overview.customer_tenants.map((tenant) => `<li><b>${esc(tenant.display_name)}</b> · ${esc(tenant.tenant_tier)} · ${esc(tenant.deployment_model)}<br><span class="helper">${tenant.user_count} users · ${tenant.project_count} projects · ${tenant.brief_count} briefs · ${esc(tenant.status)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Isolation boundaries</h4>
+          <ul class="stack-list">${overview.isolation_boundaries.map((item) => `<li><b>${esc(item.title)}</b><br>${esc(item.summary)}<br><span class="helper">${item.enforced_through.map((entry) => esc(entry)).join(' · ')}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Role delegation</h4>
+          <ul class="stack-list">${overview.role_delegations.map((item) => `<li><b>${esc(item.delegated_admin)}</b> · ${esc(item.organization_id)}<br><span class="helper">${item.assigned_roles.map((role) => esc(role)).join(', ')} · ${esc(item.delegation_summary)}</span></li>`).join('')}</ul>
+        </article>
+        ${tenantProvisioningForm()}
+        <article class="admin-card">
+          <h4>Provisioning requests</h4>
+          <ul class="stack-list">${provisioning.map((item) => `<li><b>${esc(item.tenant_name)}</b> · ${esc(item.deployment_model)} · ${esc(item.environment_shape)}<br><span class="helper">${esc(item.status)} · delegated admin ${esc(item.delegated_admin)} · ${item.requested_capabilities.map((capability) => esc(capability)).join(', ')}</span></li>`).join('') || '<li>No provisioning requests yet.</li>'}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Tenant analytics</h4>
+          <div class="metric-grid">
+            ${renderMetricCard('total tenants', analytics.usage_summary.total_tenants)}
+            ${renderMetricCard('active tenants', analytics.usage_summary.active_tenants)}
+            ${renderMetricCard('private deployments', analytics.usage_summary.private_deployment_tenants)}
+            ${renderMetricCard('hosted evaluations', analytics.usage_summary.hosted_evaluation_tenants)}
+          </div>
+          <ul class="stack-list">${analytics.tenant_usage.map((item) => `<li><b>${esc(item.display_name)}</b> · ${esc(item.engagement_signal)}<br><span class="helper">${item.users} users · ${item.projects} projects · ${item.briefs_last_30_days} briefs (30d) · ${esc(item.packaging_fit)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Hosted packaging artifacts</h4>
+          <ul class="stack-list">${overview.hosted_packaging_artifacts.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.audience)}<br><span class="helper">${esc(item.summary)} · ${item.included_capabilities.map((capability) => esc(capability)).join(', ')}</span></li>`).join('')}</ul>
         </article>
       `;
       return;
