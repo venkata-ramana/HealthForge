@@ -118,6 +118,7 @@ Try these in the local UI:
 - Want the implementation acceleration story? Read [the Phase 16 implementation acceleration guide](docs/45-phase16-implementation-acceleration.md).
 - Want the synthetic testing story? Read [the Phase 17 synthetic interoperability labs guide](docs/46-phase17-synthetic-interoperability-labs.md).
 - Want the builder workflow story? Read [the Phase 18 developer workflows guide](docs/47-phase18-developer-workflows.md).
+- Want the multi-tenant product story? Read [the Phase 19 multi-tenant foundations guide](docs/48-phase19-multi-tenant-foundations.md).
 - Want the trust layer? Read [Phase 9 evaluation and trust](docs/34-phase-9-evaluation-and-trust.md).
 - Want the packaging story? Read [deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md).
 
@@ -135,6 +136,7 @@ Try these in the local UI:
 - [Phase 16 implementation acceleration](docs/45-phase16-implementation-acceleration.md)
 - [Phase 17 synthetic interoperability labs](docs/46-phase17-synthetic-interoperability-labs.md)
 - [Phase 18 developer workflows](docs/47-phase18-developer-workflows.md)
+- [Phase 19 multi-tenant foundations](docs/48-phase19-multi-tenant-foundations.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Content and community pipeline](docs/39-content-and-community-pipeline.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
