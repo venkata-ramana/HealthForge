@@ -27,6 +27,19 @@ public class SourceVersionController {
         return sourceVersionService.get(sourceVersionId);
     }
 
+    @GetMapping("/operations")
+    public SourceOperationsOverviewResponse operations(HttpServletRequest httpRequest) {
+        return sourceVersionService.operations(actorResolver.requireReviewerOrAdministrator(httpRequest));
+    }
+
+    @PostMapping("/watchlists")
+    public SourceOperationsOverviewResponse.WatchlistItem createWatchlist(
+            @Valid @RequestBody SourceWatchlistRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        return sourceVersionService.createWatchlist(request, actorResolver.requireReviewerOrAdministrator(httpRequest));
+    }
+
     @PostMapping("/{sourceVersionId}/lifecycle")
     public SourceVersionResponse updateLifecycle(@PathVariable String sourceVersionId, @Valid @RequestBody SourceLifecycleUpdateRequest request, HttpServletRequest httpRequest) {
         actorResolver.requireAdministrator(httpRequest);

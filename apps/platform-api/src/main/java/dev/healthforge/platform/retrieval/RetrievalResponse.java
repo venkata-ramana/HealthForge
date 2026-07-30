@@ -1,5 +1,6 @@
 package dev.healthforge.platform.retrieval;
 
+import java.time.Instant;
 import java.util.List;
 
 public record RetrievalResponse(
@@ -23,7 +24,22 @@ public record RetrievalResponse(
             String sourceType,
             String title,
             String canonicalUrl,
-            String locator
+            String locator,
+            Instant retrievedAt,
+            String lifecycleStatus,
+            String freshnessStatus,
+            long sourceAgeDays,
+            String changeSummary
     ) {
+        public CiteableSource(
+                String sourceId,
+                String sourceVersion,
+                String sourceType,
+                String title,
+                String canonicalUrl,
+                String locator
+        ) {
+            this(sourceId, sourceVersion, sourceType, title, canonicalUrl, locator, null, "unknown", "unknown", 0L, "No source-change summary is available.");
+        }
     }
 }

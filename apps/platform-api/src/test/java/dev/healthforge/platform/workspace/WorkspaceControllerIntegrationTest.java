@@ -34,6 +34,7 @@ class WorkspaceControllerIntegrationTest {
     void tearDown() {
         jdbcTemplate.update("delete from workspace_assignment where organization_id = 'org.workspace.test'");
         jdbcTemplate.update("delete from workspace_saved_view where organization_id = 'org.workspace.test'");
+        jdbcTemplate.update("delete from workspace_research_pack where organization_id = 'org.workspace.test'");
         jdbcTemplate.update("delete from evidence_collection where organization_id = 'org.workspace.test'");
         jdbcTemplate.update("delete from workflow_configuration where organization_id = 'org.workspace.test'");
         jdbcTemplate.update("delete from workspace_group_role_mapping where organization_id = 'org.workspace.test'");
@@ -62,7 +63,8 @@ class WorkspaceControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.organization_id").value("org.workspace.test"))
                 .andExpect(jsonPath("$.projects.length()").value(2))
-                .andExpect(jsonPath("$.auth_foundation.supported_modes[0]").value("local_header"));
+                .andExpect(jsonPath("$.auth_foundation.supported_modes[0]").value("local_header"))
+                .andExpect(jsonPath("$.research_packs.length()").value(2));
 
         mockMvc.perform(post("/v1/workspace/projects")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -75,5 +77,23 @@ class WorkspaceControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Provider pilot"))
                 .andExpect(jsonPath("$.tags[0]").value("pilot"));
+
+        mockMvc.perform(post("/v1/workspace/research-packs")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "project_id":"",
+                                  "name":"Provider recurring research",
+                                  "summary":"Reusable analyst prompts for provider planning.",
+                                  "recurring_questions":"What changes do we need for CMS prior authorization workflows?\\nHow should a provider workflow handle documentation and status exchange for prior authorization?",
+                                  "next_review_date":"2026-08-15"
+                                }
+                                """)
+                        .header("X-HealthForge-Actor", "workspace.admin")
+                        .header("X-HealthForge-Role", "administrator")
+                        .header("X-HealthForge-Organization", "org.workspace.test"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Provider recurring research"))
+                .andExpect(jsonPath("$.question_count").value(2));
     }
 }

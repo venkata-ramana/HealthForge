@@ -12,6 +12,7 @@ public record EvaluationDashboardResponse(
         QualityGate qualityGate,
         SourceHealth sourceHealth,
         EvidenceHealth evidenceHealth,
+        AnswerReadiness answerReadiness,
         ReviewQuality reviewQuality,
         WorkflowQuality workflowQuality,
         List<String> guidance,
@@ -60,6 +61,16 @@ public record EvaluationDashboardResponse(
             int approvedBriefs,
             int evidenceBearingBriefs,
             double evidenceBearingBriefRate
+    ) {
+    }
+
+    public record AnswerReadiness(
+            int evaluationCaseCount,
+            double insufficientEvidenceRate,
+            double retrievalRecall,
+            double citationCoverageRate,
+            String readinessSummary,
+            List<String> recommendedFocus
     ) {
     }
 

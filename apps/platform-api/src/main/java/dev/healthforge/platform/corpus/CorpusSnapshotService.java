@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CorpusSnapshotService {
@@ -115,9 +116,76 @@ public class CorpusSnapshotService {
         return new CorpusSnapshotResponse(corpusId, corpusVersion, (Instant) rows.getFirst()[0], (String) rows.getFirst()[1], sourceIds, historicalReconstruction);
     }
 
+    public CorpusSnapshotDiffResponse diff(String corpusId, String corpusVersion, String againstCorpusVersion) {
+        var current = snapshotSources(corpusId, corpusVersion);
+        var previous = snapshotSources(corpusId, againstCorpusVersion);
+        if (current.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Corpus snapshot was not found");
+        }
+        if (previous.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Compared corpus snapshot was not found");
+        }
+
+        var added = current.values().stream()
+                .filter(item -> !previous.containsKey(item.manifestSourceId()))
+                .map(item -> new CorpusSnapshotDiffResponse.AddedSource(item.manifestSourceId(), item.sourceVersionId(), item.sourceVersion(), item.title()))
+                .toList();
+        var removed = previous.values().stream()
+                .filter(item -> !current.containsKey(item.manifestSourceId()))
+                .map(item -> new CorpusSnapshotDiffResponse.RemovedSource(item.manifestSourceId(), item.sourceVersionId(), item.sourceVersion(), item.title()))
+                .toList();
+        var changed = current.values().stream()
+                .filter(item -> previous.containsKey(item.manifestSourceId()))
+                .map(item -> Map.entry(item, previous.get(item.manifestSourceId())))
+                .filter(entry -> !entry.getKey().sourceVersionId().equals(entry.getValue().sourceVersionId()))
+                .map(entry -> new CorpusSnapshotDiffResponse.ChangedSource(
+                        entry.getKey().manifestSourceId(),
+                        entry.getValue().sourceVersionId(),
+                        entry.getValue().sourceVersion(),
+                        entry.getKey().sourceVersionId(),
+                        entry.getKey().sourceVersion(),
+                        entry.getKey().title(),
+                        "The current snapshot references a different source lifecycle version for this manifest source."
+                ))
+                .toList();
+        return new CorpusSnapshotDiffResponse(
+                corpusId,
+                corpusVersion,
+                againstCorpusVersion,
+                Instant.now(),
+                new CorpusSnapshotDiffResponse.Summary(
+                        added.size(),
+                        removed.size(),
+                        changed.size(),
+                        "Snapshot comparison shows how source coverage changed between the selected pinned corpus versions."
+                ),
+                added,
+                removed,
+                changed
+        );
+    }
+
+    private Map<String, SnapshotSource> snapshotSources(String corpusId, String corpusVersion) {
+        return jdbcTemplate.query("""
+                select sv.manifest_source_id, sv.source_version_id, sv.source_version, sv.title
+                from corpus_snapshot_source css
+                join source_version sv on sv.source_version_id = css.source_version_id
+                where css.corpus_id = ? and css.corpus_version = ?
+                """, (rs, rowNum) -> new SnapshotSource(
+                rs.getString("manifest_source_id"),
+                rs.getString("source_version_id"),
+                rs.getString("source_version"),
+                rs.getString("title")
+        ), corpusId, corpusVersion).stream()
+                .collect(java.util.stream.Collectors.toMap(SnapshotSource::manifestSourceId, item -> item, (left, right) -> left, LinkedHashMap::new));
+    }
+
     private record SourceVersionState(String sourceVersionId, String manifestSourceId, String status, String termsReviewDecision) {
         private boolean isEligibleForCurrentSnapshot() {
             return List.of("indexed", "active").contains(status) && "approved".equalsIgnoreCase(termsReviewDecision);
         }
+    }
+
+    private record SnapshotSource(String manifestSourceId, String sourceVersionId, String sourceVersion, String title) {
     }
 }

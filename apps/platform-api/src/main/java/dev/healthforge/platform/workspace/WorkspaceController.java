@@ -59,4 +59,12 @@ public class WorkspaceController {
     ) {
         return service.createSavedView(savedViewRequest, actorResolver.requireReviewerOrAdministrator(request));
     }
+
+    @PostMapping("/research-packs")
+    public WorkspaceOverviewResponse.ResearchPackSummary createResearchPack(
+            @Valid @RequestBody WorkspaceResearchPackRequest researchPackRequest,
+            HttpServletRequest request
+    ) {
+        return service.createResearchPack(researchPackRequest, actorResolver.requireReviewerOrAdministrator(request));
+    }
 }

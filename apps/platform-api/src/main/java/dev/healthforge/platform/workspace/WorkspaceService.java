@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,7 +42,8 @@ public class WorkspaceService {
                 assignments(actor.organizationId()),
                 workflowConfigurations(actor.organizationId()),
                 savedViews(actor.organizationId()),
-                evidenceCollections(actor.organizationId())
+                evidenceCollections(actor.organizationId()),
+                researchPacks(actor.organizationId())
         );
     }
 
@@ -157,12 +159,42 @@ public class WorkspaceService {
                 .orElseThrow();
     }
 
+    public WorkspaceOverviewResponse.ResearchPackSummary createResearchPack(WorkspaceResearchPackRequest request, AuthenticatedActor actor) {
+        if (request.projectId() != null && !request.projectId().isBlank()) {
+            ensureProject(request.projectId(), actor.organizationId());
+        }
+        var packId = "research_pack_" + UUID.randomUUID();
+        var now = Timestamp.from(Instant.now(clock));
+        var recurringQuestions = normalizeRecurringQuestions(request.recurringQuestions());
+        jdbcTemplate.update("""
+                insert into workspace_research_pack
+                (research_pack_id, organization_id, project_id, name, summary, recurring_questions, question_count, next_review_at, created_at, updated_at)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                packId,
+                actor.organizationId(),
+                blankToNull(request.projectId()),
+                request.name().trim(),
+                request.summary().trim(),
+                recurringQuestions,
+                parseRecurringQuestions(recurringQuestions).size(),
+                parseInstantOrNull(request.nextReviewDate()),
+                now,
+                now
+        );
+        return researchPacks(actor.organizationId()).stream()
+                .filter(item -> item.researchPackId().equals(packId))
+                .findFirst()
+                .orElseThrow();
+    }
+
     private void ensureSeedData(AuthenticatedActor actor) {
         seedIdentityFoundation(actor.organizationId());
         seedProjects(actor);
         seedWorkflowConfigurations(actor);
         seedSavedViews(actor);
         seedAssignments(actor);
+        seedResearchPacks(actor);
         refreshAllEvidenceCollections(actor.organizationId());
     }
 
@@ -414,6 +446,70 @@ public class WorkspaceService {
         }
     }
 
+    private void seedResearchPacks(AuthenticatedActor actor) {
+        var existing = jdbcTemplate.queryForObject("""
+                select count(*) from workspace_research_pack where organization_id = ?
+                """, Integer.class, actor.organizationId());
+        if (existing != null && existing > 0) {
+            return;
+        }
+        var now = Timestamp.from(Instant.now(clock));
+        insertResearchPack(
+                actor.organizationId(),
+                actor.organizationId() + ".research.cms-prior-auth",
+                actor.organizationId() + ".program-cms-prior-auth",
+                "CMS prior auth evidence pack",
+                "Reusable analyst pack for recurring prior-authorization planning and evidence review.",
+                String.join("\n",
+                        "What changes do we need for CMS prior authorization workflows?",
+                        "How should a provider workflow handle documentation and status exchange for prior authorization?",
+                        "What evidence-quality and approval signals should an enterprise evaluator inspect?"),
+                now.toInstant().plus(14, ChronoUnit.DAYS),
+                now
+        );
+        insertResearchPack(
+                actor.organizationId(),
+                actor.organizationId() + ".research.enterprise-eval",
+                actor.organizationId() + ".workspace-evaluator-demo",
+                "Enterprise evaluator readiness pack",
+                "Saved questions for repeated readiness, trust, and operator walkthroughs.",
+                String.join("\n",
+                        "What trust signals should an enterprise evaluator inspect before approving planning outputs?",
+                        "How do source freshness and evidence sufficiency affect readiness conversations?"),
+                now.toInstant().plus(21, ChronoUnit.DAYS),
+                now
+        );
+    }
+
+    private void insertResearchPack(
+            String organizationId,
+            String researchPackId,
+            String projectId,
+            String name,
+            String summary,
+            String recurringQuestions,
+            Instant nextReviewAt,
+            Timestamp now
+    ) {
+        jdbcTemplate.update("""
+                insert into workspace_research_pack
+                (research_pack_id, organization_id, project_id, name, summary, recurring_questions, question_count, next_review_at, created_at, updated_at)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                on conflict (research_pack_id) do nothing
+                """,
+                researchPackId,
+                organizationId,
+                projectId,
+                name,
+                summary,
+                recurringQuestions,
+                parseRecurringQuestions(recurringQuestions).size(),
+                nextReviewAt == null ? null : Timestamp.from(nextReviewAt),
+                now,
+                now
+        );
+    }
+
     private WorkspaceOverviewResponse.AuthFoundation authFoundation(String organizationId) {
         var providers = jdbcTemplate.query("""
                 select provider_id, provider_type, display_name, status, fallback_mode
@@ -586,6 +682,27 @@ public class WorkspaceService {
         ), organizationId);
     }
 
+    private List<WorkspaceOverviewResponse.ResearchPackSummary> researchPacks(String organizationId) {
+        return jdbcTemplate.query("""
+                select rp.research_pack_id, rp.project_id, p.name as project_name, rp.name, rp.summary,
+                       rp.recurring_questions, rp.question_count, rp.next_review_at, rp.updated_at
+                from workspace_research_pack rp
+                left join workspace_project p on p.project_id = rp.project_id
+                where rp.organization_id = ?
+                order by rp.updated_at desc, rp.name
+                """, (rs, row) -> new WorkspaceOverviewResponse.ResearchPackSummary(
+                rs.getString("research_pack_id"),
+                rs.getString("project_id"),
+                rs.getString("project_name"),
+                rs.getString("name"),
+                rs.getString("summary"),
+                rs.getInt("question_count"),
+                parseRecurringQuestions(rs.getString("recurring_questions")),
+                rs.getTimestamp("next_review_at") == null ? null : rs.getTimestamp("next_review_at").toInstant(),
+                rs.getTimestamp("updated_at").toInstant()
+        ), organizationId);
+    }
+
     private void refreshAllEvidenceCollections(String organizationId) {
         var projectIds = jdbcTemplate.query("""
                 select project_id from workspace_project where organization_id = ?
@@ -641,7 +758,33 @@ public class WorkspaceService {
                 .toList();
     }
 
+    private String normalizeRecurringQuestions(String recurringQuestions) {
+        return Arrays.stream((recurringQuestions == null ? "" : recurringQuestions).split("\\r?\\n"))
+                .map(String::trim)
+                .filter(item -> !item.isBlank())
+                .distinct()
+                .reduce((left, right) -> left + "\n" + right)
+                .orElse("");
+    }
+
+    private List<String> parseRecurringQuestions(String recurringQuestions) {
+        if (recurringQuestions == null || recurringQuestions.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(recurringQuestions.split("\\r?\\n"))
+                .map(String::trim)
+                .filter(item -> !item.isBlank())
+                .toList();
+    }
+
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private Timestamp parseInstantOrNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return Timestamp.from(Instant.parse(value.trim() + "T00:00:00Z"));
     }
 }

@@ -10,10 +10,11 @@ Today the product includes:
 
 - public-source ingestion, provenance, and snapshotting
 - cited retrieval and grounded answer generation
+- evidence diagnostics, source watchlists, source-freshness alerts, and snapshot-diff visibility
 - reviewable Brief creation with approvals and audit history
 - FHIR validation, standards lookup, and synthetic workflow tooling
 - prior-authorization planning, journey, and bundle-review workflows
-- team workspace, reviewer queues, assignments, and saved views
+- team workspace, reviewer queues, assignments, saved views, research packs, and evidence collections
 - governed delivery scaffolding for trackers, documentation, collaboration, and webhook-style automation
 - trust, evaluation, enterprise posture, and regulated-readiness surfaces
 - builder-facing API, CLI, SDK, and VS Code prototype entry points
@@ -71,6 +72,14 @@ HealthForge is not yet claiming:
 - added CLI, SDK, CI, and VS Code companion surfaces
 - added tenant administration, tenant analytics, and enterprise packaging views
 
+### Evidence operations and research quality
+
+- added source watchlists, freshness alerts, and re-index recommendations
+- added richer insufficient-evidence diagnostics and question-refinement guidance
+- added snapshot comparison and citation freshness/change visibility
+- added reusable analyst research packs for recurring workflows
+- added answer-readiness guidance into the evaluation story
+
 ## Product positioning summary
 
 If you need one sentence:
@@ -87,8 +96,8 @@ For internal planning, the project has been delivered through phased milestones.
 
 As of Wednesday, July 29, 2026:
 
-- Phase 20 is complete
-- the previously planned open-phase backlog is complete
+- Phase 21 is complete
+- the current open-phase backlog begins with Phase 22
 
 ## Suggested future release-note format
 

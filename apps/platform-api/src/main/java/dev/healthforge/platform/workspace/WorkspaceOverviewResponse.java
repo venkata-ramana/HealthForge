@@ -12,7 +12,8 @@ public record WorkspaceOverviewResponse(
         List<AssignmentSummary> assignments,
         List<WorkflowConfigurationSummary> workflowConfigurations,
         List<SavedViewSummary> savedViews,
-        List<EvidenceCollectionSummary> evidenceCollections
+        List<EvidenceCollectionSummary> evidenceCollections,
+        List<ResearchPackSummary> researchPacks
 ) {
     public record AuthFoundation(
             String activeMode,
@@ -103,6 +104,18 @@ public record WorkspaceOverviewResponse(
             String name,
             String summary,
             int sourceCount,
+            Instant updatedAt
+    ) {}
+
+    public record ResearchPackSummary(
+            String researchPackId,
+            String projectId,
+            String projectName,
+            String name,
+            String summary,
+            int questionCount,
+            List<String> recurringQuestions,
+            Instant nextReviewAt,
             Instant updatedAt
     ) {}
 }

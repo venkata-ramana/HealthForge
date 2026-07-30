@@ -3,6 +3,9 @@ package dev.healthforge.platform.retrieval;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -17,6 +20,7 @@ public class RetrievalService {
     );
 
     private final JdbcTemplate jdbcTemplate;
+    private final Clock clock = Clock.systemUTC();
 
     public RetrievalService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -54,7 +58,8 @@ public class RetrievalService {
         return jdbcTemplate.query(
                 """
                 select p.passage_id, p.normalized_text, p.ordinal, p.locator,
-                       v.manifest_source_id, v.source_version, v.source_type, v.title, v.canonical_url
+                       v.manifest_source_id, v.source_version, v.source_type, v.title, v.canonical_url,
+                       v.retrieved_at, v.status, v.superseded_by_source_version_id
                 from source_passage p
                 join source_version v on v.source_version_id = p.source_version_id
                 join corpus_snapshot_source css on css.source_version_id = v.source_version_id
@@ -80,17 +85,46 @@ public class RetrievalService {
                         excerpt(resultSet.getString("normalized_text")),
                         rowNumber + 1,
                         1.0 / (rowNumber + 1),
-                        new RetrievalResponse.CiteableSource(
-                                resultSet.getString("manifest_source_id"),
-                                resultSet.getString("source_version"),
-                                resultSet.getString("source_type"),
-                                resultSet.getString("title"),
-                                resultSet.getString("canonical_url"),
-                                resultSet.getString("locator")
-                        )
+                        citeableSource(resultSet)
                 ),
                 corpusId, corpusVersion, query, query, candidateLimit
         );
+    }
+
+    private RetrievalResponse.CiteableSource citeableSource(java.sql.ResultSet resultSet) throws java.sql.SQLException {
+        var retrievedAt = resultSet.getTimestamp("retrieved_at").toInstant();
+        var lifecycleStatus = resultSet.getString("status");
+        var sourceAgeDays = Math.max(0L, ChronoUnit.DAYS.between(retrievedAt, Instant.now(clock)));
+        var freshnessStatus = freshnessStatus(lifecycleStatus, sourceAgeDays);
+        var changeSummary = resultSet.getString("superseded_by_source_version_id") == null
+                ? "No newer lifecycle replacement is currently linked to this source version."
+                : "A newer lifecycle replacement exists for this source version and should be reviewed before implementation decisions are reused.";
+        return new RetrievalResponse.CiteableSource(
+                resultSet.getString("manifest_source_id"),
+                resultSet.getString("source_version"),
+                resultSet.getString("source_type"),
+                resultSet.getString("title"),
+                resultSet.getString("canonical_url"),
+                resultSet.getString("locator"),
+                retrievedAt,
+                lifecycleStatus,
+                freshnessStatus,
+                sourceAgeDays,
+                changeSummary
+        );
+    }
+
+    private String freshnessStatus(String lifecycleStatus, long sourceAgeDays) {
+        if ("withdrawn".equalsIgnoreCase(lifecycleStatus)) {
+            return "withdrawn";
+        }
+        if ("superseded".equalsIgnoreCase(lifecycleStatus)) {
+            return "superseded";
+        }
+        if (sourceAgeDays > 30) {
+            return "stale";
+        }
+        return "current";
     }
 
     private String fallbackQuery(String query) {

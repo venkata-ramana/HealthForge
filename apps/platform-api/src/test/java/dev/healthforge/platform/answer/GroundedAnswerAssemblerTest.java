@@ -31,6 +31,8 @@ class GroundedAnswerAssemblerTest {
 
         assertThat(response.status()).isEqualTo("grounded");
         assertThat(response.answer()).contains("retrieved source excerpts");
+        assertThat(response.diagnostics()).isNotNull();
+        assertThat(response.diagnostics().sufficiency()).isEqualTo("supported");
         assertThat(response.findings()).singleElement().satisfies(finding -> {
             assertThat(finding.statement()).isEqualTo("Prior authorization requests must use the API.");
             assertThat(finding.citation().sourceId()).isEqualTo("cms-0057-f-final-rule");
@@ -49,5 +51,7 @@ class GroundedAnswerAssemblerTest {
         assertThat(response.answer()).isNull();
         assertThat(response.findings()).isEmpty();
         assertThat(response.limitations()).singleElement().asString().contains("No citeable passage");
+        assertThat(response.diagnostics()).isNotNull();
+        assertThat(response.diagnostics().queryRefinements()).isNotEmpty();
     }
 }
