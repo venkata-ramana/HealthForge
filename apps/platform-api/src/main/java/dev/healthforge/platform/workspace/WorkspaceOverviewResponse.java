@@ -13,7 +13,16 @@ public record WorkspaceOverviewResponse(
         List<WorkflowConfigurationSummary> workflowConfigurations,
         List<SavedViewSummary> savedViews,
         List<EvidenceCollectionSummary> evidenceCollections,
-        List<ResearchPackSummary> researchPacks
+        List<ResearchPackSummary> researchPacks,
+        List<QuestionPackSummary> questionPacks,
+        List<ScenarioTemplateSummary> scenarioTemplates,
+        List<PersonaPresetSummary> personaPresets,
+        List<PrecedentComparisonSummary> precedentComparisons,
+        List<DecisionPatternSummary> decisionPatterns,
+        List<ThemeClusterSummary> themeClusters,
+        List<ResearchNotebookSummary> researchNotebooks,
+        List<TopicSummary> topicBrowser,
+        ReviewerOperationsSummary reviewerOperations
 ) {
     public record AuthFoundation(
             String activeMode,
@@ -116,6 +125,122 @@ public record WorkspaceOverviewResponse(
             int questionCount,
             List<String> recurringQuestions,
             Instant nextReviewAt,
+            Instant updatedAt
+    ) {}
+
+    public record QuestionPackSummary(
+            String questionPackId,
+            String projectId,
+            String projectName,
+            String name,
+            String summary,
+            String persona,
+            String templateKind,
+            String starterQuestion,
+            List<String> questionPrompts,
+            Instant updatedAt
+    ) {}
+
+    public record ScenarioTemplateSummary(
+            String templateId,
+            String title,
+            String persona,
+            String workflowStage,
+            String summary,
+            List<String> startingPoints
+    ) {}
+
+    public record PersonaPresetSummary(
+            String presetId,
+            String persona,
+            String recommendedRole,
+            String startingView,
+            String summary,
+            List<String> focusAreas
+    ) {}
+
+    public record PrecedentComparisonSummary(
+            String comparisonId,
+            String primaryBriefId,
+            String primaryQuestion,
+            String relatedBriefId,
+            String relatedQuestion,
+            String overlapTheme,
+            List<String> sharedSignals,
+            String advisorySummary
+    ) {}
+
+    public record DecisionPatternSummary(
+            String patternId,
+            String title,
+            String patternType,
+            String summary,
+            List<String> signals
+    ) {}
+
+    public record ThemeClusterSummary(
+            String clusterId,
+            String theme,
+            int briefCount,
+            int approvedCount,
+            List<String> representativeQuestions,
+            String summary
+    ) {}
+
+    public record ResearchNotebookSummary(
+            String notebookId,
+            String projectId,
+            String projectName,
+            String briefId,
+            String briefQuestion,
+            String title,
+            String summary,
+            List<String> keyTakeaways,
+            String evidenceBundleName,
+            String handoffSummary,
+            String continuityNote,
+            Instant updatedAt
+    ) {}
+
+    public record TopicSummary(
+            String topicId,
+            String theme,
+            int relatedBriefs,
+            int relatedFindings,
+            int approvalCount,
+            String summary
+    ) {}
+
+    public record ReviewerOperationsSummary(
+            int totalAssignments,
+            int dueSoonAssignments,
+            int staleAssignments,
+            int escalatedAssignments,
+            List<SlaCueSummary> slaCues,
+            List<EscalationSummary> escalations
+    ) {}
+
+    public record SlaCueSummary(
+            String assignmentId,
+            String briefId,
+            String briefQuestion,
+            String queueName,
+            String assigneeActorId,
+            long ageDays,
+            String urgency,
+            String recommendation
+    ) {}
+
+    public record EscalationSummary(
+            String escalationId,
+            String assignmentId,
+            String briefId,
+            String briefQuestion,
+            String escalationReason,
+            String urgency,
+            String destinationQueue,
+            String status,
+            String note,
             Instant updatedAt
     ) {}
 }
