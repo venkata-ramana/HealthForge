@@ -64,29 +64,199 @@ public class PilotReadinessService {
                 Instant.now(clock),
                 List.of(
                         new SolutionPacksResponse.SolutionPack(
+                                "prior_auth_provider",
                                 "provider",
+                                "prior_authorization",
                                 "Turn public prior-authorization and interoperability guidance into grounded implementation planning artifacts for provider workflow teams.",
+                                "Use when provider operations, utilization review, or EHR planning teams need a bounded starting point for prior-authorization modernization conversations.",
                                 List.of("reviewer Brief workflow", "architecture planning", "prior-auth workflow and bundle review", "team workspace handoff"),
                                 List.of("CMS prior auth modernization", "documentation + status exchange planning", "review-to-approval workflow"),
                                 List.of("grounded evidence", "human review", "approval and audit trail"),
-                                List.of("approved Brief", "work-item export preview", "stakeholder report summary")
+                                List.of("approved Brief", "work-item export preview", "stakeholder report summary"),
+                                List.of("retrieval_review_path", "approval_gate_path", "delivery_export_path"),
+                                List.of("evaluator_first_run", "implementer_first_run"),
+                                List.of("architecture_pack", "outcome_pack")
                         ),
                         new SolutionPacksResponse.SolutionPack(
+                                "prior_auth_payer",
                                 "payer",
+                                "prior_authorization",
                                 "Use grounded policy, standards, and workflow artifacts to align utilization-management, policy, and interoperability planning conversations.",
+                                "Use when payer policy, UM, or interoperability teams want to compare PAS, CRD, DTR, and governance implications without drifting into unsupported automation claims.",
                                 List.of("policy-to-standards crosswalk", "prior-auth copilot", "evaluation and safety reporting", "governed delivery"),
                                 List.of("PAS/CRD/DTR planning", "shared implementation track comparison", "quality gate review"),
                                 List.of("traceable boundaries", "unsupported-output handling", "operator-visible controls"),
-                                List.of("crosswalk output", "quality gate snapshot", "pilot readiness checklist")
+                                List.of("crosswalk output", "quality gate snapshot", "pilot readiness checklist"),
+                                List.of("retrieval_review_path", "shared_program_path", "delivery_export_path"),
+                                List.of("evaluator_first_run", "buyer_first_run"),
+                                List.of("presentation_pack", "outcome_pack")
                         ),
                         new SolutionPacksResponse.SolutionPack(
-                                "platform_interoperability",
+                                "prior_auth_shared_program",
+                                "shared_program",
+                                "prior_authorization",
+                                "Create a reusable bridge pack for provider, payer, and shared-program teams evaluating the same prior-authorization modernization theme from different operating angles.",
+                                "Use when a multi-stakeholder group needs a single demo or pilot path that still preserves provider-vs-payer differences.",
+                                List.of("shared workflow framing", "workspace comparison", "handoff and export planning", "stakeholder narrative review"),
+                                List.of("joint provider-payer session", "bounded implementation planning", "governed next-step packaging"),
+                                List.of("same evidence, different audiences", "explicit human decision points", "pilot-safe outputs"),
+                                List.of("shared program recap", "comparison notes", "stakeholder-ready follow-up pack"),
+                                List.of("shared_program_path", "approval_gate_path"),
+                                List.of("buyer_first_run", "implementer_first_run"),
+                                List.of("presentation_pack", "architecture_pack")
+                        ),
+                        new SolutionPacksResponse.SolutionPack(
+                                "interoperability_standards",
+                                "standards",
+                                "interoperability_standards",
                                 "Give interoperability leaders a controlled workspace for evidence retrieval, standards testing, governance reporting, and pilot operations planning.",
+                                "Use when the conversation is about FHIR-, standards-, or implementation-guide planning rather than only prior authorization.",
                                 List.of("FHIR validation workspace", "standards catalog", "admin console", "private deployment operations"),
                                 List.of("enterprise evaluator walkthrough", "synthetic standards validation", "future control roadmap"),
                                 List.of("identity posture", "retention and sign-off", "evaluation baseline"),
-                                List.of("operator report", "solution narrative", "future-state architecture path")
+                                List.of("operator report", "solution narrative", "future-state architecture path"),
+                                List.of("retrieval_review_path", "approval_gate_path"),
+                                List.of("evaluator_first_run"),
+                                List.of("architecture_pack")
+                        ),
+                        new SolutionPacksResponse.SolutionPack(
+                                "workflow_planning",
+                                "implementer",
+                                "workflow_planning",
+                                "Package HealthForge as a workflow-design aid for review, approval, escalation, and governed delivery planning.",
+                                "Use when teams want to shape operating models, queues, ownership, and approval paths before any downstream system integration changes.",
+                                List.of("queue design review", "approval path design", "workspace assignment planning", "governed delivery rehearsal"),
+                                List.of("role-based workflow planning", "pilot operating model", "review-to-export path mapping"),
+                                List.of("visible queue ownership", "editable preset controls", "human-in-the-loop approval"),
+                                List.of("workflow pack summary", "owner handoff notes", "pilot readiness artifacts"),
+                                List.of("retrieval_review_path", "approval_gate_path", "delivery_export_path"),
+                                List.of("implementer_first_run"),
+                                List.of("architecture_pack", "outcome_pack")
+                        ),
+                        new SolutionPacksResponse.SolutionPack(
+                                "implementation_planning",
+                                "enterprise_buyer",
+                                "implementation_planning",
+                                "Reframe the current platform into a bounded implementation-planning pack for buyers, partners, and enterprise stakeholders.",
+                                "Use when enterprise stakeholders need to understand product value, readiness boundaries, and future operating model direction quickly.",
+                                List.of("stakeholder reporting", "pilot readiness review", "future roadmap review", "team handoff planning"),
+                                List.of("buyer evaluation walkthrough", "architecture discussion", "outcome-based pilot framing"),
+                                List.of("honest maturity narrative", "future-vs-current clarity", "repeatable reporting assets"),
+                                List.of("executive summary", "architecture narrative", "pilot success plan"),
+                                List.of("shared_program_path", "delivery_export_path"),
+                                List.of("buyer_first_run"),
+                                List.of("presentation_pack", "architecture_pack", "outcome_pack")
                         )
+                    ),
+                List.of(
+                        new SolutionPacksResponse.WorkflowPreset(
+                                "retrieval_review_path",
+                                "Grounded retrieval and reviewer path",
+                                "Start from evidence retrieval, move into reviewer interpretation, and keep the first pass tightly grounded in cited source material.",
+                                "reviewer",
+                                "focused_citation_first",
+                                "reviewer Brief workflow",
+                                "review after findings are shaped",
+                                "optional export after approval",
+                                List.of("question framing", "project context", "citation review depth", "workspace assignment target"),
+                                List.of("reviewer workspace", "question packs", "research notebook")
+                        ),
+                        new SolutionPacksResponse.WorkflowPreset(
+                                "approval_gate_path",
+                                "Approval and audit path",
+                                "Optimize for formal review, approval decisions, and visible audit history before any handoff leaves the workspace.",
+                                "approver",
+                                "evidence_bundle_with_findings",
+                                "finding-by-finding review",
+                                "required approver decision with note capture",
+                                "hold until approved",
+                                List.of("review notes", "decision wording", "approval owner", "audit visibility"),
+                                List.of("review decisions", "policy safety report", "future control roadmap")
+                        ),
+                        new SolutionPacksResponse.WorkflowPreset(
+                                "delivery_export_path",
+                                "Governed delivery and export path",
+                                "Package approved work into repeatable downstream handoff and export patterns while keeping the current live-vs-simulated boundary visible.",
+                                "administrator",
+                                "approved_brief_reuse",
+                                "review completed before export",
+                                "approval receipt required",
+                                "tracked work-item or documentation delivery",
+                                List.of("target system", "delivery mode", "retry handling", "operator sign-off"),
+                                List.of("tracked export events", "implementation bundles", "integration operations")
+                        ),
+                        new SolutionPacksResponse.WorkflowPreset(
+                                "shared_program_path",
+                                "Shared program comparison path",
+                                "Use one evidence base to compare provider, payer, and shared-program implications without losing audience-specific framing.",
+                                "auditor",
+                                "shared evidence set",
+                                "cross-audience comparison review",
+                                "summary sign-off before distribution",
+                                "stakeholder-ready outcome pack",
+                                List.of("audience comparison", "shared assumptions", "narrative emphasis", "follow-up artifact mix"),
+                                List.of("solution packs", "stakeholder report", "pilot success plan")
+                        )
+                ),
+                List.of(
+                        new SolutionPacksResponse.OnboardingFlow(
+                                "evaluator_first_run",
+                                "evaluator",
+                                "Start in pilot readiness, then solution packs, then the stakeholder report.",
+                                List.of("Review bounded statements and current-vs-target posture", "Open the standards or prior-auth pack that matches the evaluation theme", "Use stakeholder reporting to anchor the trust conversation in live product state"),
+                                "The evaluator understands what is demo-safe today and what is intentionally future roadmap.",
+                                "Stay inside synthetic, non-sensitive scenarios and human-review-first workflows."
+                        ),
+                        new SolutionPacksResponse.OnboardingFlow(
+                                "implementer_first_run",
+                                "implementer",
+                                "Start in the solution packs view, then workspace workflows, then implementation bundles.",
+                                List.of("Choose a workflow-planning or provider-oriented pack", "Follow the recommended retrieval, review, and approval preset path", "Use implementation bundles and handoff surfaces for next-step planning"),
+                                "The implementer can see how questions turn into grounded outputs, approvals, and reusable handoffs.",
+                                "This is an implementation-planning environment, not a production clinical automation workflow."
+                        ),
+                        new SolutionPacksResponse.OnboardingFlow(
+                                "buyer_first_run",
+                                "enterprise_buyer",
+                                "Start in the implementation-planning pack, then stakeholder report, then future roadmap.",
+                                List.of("Pick the buyer-oriented pack that matches the audience", "Review outcome reporting and readiness artifacts", "Use the roadmap view to separate current capability from future direction"),
+                                "The buyer gets a high-level product story, trust boundary, and realistic pilot path quickly.",
+                                "Use the product story to frame a pilot, not to imply present-tense regulated production controls."
+                        )
+                ),
+                List.of(
+                        new SolutionPacksResponse.StakeholderPack(
+                                "presentation_pack",
+                                "leadership and partner audiences",
+                                "Presentation pack",
+                                "A concise product story for demos, partner calls, and buyer discussions that stays grounded in shipped workflows.",
+                                List.of("solution packs", "stakeholder report", "pilot success plan"),
+                                List.of("audience framing", "value narrative", "bounded next-step summary"),
+                                List.of("executive overview", "partner intro", "pilot kickoff recap")
+                        ),
+                        new SolutionPacksResponse.StakeholderPack(
+                                "architecture_pack",
+                                "enterprise architecture and implementation audiences",
+                                "Architecture summary pack",
+                                "A reusable explanation of the evidence, review, approval, workspace, and export flow with current-vs-target clarity.",
+                                List.of("solution packs", "future roadmap", "implementation bundles"),
+                                List.of("system flow summary", "governance boundary summary", "future-state path"),
+                                List.of("architecture review", "implementation planning session", "technical diligence follow-up")
+                        ),
+                        new SolutionPacksResponse.StakeholderPack(
+                                "outcome_pack",
+                                "delivery, pilot, and evaluator audiences",
+                                "Outcome reporting pack",
+                                "A repeatable package for showing what the team accomplished, what remains bounded, and what a pilot should measure next.",
+                                List.of("stakeholder report", "pilot readiness", "pilot success plan"),
+                                List.of("delivery snapshot", "trust posture summary", "pilot milestone framing"),
+                                List.of("pilot checkpoint review", "delivery retrospective", "evaluator follow-up")
+                        )
+                ),
+                List.of(
+                        "Solution packs package current workflows; they do not imply new automated capabilities.",
+                        "All presets remain inspectable, editable, and bounded to synthetic or non-sensitive evaluation scenarios.",
+                        "Stakeholder assets should explain current HealthForge truth clearly, not oversell roadmap intent as shipped functionality."
                 ),
                 "These packs make demos and partner conversations easier to tailor by audience without drifting beyond shipped capabilities."
         );
