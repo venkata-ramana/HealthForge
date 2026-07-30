@@ -2227,6 +2227,12 @@ async function openAdminPanel(panel) {
         <article class="admin-card">
           <h3>Solution packs</h3>
           <p class="helper">${esc(packs.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('packs', packs.packs.length)}
+            ${renderMetricCard('workflow presets', packs.workflow_presets.length)}
+            ${renderMetricCard('onboarding flows', packs.onboarding_flows.length)}
+            ${renderMetricCard('stakeholder packs', packs.stakeholder_packs.length)}
+          </div>
         </article>
         <article class="admin-card">
           <div class="doc-grid">
@@ -2234,15 +2240,89 @@ async function openAdminPanel(panel) {
               <article class="doc-card">
                 <h3>${esc(pack.audience)}</h3>
                 <p>${esc(pack.positioning)}</p>
+                <div class="meta-row">
+                  <span class="pill">${esc(pack.domain)}</span>
+                  <span class="pill">${esc(pack.pack_id)}</span>
+                </div>
+                <h4>When to use</h4>
+                <p class="helper">${esc(pack.when_to_use)}</p>
                 <h4>Workflows</h4>
                 <ul class="stack-list">${pack.workflows.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
                 <h4>Demo angles</h4>
                 <ul class="stack-list">${pack.demo_angles.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
                 <h4>Trust angles</h4>
                 <ul class="stack-list">${pack.trust_angles.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <h4>Delivery artifacts</h4>
+                <ul class="stack-list">${pack.delivery_artifacts.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <h4>Linked presets</h4>
+                <ul class="stack-list">${pack.preset_ids.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <h4>Onboarding links</h4>
+                <ul class="stack-list">${pack.onboarding_flow_ids.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <h4>Stakeholder packs</h4>
+                <ul class="stack-list">${pack.stakeholder_pack_ids.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
               </article>
             `).join('')}
           </div>
+        </article>
+        <article class="admin-card">
+          <h4>Workflow presets</h4>
+          <div class="doc-grid">
+            ${packs.workflow_presets.map((preset) => `
+              <article class="doc-card">
+                <h3>${esc(preset.name)}</h3>
+                <p>${esc(preset.summary)}</p>
+                <div class="meta-row">
+                  <span class="pill">${esc(preset.recommended_role)}</span>
+                  <span class="pill">${esc(preset.preset_id)}</span>
+                </div>
+                <div class="helper">Retrieval: ${esc(preset.retrieval_profile)} · Review: ${esc(preset.review_path)} · Approval: ${esc(preset.approval_path)} · Export: ${esc(preset.export_path)}</div>
+                <h4>Editable controls</h4>
+                <ul class="stack-list">${preset.editable_controls.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <h4>Recommended templates</h4>
+                <ul class="stack-list">${preset.recommended_templates.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Guided onboarding</h4>
+          <div class="doc-grid">
+            ${packs.onboarding_flows.map((flow) => `
+              <article class="doc-card">
+                <h3>${esc(flow.audience)}</h3>
+                <p>${esc(flow.entry_point)}</p>
+                <h4>First-run path</h4>
+                <ul class="stack-list">${flow.first_run_path.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+                <div class="helper"><b>Success outcome:</b> ${esc(flow.success_outcome)}</div>
+                <div class="helper"><b>Boundary:</b> ${esc(flow.boundary_reminder)}</div>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Stakeholder-ready packs</h4>
+          <div class="doc-grid">
+            ${packs.stakeholder_packs.map((item) => `
+              <article class="doc-card">
+                <h3>${esc(item.title)}</h3>
+                <p>${esc(item.summary)}</p>
+                <div class="meta-row">
+                  <span class="pill">${esc(item.audience)}</span>
+                  <span class="pill">${esc(item.pack_id)}</span>
+                </div>
+                <h4>Source views</h4>
+                <ul class="stack-list">${item.source_views.map((view) => `<li>${esc(view)}</li>`).join('')}</ul>
+                <h4>Narrative assets</h4>
+                <ul class="stack-list">${item.narrative_assets.map((asset) => `<li>${esc(asset)}</li>`).join('')}</ul>
+                <h4>Presentation moments</h4>
+                <ul class="stack-list">${item.presentation_moments.map((moment) => `<li>${esc(moment)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Boundaries</h4>
+          <ul class="stack-list">${packs.bounded_statements.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
         </article>
       `;
       return;
