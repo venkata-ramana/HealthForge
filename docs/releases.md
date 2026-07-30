@@ -97,8 +97,9 @@ For internal planning, the project has been delivered through phased milestones.
 As of Thursday, July 30, 2026:
 
 - Phase 21 is complete
-- Phase 22 is complete in the current release branch
-- the current open-phase backlog begins with Phase 23
+- Phase 22 is complete
+- Phase 23 is complete in the current release branch
+- the current open-phase backlog begins with Phase 24
 
 ## Suggested future release-note format
 

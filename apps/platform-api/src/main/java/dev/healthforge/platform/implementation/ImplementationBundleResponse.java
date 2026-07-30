@@ -18,6 +18,7 @@ public record ImplementationBundleResponse(
         TestPlan testPlan,
         ChangeImpact changeImpact,
         HandoffBundle handoffBundle,
+        ReleaseBundle releaseBundle,
         List<StarterCodeGenerationResponse> starterArtifacts,
         List<String> deliveryGuardrails
 ) {
@@ -91,6 +92,31 @@ public record ImplementationBundleResponse(
             ArchitectureReviewResponse architectureReview,
             List<String> implementationSummary,
             List<String> deliveryArtifacts
+    ) {
+    }
+
+    public record ReleaseBundle(
+            String releaseStatus,
+            List<ArtifactGroup> artifactGroups,
+            List<DownstreamPackage> downstreamPackages,
+            List<String> traceabilitySummary,
+            String operatorHandoffSummary
+    ) {
+    }
+
+    public record ArtifactGroup(
+            String title,
+            String audience,
+            List<String> contents
+    ) {
+    }
+
+    public record DownstreamPackage(
+            String packageId,
+            String targetAudience,
+            String packageFormat,
+            List<String> includedArtifacts,
+            String handoffIntent
     ) {
     }
 }

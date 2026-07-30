@@ -56,7 +56,8 @@ public class InboundCaseService {
                         "Source system: " + normalized(request.sourceSystem()),
                         "External case: " + request.externalCaseId(),
                         linkedBriefId == null ? "No brief created automatically." : "Linked Brief: " + linkedBriefId
-                )
+                ),
+                workflowLineage(actor.organizationId(), linkedBriefId)
         );
     }
 
@@ -84,7 +85,8 @@ public class InboundCaseService {
                         "Source system: " + rs.getString("source_system"),
                         "External case: " + rs.getString("external_case_id"),
                         rs.getString("linked_brief_id") == null ? "No linked Brief." : "Linked Brief: " + rs.getString("linked_brief_id")
-                )
+                ),
+                workflowLineage(actor.organizationId(), rs.getString("linked_brief_id"))
         ), actor.organizationId());
     }
 
@@ -108,5 +110,72 @@ public class InboundCaseService {
 
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private InboundCaseResponse.WorkflowLineage workflowLineage(String organizationId, String linkedBriefId) {
+        if (linkedBriefId == null || linkedBriefId.isBlank()) {
+            return new InboundCaseResponse.WorkflowLineage(
+                    null,
+                    0,
+                    0,
+                    0,
+                    "no_linked_brief",
+                    List.of()
+            );
+        }
+        var briefRows = jdbcTemplate.queryForList("""
+                select status from engineering_brief where organization_id = ? and brief_id = ?
+                """, organizationId, linkedBriefId);
+        var briefStatus = briefRows.isEmpty() ? null : String.valueOf(briefRows.getFirst().get("status"));
+        var approvalCount = count("""
+                select count(*) from brief_approval where organization_id = ? and brief_id = ?
+                """, organizationId, linkedBriefId);
+        var trackedExportCount = count("""
+                select count(*) from tracked_export_event where organization_id = ? and brief_id = ?
+                """, organizationId, linkedBriefId);
+        var documentationExportCount = count("""
+                select count(*) from documentation_export_event where organization_id = ? and brief_id = ?
+                """, organizationId, linkedBriefId);
+        var downstreamReferences = jdbcTemplate.query("""
+                select external_reference
+                from (
+                    select external_reference, occurred_at
+                    from tracked_export_event
+                    where organization_id = ? and brief_id = ? and external_reference is not null
+                    union all
+                    select external_reference, occurred_at
+                    from documentation_export_event
+                    where organization_id = ? and brief_id = ? and external_reference is not null
+                ) refs
+                order by occurred_at desc
+                limit 4
+                """, (rs, row) -> rs.getString("external_reference"), organizationId, linkedBriefId, organizationId, linkedBriefId);
+        var latestStatuses = jdbcTemplate.query("""
+                select status_value
+                from (
+                    select execution_status as status_value, occurred_at
+                    from tracked_export_event
+                    where organization_id = ? and brief_id = ?
+                    union all
+                    select delivery_status as status_value, occurred_at
+                    from documentation_export_event
+                    where organization_id = ? and brief_id = ?
+                ) statuses
+                order by occurred_at desc
+                limit 1
+                """, (rs, row) -> rs.getString("status_value"), organizationId, linkedBriefId, organizationId, linkedBriefId);
+        return new InboundCaseResponse.WorkflowLineage(
+                briefStatus,
+                approvalCount,
+                trackedExportCount,
+                documentationExportCount,
+                latestStatuses.isEmpty() ? "no_downstream_activity" : latestStatuses.getFirst(),
+                downstreamReferences
+        );
+    }
+
+    private int count(String sql, String organizationId, String briefId) {
+        var value = jdbcTemplate.queryForObject(sql, Integer.class, organizationId, briefId);
+        return value == null ? 0 : value;
     }
 }
