@@ -9,7 +9,10 @@ public record IntegrationStatusResponse(
         List<ConnectorSummary> connectors,
         List<DeliveryReceipt> recentReceipts,
         List<RetryQueueItem> retryQueue,
-        List<RecoveryAction> recoveryActions
+        List<RecoveryAction> recoveryActions,
+        ReconciliationSummary reconciliationSummary,
+        List<ConnectorDrilldown> connectorDrilldowns,
+        List<EnvironmentPolicySummary> environmentPolicies
 ) {
     public record ConnectorSummary(
             String connectorType,
@@ -54,5 +57,34 @@ public record IntegrationStatusResponse(
             String outcomeStatus,
             String summary,
             Instant createdAt
+    ) {}
+
+    public record ReconciliationSummary(
+            int totalReceipts,
+            int successfulReceipts,
+            int blockedReceipts,
+            int retryingReceipts,
+            int simulatedReceipts,
+            int liveReceipts,
+            String operatorSummary
+    ) {}
+
+    public record ConnectorDrilldown(
+            String connectorType,
+            String deliveryMode,
+            boolean liveCapable,
+            boolean enabled,
+            String approvalGate,
+            String policySummary,
+            List<String> recentStatuses,
+            List<String> recommendedActions
+    ) {}
+
+    public record EnvironmentPolicySummary(
+            String connectorType,
+            String executionMode,
+            boolean liveCallsAllowed,
+            String environmentPosture,
+            List<String> operatorChecks
     ) {}
 }

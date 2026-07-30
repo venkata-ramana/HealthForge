@@ -3,6 +3,8 @@ package dev.healthforge.platform.integration;
 import dev.healthforge.platform.auth.AuthenticatedActor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.sql.Timestamp;
 import java.time.Clock;
@@ -44,13 +46,101 @@ public class IntegrationOperationsService {
                             : "Connector stays preview-only until an operator enables it for the environment."
             );
         }).toList();
+        var receipts = recentReceipts(actor.organizationId());
+        var retries = retryQueue(actor.organizationId());
+        var recoveries = recoveryActions(actor.organizationId());
         return new IntegrationStatusResponse(
                 actor.organizationId(),
                 Instant.now(clock),
                 connectors,
-                recentReceipts(actor.organizationId()),
-                retryQueue(actor.organizationId()),
-                recoveryActions(actor.organizationId())
+                receipts,
+                retries,
+                recoveries,
+                reconciliationSummary(receipts),
+                connectorDrilldowns(connectors, actor.organizationId()),
+                environmentPolicies()
+        );
+    }
+
+    public IntegrationAuditExportResponse auditExport(AuthenticatedActor actor) {
+        var status = status(actor);
+        return new IntegrationAuditExportResponse(
+                actor.organizationId(),
+                Instant.now(clock),
+                status.reconciliationSummary(),
+                status.connectors(),
+                status.connectorDrilldowns(),
+                status.environmentPolicies(),
+                status.recentReceipts(),
+                status.retryQueue(),
+                status.recoveryActions(),
+                List.of(
+                        "This export is an operator-facing audit packet for governed delivery visibility.",
+                        "Receipts and recovery actions remain bounded to local platform records and environment-managed connectors.",
+                        "Live-capable execution still depends on explicit approval, connector enablement, and environment policy."
+                )
+        );
+    }
+
+    public IntegrationGovernanceCheckResponse governanceCheck(IntegrationGovernanceCheckRequest request, AuthenticatedActor actor) {
+        var connectorType = request.connectorType().trim().toLowerCase();
+        var connector = properties.connector(connectorType);
+        if (connector == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported connector type.");
+        }
+        var actionType = request.actionType().trim().toLowerCase();
+        var approvalGate = approvalGate(actor.organizationId(), request.briefId(), request.approvalId());
+        var validApproval = approvalGate != null && "approval_found".equals(approvalGate.status());
+        var targetLocator = request.targetLocator() == null ? null : request.targetLocator().trim();
+        var requestedMode = request.requestedExecutionMode() == null || request.requestedExecutionMode().isBlank()
+                ? connector.getExecutionMode()
+                : request.requestedExecutionMode().trim().toLowerCase();
+        var liveAllowed = connector.isEnabled()
+                && connector.isAllowLiveCalls()
+                && "live".equals(normalizedMode(connector))
+                && validApproval
+                && targetLocator != null
+                && !targetLocator.isBlank();
+        var finalDecision = liveAllowed
+                ? "live_execution_permitted"
+                : connector.isEnabled()
+                    ? "governed_preview_only"
+                    : "connector_disabled";
+        return new IntegrationGovernanceCheckResponse(
+                actor.organizationId(),
+                Instant.now(clock),
+                connectorType,
+                actionType,
+                requestedMode,
+                finalDecision,
+                liveAllowed,
+                approvalGate == null
+                        ? new IntegrationGovernanceCheckResponse.ApprovalGateSummary(
+                                "approval_missing",
+                                request.approvalId(),
+                                null,
+                                null,
+                                null,
+                                "A valid approval record is required before governed live-capable execution can proceed."
+                        )
+                        : approvalGate,
+                new IntegrationGovernanceCheckResponse.EnvironmentPolicySummary(
+                        connector.isEnabled(),
+                        normalizedMode(connector),
+                        connector.isAllowLiveCalls(),
+                        targetLocator,
+                        connector.isEnabled()
+                                ? connector.isAllowLiveCalls()
+                                    ? "Connector is enabled with explicit execution posture controlled by environment policy."
+                                    : "Connector is enabled but live calls are disabled by environment policy."
+                                : "Connector is disabled for this environment and remains preview-only."
+                ),
+                operatorActions(connectorType, liveAllowed, validApproval, targetLocator),
+                List.of(
+                        "Approval traceability stays mandatory for governed live-capable actions.",
+                        "Environment mode determines whether execution remains simulated or can use a live adapter path.",
+                        "Operators should review receipts and retry posture after any governed delivery action."
+                )
         );
     }
 
@@ -169,5 +259,139 @@ public class IntegrationOperationsService {
             return rows.isEmpty() ? null : rows.getFirst();
         }
         return null;
+    }
+
+    private IntegrationStatusResponse.ReconciliationSummary reconciliationSummary(List<IntegrationStatusResponse.DeliveryReceipt> receipts) {
+        var total = receipts.size();
+        var successful = (int) receipts.stream().filter(item -> List.of("published", "writeback_executed", "writeback_retried", "live_execution", "live_retry", "simulated_execution", "simulated_retry").contains(item.status())).count();
+        var blocked = (int) receipts.stream().filter(item -> item.status().contains("blocked") || item.status().contains("disabled")).count();
+        var retrying = (int) receipts.stream().filter(item -> item.status().contains("retry")).count();
+        var simulated = (int) receipts.stream().filter(item -> item.status().contains("simulated")).count();
+        var live = (int) receipts.stream().filter(item -> item.status().contains("live")).count();
+        return new IntegrationStatusResponse.ReconciliationSummary(
+                total,
+                successful,
+                blocked,
+                retrying,
+                simulated,
+                live,
+                blocked > 0
+                        ? "Blocked governed deliveries need operator review before downstream status is considered healthy."
+                        : "Recent delivery receipts show a bounded governed-delivery story with visible execution outcomes."
+        );
+    }
+
+    private List<IntegrationStatusResponse.ConnectorDrilldown> connectorDrilldowns(List<IntegrationStatusResponse.ConnectorSummary> connectors, String organizationId) {
+        return connectors.stream().map(connector -> new IntegrationStatusResponse.ConnectorDrilldown(
+                connector.connectorType(),
+                connector.executionMode(),
+                connector.liveCapable(),
+                connector.enabled(),
+                connector.liveCapable()
+                        ? "Approved, target-qualified actions may use the live adapter path."
+                        : "Connector remains simulated or disabled until environment policy allows live execution.",
+                connector.operatorSummary(),
+                recentStatusesForConnector(connector.connectorType(), organizationId),
+                connector.enabled()
+                        ? List.of(
+                                "Inspect latest receipts before retrying blocked work.",
+                                "Confirm approval trace exists for governed writeback or publishing actions."
+                        )
+                        : List.of("Leave connector preview-only until an operator enables it for the target environment.")
+        )).toList();
+    }
+
+    private List<IntegrationStatusResponse.EnvironmentPolicySummary> environmentPolicies() {
+        return properties.all().entrySet().stream().map(entry -> {
+            var connectorType = entry.getKey();
+            var connector = entry.getValue();
+            return new IntegrationStatusResponse.EnvironmentPolicySummary(
+                    connectorType,
+                    normalizedMode(connector),
+                    connector.isAllowLiveCalls(),
+                    connector.isEnabled()
+                            ? connector.isAllowLiveCalls()
+                                ? "governed_live_capable"
+                                : "enabled_but_simulated"
+                            : "disabled_preview_only",
+                    connector.isEnabled()
+                            ? List.of(
+                                    "Confirm target locator, approval gate, and receipt visibility before governed delivery.",
+                                    "Rehearse retry or rollback posture before treating connector execution as operationally ready."
+                            )
+                            : List.of(
+                                    "Connector stays preview-only in this environment.",
+                                    "Operators can still use payload previews and audit exports without enabling execution."
+                            )
+            );
+        }).toList();
+    }
+
+    private List<String> recentStatusesForConnector(String connectorType, String organizationId) {
+        var statuses = new ArrayList<String>();
+        statuses.addAll(jdbcTemplate.queryForList("""
+                select execution_status from tracked_export_event
+                where organization_id = ? and target_system = ?
+                order by occurred_at desc
+                limit 3
+                """, String.class, organizationId, connectorType));
+        statuses.addAll(jdbcTemplate.queryForList("""
+                select delivery_status from documentation_export_event
+                where organization_id = ? and target_system = ?
+                order by occurred_at desc
+                limit 3
+                """, String.class, organizationId, connectorType));
+        return statuses.isEmpty() ? List.of("no_recent_receipts") : statuses.stream().limit(4).toList();
+    }
+
+    private IntegrationGovernanceCheckResponse.ApprovalGateSummary approvalGate(String organizationId, String briefId, String approvalId) {
+        if (approvalId == null || approvalId.isBlank() || briefId == null || briefId.isBlank()) {
+            return null;
+        }
+        var rows = jdbcTemplate.queryForList("""
+                select approval_id, approver, approver_role, approved_at
+                from brief_approval
+                where organization_id = ? and brief_id = ? and approval_id = ?
+                """, organizationId, briefId, approvalId);
+        if (rows.isEmpty()) {
+            return new IntegrationGovernanceCheckResponse.ApprovalGateSummary(
+                    "approval_not_found",
+                    approvalId,
+                    null,
+                    null,
+                    null,
+                    "The requested approval id was not found for this Brief in the current organization."
+            );
+        }
+        var row = rows.getFirst();
+        return new IntegrationGovernanceCheckResponse.ApprovalGateSummary(
+                String.valueOf("approval_found"),
+                String.valueOf(row.get("approval_id")),
+                String.valueOf(row.get("approver")),
+                String.valueOf(row.get("approver_role")),
+                row.get("approved_at") instanceof Timestamp timestamp ? timestamp.toInstant() : null,
+                "A valid approval record exists for governed execution checks."
+        );
+    }
+
+    private List<String> operatorActions(String connectorType, boolean liveAllowed, boolean validApproval, String targetLocator) {
+        var actions = new ArrayList<String>();
+        if (!validApproval) {
+            actions.add("Record or supply a valid approval id before attempting governed live-capable delivery.");
+        }
+        if (targetLocator == null || targetLocator.isBlank()) {
+            actions.add("Supply a target locator so downstream receipts can be reconciled to a concrete destination.");
+        }
+        if (liveAllowed) {
+            actions.add("Proceed with governed execution and then inspect receipts plus retry posture.");
+        } else {
+            actions.add("Use preview or simulated execution until environment posture and approvals align.");
+        }
+        actions.add("Review connector " + connectorType + " audit export before promoting changes in delivery posture.");
+        return actions;
+    }
+
+    private String normalizedMode(IntegrationProperties.Connector connector) {
+        return connector.getExecutionMode() == null ? "simulated" : connector.getExecutionMode().trim().toLowerCase();
     }
 }

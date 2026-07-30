@@ -26,6 +26,19 @@ public class IntegrationOperationsController {
         return service.status(actorResolver.requireAdministrator(request));
     }
 
+    @GetMapping("/audit-export")
+    public IntegrationAuditExportResponse auditExport(HttpServletRequest request) {
+        return service.auditExport(actorResolver.requireAdministrator(request));
+    }
+
+    @PostMapping("/governance-checks")
+    public IntegrationGovernanceCheckResponse governanceCheck(
+            @Valid @RequestBody IntegrationGovernanceCheckRequest governanceCheckRequest,
+            HttpServletRequest request
+    ) {
+        return service.governanceCheck(governanceCheckRequest, actorResolver.requireAdministrator(request));
+    }
+
     @PostMapping("/recoveries")
     public IntegrationStatusResponse.RecoveryAction recover(
             @Valid @RequestBody IntegrationRecoveryRequest recoveryRequest,

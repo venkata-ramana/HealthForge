@@ -80,6 +80,7 @@ public class ImplementationBundleService {
                                 "change_impact_summary"
                         )
                 ),
+                releaseBundle(brief, export, architectureReview),
                 starterArtifacts,
                 List.of(
                         "Starter artifacts are examples only and remain subject to human engineering review.",
@@ -226,5 +227,54 @@ public class ImplementationBundleService {
         export.implementationTracks().forEach(track ->
                 summary.add(track.title() + " covers " + String.join(", ", track.workflowStages())));
         return summary.stream().toList();
+    }
+
+    private ImplementationBundleResponse.ReleaseBundle releaseBundle(
+            BriefResponse brief,
+            BriefWorkItemExportResponse export,
+            ArchitectureReviewResponse architectureReview
+    ) {
+        return new ImplementationBundleResponse.ReleaseBundle(
+                "grouped_for_downstream_handoff",
+                List.of(
+                        new ImplementationBundleResponse.ArtifactGroup(
+                                "Reviewed planning artifacts",
+                                "reviewer_and_approver",
+                                List.of("approved Brief context", "accepted work items", "approval trace", "audit events")
+                        ),
+                        new ImplementationBundleResponse.ArtifactGroup(
+                                "Engineering kickoff pack",
+                                "implementation_team",
+                                List.of("implementation tracks", "starter artifacts", "architecture patterns", "acceptance criteria")
+                        ),
+                        new ImplementationBundleResponse.ArtifactGroup(
+                                "Operational delivery pack",
+                                "platform_operator",
+                                List.of("change impact signals", "negative validation cases", "release handoff summary")
+                        )
+                ),
+                List.of(
+                        new ImplementationBundleResponse.DownstreamPackage(
+                                "pkg_reviewed_brief_" + export.briefId(),
+                                "implementation_team",
+                                "json",
+                                List.of("work_item_export", "traceability_links", "approval_trace"),
+                                "Preserve approved upstream reasoning when downstream teams create tracked work."
+                        ),
+                        new ImplementationBundleResponse.DownstreamPackage(
+                                "pkg_architecture_" + export.briefId(),
+                                "architecture_and_delivery",
+                                "json",
+                                List.of("architecture_review", "implementation_summary", "change_impact"),
+                                "Group architecture, release, and maintenance signals into one handoff-ready package."
+                        )
+                ),
+                List.of(
+                        "Brief " + brief.briefId() + " approved with " + brief.approvals().size() + " approval record(s).",
+                        "Release packaging includes " + export.workItems().size() + " approved work item(s) and " + architectureReview.components().size() + " architecture component(s).",
+                        "Downstream bundles stay bounded to approved findings, cited evidence, and human-reviewed artifacts."
+                ),
+                "Use this release bundle to hand approved planning outputs to engineering and operations without losing approval, evidence, or change-impact context."
+        );
     }
 }

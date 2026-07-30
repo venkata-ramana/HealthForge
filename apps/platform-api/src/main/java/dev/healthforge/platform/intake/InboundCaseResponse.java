@@ -16,6 +16,15 @@ public record InboundCaseResponse(
         String linkedBriefId,
         String sourceLocator,
         Instant createdAt,
-        List<String> lineage
+        List<String> lineage,
+        WorkflowLineage workflowLineage
 ) {
+    public record WorkflowLineage(
+            String linkedBriefStatus,
+            int approvalCount,
+            int trackedExportCount,
+            int documentationExportCount,
+            String latestDeliveryStatus,
+            List<String> downstreamReferences
+    ) {}
 }

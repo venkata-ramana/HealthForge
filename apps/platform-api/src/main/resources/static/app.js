@@ -98,6 +98,11 @@ const docLinks = [
     description: 'Question packs, precedent comparison, notebooks, topic discovery, and reviewer operations cues.'
   },
   {
+    title: 'Phase 23 governed delivery operationalization',
+    path: '/docs/54-phase23-governed-delivery-operationalization.md',
+    description: 'Connector governance checks, reconciliation, audit export, lineage, and grouped release packaging.'
+  },
+  {
     title: 'Phase 11 collaboration workspace',
     path: '/docs/40-phase11-team-workspaces-and-auth-foundation.md',
     description: 'Projects, saved views, reviewer queues, reusable configs, and enterprise identity foundation.'
@@ -1384,6 +1389,24 @@ function renderImplementationBundle(bundle) {
       <h3>Change impact</h3>
       <ul class="stack-list">${bundle.change_impact.source_change_signals.map((item) => `<li><b>${esc(item.source_id)}</b> · ${esc(item.change_status)}<br><span class="helper">${esc(item.brief_source_version)} → ${esc(item.latest_known_version)} · ${esc(item.action_hint)}</span></li>`).join('')}</ul>
     </section>
+
+    <section class="brief-section">
+      <h3>Release bundle packaging</h3>
+      <p>${esc(bundle.release_bundle.operator_handoff_summary)}</p>
+      <div class="doc-grid">
+        ${bundle.release_bundle.artifact_groups.map((group) => `
+          <article class="doc-card">
+            <h3>${esc(group.title)}</h3>
+            <p>${esc(group.audience)}</p>
+            <ul class="stack-list">${group.contents.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+          </article>
+        `).join('')}
+      </div>
+      <h4>Downstream packages</h4>
+      <ul class="stack-list">${bundle.release_bundle.downstream_packages.map((pkg) => `<li><b>${esc(pkg.package_id)}</b> · ${esc(pkg.target_audience)} · ${esc(pkg.package_format)}<br><span class="helper">${esc(pkg.handoff_intent)}</span><br><span class="helper">${pkg.included_artifacts.map((item) => esc(item)).join(', ')}</span></li>`).join('')}</ul>
+      <h4>Traceability summary</h4>
+      <ul class="stack-list">${bundle.release_bundle.traceability_summary.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+    </section>
   `;
 }
 
@@ -2373,11 +2396,23 @@ async function openAdminPanel(panel) {
 
     if (panel === 'integrations') {
       if (!can('integrationStatus')) throw new Error(permissionText('integrationStatus'));
-      const status = await apiJson('/v1/integrations/status', { method: 'GET', headers: actorHeaders(false) });
+      const [status, auditExport] = await Promise.all([
+        apiJson('/v1/integrations/status', { method: 'GET', headers: actorHeaders(false) }),
+        apiJson('/v1/integrations/audit-export', { method: 'GET', headers: actorHeaders(false) })
+      ]);
       enterprisePanel.innerHTML = `
         <article class="admin-card">
           <h3>Connector health and receipts</h3>
-          <p class="helper">Operators can distinguish simulated vs live-capable connectors, inspect receipts, and see retry pressure.</p>
+          <p class="helper">Operators can distinguish simulated vs live-capable connectors, inspect receipts, evaluate approval gates, and export governed-delivery audit state.</p>
+          <div class="metric-grid">
+            ${renderMetricCard('receipts', status.reconciliation_summary.total_receipts)}
+            ${renderMetricCard('successful', status.reconciliation_summary.successful_receipts)}
+            ${renderMetricCard('blocked', status.reconciliation_summary.blocked_receipts)}
+            ${renderMetricCard('retrying', status.reconciliation_summary.retrying_receipts)}
+            ${renderMetricCard('simulated', status.reconciliation_summary.simulated_receipts)}
+            ${renderMetricCard('live', status.reconciliation_summary.live_receipts)}
+          </div>
+          <div class="helper">${esc(status.reconciliation_summary.operator_summary)}</div>
           <div class="doc-grid">
             ${status.connectors.map((connector) => `
               <article class="metric-card">
@@ -2390,12 +2425,39 @@ async function openAdminPanel(panel) {
           </div>
         </article>
         <article class="admin-card">
+          <h4>Connector drilldowns</h4>
+          <div class="doc-grid">
+            ${status.connector_drilldowns.map((item) => `
+              <article class="doc-card">
+                <h3>${esc(item.connector_type)}</h3>
+                <p>${esc(item.policy_summary)}</p>
+                <div class="meta-row">
+                  <span class="pill">${esc(item.delivery_mode)}</span>
+                  <span class="pill">${item.live_capable ? 'live-capable' : 'simulated'}</span>
+                  <span class="pill">${item.enabled ? 'enabled' : 'disabled'}</span>
+                </div>
+                <div class="helper">${esc(item.approval_gate)}</div>
+                <ul class="stack-list">${item.recent_statuses.map((statusItem) => `<li>${esc(statusItem)}</li>`).join('')}</ul>
+                <ul class="stack-list">${item.recommended_actions.map((actionItem) => `<li>${esc(actionItem)}</li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Environment policies</h4>
+          <ul class="stack-list">${status.environment_policies.map((policy) => `<li><b>${esc(policy.connector_type)}</b> · ${esc(policy.environment_posture)} · ${esc(policy.execution_mode)}${policy.live_calls_allowed ? ' · live allowed' : ' · live blocked'}<br><span class="helper">${policy.operator_checks.map((item) => esc(item)).join(' | ')}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
           <h4>Recent receipts</h4>
           <ul class="stack-list">${status.recent_receipts.map((receipt) => `<li><b>${esc(receipt.connector_type)}</b> · ${esc(receipt.status)} · ${esc(receipt.source_id)}${receipt.external_reference ? ` · ${esc(receipt.external_reference)}` : ''}</li>`).join('') || '<li>No receipts yet.</li>'}</ul>
         </article>
         <article class="admin-card">
           <h4>Retry queue</h4>
           <ul class="stack-list">${status.retry_queue.map((item) => `<li><b>${esc(item.connector_type)}</b> · ${esc(item.current_status)} · ${esc(item.source_id)}<br><span class="helper">${esc(item.retry_hint)}</span></li>`).join('') || '<li>No blocked or retryable items right now.</li>'}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Audit export notes</h4>
+          <ul class="stack-list">${auditExport.audit_notes.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
         </article>
       `;
       return;
@@ -2413,7 +2475,7 @@ async function openAdminPanel(panel) {
           </div>
         </article>
         <article class="admin-card">
-          <ul class="stack-list">${cases.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.source_system)} · ${esc(item.intake_status)}${item.linked_brief_id ? ` · linked ${esc(item.linked_brief_id)}` : ''}</li>`).join('') || '<li>No inbound cases yet.</li>'}</ul>
+          <ul class="stack-list">${cases.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.source_system)} · ${esc(item.intake_status)}${item.linked_brief_id ? ` · linked ${esc(item.linked_brief_id)}` : ''}<br><span class="helper">brief ${esc(item.workflow_lineage.linked_brief_status || 'none')} · approvals ${esc(item.workflow_lineage.approval_count)} · tracker ${esc(item.workflow_lineage.tracked_export_count)} · docs ${esc(item.workflow_lineage.documentation_export_count)} · latest ${esc(item.workflow_lineage.latest_delivery_status)}</span>${item.workflow_lineage.downstream_references.length ? `<br><span class="helper">${item.workflow_lineage.downstream_references.map((ref) => esc(ref)).join(' | ')}</span>` : ''}</li>`).join('') || '<li>No inbound cases yet.</li>'}</ul>
         </article>
       `;
       return;
