@@ -132,6 +132,7 @@ mvn spring-boot:run
 - Want a presentation-ready explanation? Read [the showcase architecture and solution narratives](docs/38-showcase-architecture-and-solution-narratives.md).
 - Want a meeting-friendly story? Read [the demo and release story guide](docs/50-demo-and-release-story.md).
 - Want the current product posture and next build recommendation? Read [the product readiness sweep](docs/51-product-readiness-sweep.md).
+- Want the latest evidence-quality improvements? Read [the Phase 21 evidence operations guide](docs/52-phase21-evidence-operations-and-research-quality.md).
 
 ## Documentation map
 
@@ -141,6 +142,7 @@ mvn spring-boot:run
 - [Showcase architecture and solution narratives](docs/38-showcase-architecture-and-solution-narratives.md)
 - [Demo and release story guide](docs/50-demo-and-release-story.md)
 - [Product readiness sweep](docs/51-product-readiness-sweep.md)
+- [Phase 21 evidence operations and research quality](docs/52-phase21-evidence-operations-and-research-quality.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Private deployment operator guide](docs/31-private-deployment-operator-guide.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)

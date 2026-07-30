@@ -82,6 +82,26 @@ class CorpusSnapshotServiceIntegrationTest {
         assertThat(rows.getFirst()).isEqualTo("superseded|" + newerVersionId);
     }
 
+    @Test
+    void comparesSnapshotDifferencesAcrossVersions() {
+        var baseVersionId = insertSourceVersion("cms-0057-f-final-rule", "2024-final", "active", "approved");
+        var nextVersionId = insertSourceVersion("cms-0057-f-final-rule", "2024-final-update", "indexed", "approved");
+        var addedVersionId = insertSourceVersion("cms-extra-guidance", "2026-guidance", "active", "approved");
+        var corpusId = "test-corpus-" + UUID.randomUUID();
+
+        service.create(new CorpusSnapshotRequest(corpusId, "v1", List.of(baseVersionId), false));
+        service.create(new CorpusSnapshotRequest(corpusId, "v2", List.of(nextVersionId, addedVersionId), false));
+
+        var diff = service.diff(corpusId, "v2", "v1");
+
+        assertThat(diff.summary().addedCount()).isEqualTo(1);
+        assertThat(diff.summary().changedCount()).isEqualTo(1);
+        assertThat(diff.addedSources()).extracting(CorpusSnapshotDiffResponse.AddedSource::manifestSourceId)
+                .contains("cms-extra-guidance");
+        assertThat(diff.changedSources()).extracting(CorpusSnapshotDiffResponse.ChangedSource::manifestSourceId)
+                .contains("cms-0057-f-final-rule");
+    }
+
     private String insertSourceVersion(String manifestSourceId, String sourceVersion, String status, String termsReviewDecision) {
         var sourceVersionId = "srcver-test-" + UUID.randomUUID();
         jdbcTemplate.update(

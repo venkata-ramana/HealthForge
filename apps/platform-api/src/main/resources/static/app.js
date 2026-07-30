@@ -292,10 +292,13 @@ const workspaceQueues = document.getElementById('workspaceQueues');
 const workspaceAssignments = document.getElementById('workspaceAssignments');
 const workspaceSavedViews = document.getElementById('workspaceSavedViews');
 const workspaceCollections = document.getElementById('workspaceCollections');
+const workspaceResearchPacks = document.getElementById('workspaceResearchPacks');
+const workspaceSourceOperations = document.getElementById('workspaceSourceOperations');
 const workspaceConfigs = document.getElementById('workspaceConfigs');
 const workspaceIdentity = document.getElementById('workspaceIdentity');
 let currentBriefId = null;
 let workspaceOverviewState = null;
+let sourceOperationsState = null;
 
 function actorHeaders(json = true) {
   const headers = {
@@ -467,6 +470,7 @@ function projectSelectOptions(includeBlank = false) {
 function refreshWorkspaceSelectors() {
   document.getElementById('linkProjectSelect').innerHTML = projectSelectOptions(false);
   document.getElementById('savedViewProject').innerHTML = projectSelectOptions(true);
+  document.getElementById('researchPackProject').innerHTML = projectSelectOptions(true);
 }
 
 function projectCard(project) {
@@ -542,6 +546,59 @@ function collectionCard(collection) {
   `;
 }
 
+function researchPackCard(pack) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(pack.name)}</h3>
+      <p>${esc(pack.summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(pack.project_name || 'org-scoped')}</span>
+        <span class="pill">${esc(pack.question_count)} questions</span>
+        ${pack.next_review_at ? `<span class="pill">review ${esc(pack.next_review_at.slice(0, 10))}</span>` : ''}
+      </div>
+      <ul class="stack-list">${(pack.recurring_questions || []).map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+    </article>
+  `;
+}
+
+function sourceOperationsCard(data) {
+  return `
+    <article class="demo-card">
+      <h3>Evidence operations summary</h3>
+      <p>${esc(data.summary.summary)}</p>
+      <div class="metric-grid">
+        ${renderMetricCard('tracked sources', data.summary.total_tracked_sources)}
+        ${renderMetricCard('watchlists', data.summary.watchlisted_sources)}
+        ${renderMetricCard('stale', data.summary.stale_sources)}
+        ${renderMetricCard('superseded', data.summary.superseded_sources)}
+      </div>
+    </article>
+    ${(data.watchlists || []).map((item) => `
+      <article class="demo-card">
+        <h3>${esc(item.title)}</h3>
+        <p>${esc(item.watch_reason)}</p>
+        <div class="meta-row">
+          <span class="pill">${esc(item.manifest_source_id)}</span>
+          <span class="pill">${esc(item.freshness_status)}</span>
+          <span class="pill">${esc(item.source_age_days)} days</span>
+        </div>
+        <div class="helper">${esc(item.recommended_action)}</div>
+      </article>
+    `).join('')}
+    ${(data.freshness_alerts || []).map((item) => `
+      <article class="demo-card">
+        <h3>${esc(item.title)}</h3>
+        <p>${esc(item.alert_reason)}</p>
+        <div class="meta-row">
+          <span class="pill">${esc(item.freshness_status)}</span>
+          <span class="pill">${esc(item.source_age_days)} days</span>
+        </div>
+        <div class="helper">${esc(item.change_summary)}</div>
+      </article>
+    `).join('')}
+  `;
+}
+
 function configCard(config) {
   return `
     <article class="doc-card">
@@ -585,6 +642,7 @@ function renderWorkspaceOverview(data) {
   workspaceAssignments.innerHTML = data.assignments.length ? data.assignments.map(assignmentCard).join('') : '<div class="empty-state"><h3>No assignments yet</h3><p>Assignments will show who should act next on each brief.</p></div>';
   workspaceSavedViews.innerHTML = data.saved_views.length ? data.saved_views.map(savedViewCard).join('') : '<div class="empty-state"><h3>No saved views yet</h3><p>Save a repeated query to preserve analysis paths.</p></div>';
   workspaceCollections.innerHTML = data.evidence_collections.length ? data.evidence_collections.map(collectionCard).join('') : '<div class="empty-state"><h3>No evidence workspaces yet</h3><p>Link briefs to projects to build reusable evidence collections.</p></div>';
+  workspaceResearchPacks.innerHTML = data.research_packs.length ? data.research_packs.map(researchPackCard).join('') : '<div class="empty-state"><h3>No research packs yet</h3><p>Create one to preserve recurring analyst questions and evidence review paths.</p></div>';
   workspaceConfigs.innerHTML = data.workflow_configurations.length ? data.workflow_configurations.map(configCard).join('') : '<div class="empty-state"><h3>No workflow configs yet</h3><p>Configuration profiles will appear here.</p></div>';
   workspaceIdentity.innerHTML = `
     <article class="doc-card">
@@ -600,6 +658,11 @@ function renderWorkspaceOverview(data) {
   `;
 }
 
+function renderSourceOperations(data) {
+  sourceOperationsState = data;
+  workspaceSourceOperations.innerHTML = sourceOperationsCard(data);
+}
+
 async function loadWorkspaceOverview(openView = false) {
   if (!can('workspaceOverview')) {
     workspaceProjects.innerHTML = `<div class="alert warning">${esc(permissionText('workspaceOverview'))}</div>`;
@@ -610,10 +673,15 @@ async function loadWorkspaceOverview(openView = false) {
   }
   workspaceProjects.innerHTML = '<div class="alert warning">Loading team workspace…</div>';
   try {
-    const data = await apiJson('/v1/workspace/overview', { method: 'GET', headers: actorHeaders(false) });
+    const [data, sourceOps] = await Promise.all([
+      apiJson('/v1/workspace/overview', { method: 'GET', headers: actorHeaders(false) }),
+      apiJson('/v1/source-versions/operations', { method: 'GET', headers: actorHeaders(false) })
+    ]);
     renderWorkspaceOverview(data);
+    renderSourceOperations(sourceOps);
   } catch (error) {
     workspaceProjects.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
+    workspaceSourceOperations.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
   }
 }
 
@@ -712,6 +780,50 @@ async function createWorkspaceSavedView() {
   }
 }
 
+async function createWorkspaceResearchPack() {
+  const payload = {
+    project_id: document.getElementById('researchPackProject').value,
+    name: document.getElementById('researchPackName').value.trim(),
+    summary: document.getElementById('researchPackSummary').value.trim(),
+    recurring_questions: document.getElementById('researchPackQuestions').value.trim(),
+    next_review_date: document.getElementById('researchPackReviewDate').value
+  };
+  if (!payload.name || !payload.summary || !payload.recurring_questions) {
+    alert('Research pack name, summary, and recurring questions are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/workspace/research-packs', { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('researchPackName').value = '';
+    document.getElementById('researchPackSummary').value = '';
+    document.getElementById('researchPackQuestions').value = '';
+    document.getElementById('researchPackReviewDate').value = '';
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function createSourceWatchlist() {
+  const payload = {
+    manifest_source_id: document.getElementById('watchlistManifestSourceId').value.trim(),
+    watch_reason: document.getElementById('watchlistReason').value.trim(),
+    desired_check_frequency: document.getElementById('watchlistFrequency').value.trim()
+  };
+  if (!payload.manifest_source_id || !payload.watch_reason) {
+    alert('Manifest source id and watch reason are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/source-versions/watchlists', { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('watchlistManifestSourceId').value = '';
+    document.getElementById('watchlistReason').value = '';
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
 function applyDemoRole(role) {
   actorRole.value = role;
   refreshSessionUi();
@@ -779,16 +891,21 @@ async function previewEvidence() {
       return payload;
     });
     if (data.status !== 'grounded') {
-      evidence.innerHTML = '<div class="alert warning"><b>Insufficient evidence.</b> No Brief will be created. Refine the question or stay with one of the guided demo prompts.</div>';
+      evidence.innerHTML = `
+        <div class="alert warning"><b>Insufficient evidence.</b> No Brief will be created until the question has stronger cited support.</div>
+        ${renderAnswerDiagnostics(data.diagnostics)}
+      `;
       return;
     }
     evidence.innerHTML = `
       <div class="alert success"><b>Grounded evidence found.</b> ${data.findings.length} cited passage(s) are available for a reviewable Brief.</div>
+      ${renderAnswerDiagnostics(data.diagnostics)}
       <div class="metric-grid">
         ${data.findings.slice(0, 3).map((finding) => `
           <article class="metric-card">
             <strong>${esc(finding.citation.source_id)}</strong>
             <span>${esc(finding.citation.locator)}</span>
+            <small>${esc(finding.citation.freshness_status || 'unknown')} · ${esc(String(finding.citation.source_age_days || 0))}d</small>
           </article>
         `).join('')}
       </div>
@@ -796,6 +913,23 @@ async function previewEvidence() {
   } catch (error) {
     evidence.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
   }
+}
+
+function renderAnswerDiagnostics(diagnostics) {
+  if (!diagnostics) return '';
+  return `
+    <div class="brief-section">
+      <h3>Evidence diagnostics</h3>
+      <div class="meta-row">
+        <span class="pill">${esc(diagnostics.sufficiency)}</span>
+        <span class="pill">${esc(String(diagnostics.retrieval_result_count || 0))} retrieval results</span>
+      </div>
+      <ul class="stack-list">${(diagnostics.reasons || []).map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+      ${(diagnostics.query_refinements || []).length ? `<h4>Refine the question</h4><ul class="stack-list">${diagnostics.query_refinements.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>` : ''}
+      ${(diagnostics.context_hints || []).length ? `<h4>Improve the context</h4><ul class="stack-list">${diagnostics.context_hints.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>` : ''}
+      <p class="helper">${esc(diagnostics.next_best_action || '')}</p>
+    </div>
+  `;
 }
 
 async function createBrief() {
@@ -958,7 +1092,9 @@ async function openBrief(id) {
         <div class="citation">
           <b>${esc(finding.citation.source_id)} ${esc(finding.citation.source_version)}</b><br>
           ${esc(finding.citation.locator)}<br>
-          ${esc(finding.citation.support)}
+          ${esc(finding.citation.support)}<br>
+          <span class="helper">${esc(finding.citation.freshness_status || 'unknown')} · ${esc(String(finding.citation.source_age_days || 0))} days old</span><br>
+          <span class="helper">${esc(finding.citation.change_summary || '')}</span>
         </div>
         <div class="button-row">
           ${buttonHtml({ label: 'Review this finding', action: 'reviewFinding', onClick: `showForm('${esc(brief.brief_id)}','${esc(finding.finding_id)}')` })}
@@ -1305,6 +1441,7 @@ async function openAdminPanel(panel) {
             ${renderMetricCard('citation coverage', dashboard.quality_gate.citation_coverage_rate.toFixed(2))}
             ${renderMetricCard('unsupported pass rate', dashboard.quality_gate.unsupported_answer_pass_rate.toFixed(2))}
             ${renderMetricCard('source age (days)', dashboard.source_health.average_source_age_days.toFixed(1))}
+            ${renderMetricCard('insufficient evidence rate', `${(dashboard.answer_readiness.insufficient_evidence_rate * 100).toFixed(0)}%`)}
             ${renderMetricCard('review disagreements', dashboard.review_quality.disagreement_findings)}
             ${renderMetricCard('governed deliveries', dashboard.workflow_quality.governed_deliveries)}
           </div>
@@ -1316,6 +1453,11 @@ async function openAdminPanel(panel) {
         <article class="admin-card">
           <h4>Highlighted failures</h4>
           <ul class="stack-list">${(dashboard.quality_gate.highlighted_failures || []).map((failure) => `<li><b>${esc(failure.case_id)}</b> · ${esc(failure.category)} · ${esc(failure.severity)} · answer ${esc(failure.answer_status)}</li>`).join('') || '<li>No highlighted failures.</li>'}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Answer readiness</h4>
+          <p>${esc(dashboard.answer_readiness.readiness_summary)}</p>
+          <ul class="stack-list">${dashboard.answer_readiness.recommended_focus.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
         </article>
       `;
       return;
@@ -2214,6 +2356,8 @@ document.getElementById('createProjectBtn').addEventListener('click', createWork
 document.getElementById('linkBriefBtn').addEventListener('click', linkCurrentBriefToProject);
 document.getElementById('createAssignmentBtn').addEventListener('click', createWorkspaceAssignment);
 document.getElementById('createSavedViewBtn').addEventListener('click', createWorkspaceSavedView);
+document.getElementById('createResearchPackBtn').addEventListener('click', createWorkspaceResearchPack);
+document.getElementById('createWatchlistBtn').addEventListener('click', createSourceWatchlist);
 actorId.addEventListener('change', refreshSessionUi);
 actorOrg.addEventListener('change', refreshSessionUi);
 actorRole.addEventListener('change', refreshSessionUi);

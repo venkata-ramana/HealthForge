@@ -256,6 +256,49 @@
 
         <section class="panel">
           <div class="panel-heading">
+            <h2>Research packs and evidence operations</h2>
+          </div>
+          <label>Research pack name
+            <input id="researchPackName" placeholder="CMS prior auth evidence pack">
+          </label>
+          <label>Project (optional)
+            <select id="researchPackProject"></select>
+          </label>
+          <label>Summary
+            <textarea id="researchPackSummary" placeholder="Reusable analyst pack for repeated evidence review."></textarea>
+          </label>
+          <label>Recurring questions (one per line)
+            <textarea id="researchPackQuestions" placeholder="What changes do we need for CMS prior authorization workflows?&#10;How should a provider workflow handle documentation and status exchange for prior authorization?"></textarea>
+          </label>
+          <label>Next review date (optional)
+            <input id="researchPackReviewDate" type="date">
+          </label>
+          <div class="button-row">
+            <button id="createResearchPackBtn">Create research pack</button>
+          </div>
+
+          <label>Watch a source family
+            <input id="watchlistManifestSourceId" placeholder="cms-0057-f-final-rule">
+          </label>
+          <label>Watch reason
+            <textarea id="watchlistReason" placeholder="Track source freshness before reusing prior-auth planning outputs."></textarea>
+          </label>
+          <label>Check frequency
+            <select id="watchlistFrequency">
+              <option value="weekly">weekly</option>
+              <option value="biweekly">biweekly</option>
+              <option value="monthly">monthly</option>
+            </select>
+          </label>
+          <div class="button-row">
+            <button id="createWatchlistBtn">Add watchlist</button>
+          </div>
+          <div id="workspaceResearchPacks" class="demo-list"></div>
+          <div id="workspaceSourceOperations" class="demo-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
             <h2>Workflow configs and identity foundation</h2>
           </div>
           <div id="workspaceConfigs" class="doc-grid"></div>

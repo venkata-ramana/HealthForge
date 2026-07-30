@@ -20,6 +20,12 @@ public record SourceVersionResponse(
         String termsReviewedBy,
         Instant termsReviewedAt,
         String supersededBySourceVersionId,
-        boolean eligibleForCurrentSnapshot
+        boolean eligibleForCurrentSnapshot,
+        String freshnessStatus,
+        long sourceAgeDays,
+        boolean watchlisted,
+        String watchReason,
+        String recommendedAction,
+        String changeSummary
 ) {
 }

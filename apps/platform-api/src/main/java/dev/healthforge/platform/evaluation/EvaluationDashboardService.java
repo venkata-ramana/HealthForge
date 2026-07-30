@@ -60,6 +60,7 @@ public class EvaluationDashboardService {
                 qualityGate,
                 sourceHealth,
                 evidenceHealth,
+                answerReadiness(qualityGate, evidenceHealth),
                 reviewQuality,
                 workflowQuality,
                 List.of(
@@ -68,6 +69,29 @@ public class EvaluationDashboardService {
                         "Unsupported-output and insufficient-evidence rates help identify where corpus coverage or prompt boundaries need attention."
                 ),
                 "This dashboard turns baseline files, runtime evidence telemetry, and human-review workflow data into an operator-friendly trust view."
+        );
+    }
+
+    private EvaluationDashboardResponse.AnswerReadiness answerReadiness(
+            EvaluationDashboardResponse.QualityGate qualityGate,
+            EvaluationDashboardResponse.EvidenceHealth evidenceHealth
+    ) {
+        var insufficientEvidenceRate = evidenceHealth.totalAnswers() == 0
+                ? 0.0
+                : (double) evidenceHealth.insufficientEvidenceAnswers() / evidenceHealth.totalAnswers();
+        return new EvaluationDashboardResponse.AnswerReadiness(
+                Math.max(qualityGate.highlightedFailures().size(), 1),
+                insufficientEvidenceRate,
+                qualityGate.retrievalRecall(),
+                qualityGate.citationCoverageRate(),
+                insufficientEvidenceRate > 0.35
+                        ? "Answer readiness is limited mainly by evidence sufficiency and query precision rather than workflow governance."
+                        : "Answer readiness is within the current bounded baseline, but source freshness and citation quality should still be watched.",
+                List.of(
+                        "Improve evidence sufficiency diagnostics for weak-answer scenarios.",
+                        "Track stale or superseded source families before reusing approved planning outputs.",
+                        "Prefer question packs and reusable analyst context for repeated workflows."
+                )
         );
     }
 
