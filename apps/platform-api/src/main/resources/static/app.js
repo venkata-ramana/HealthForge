@@ -19,6 +19,10 @@ const roleRequirements = {
   workspaceProject: 'reviewer',
   workspaceAssignment: 'reviewer',
   workspaceSavedView: 'reviewer',
+  workspaceQuestionPack: 'reviewer',
+  workspaceResearchNotebook: 'reviewer',
+  workspaceReviewEscalation: 'reviewer',
+  workspaceDiscoverySearch: 'reviewer',
   inboundCases: 'reviewer',
   orchestrationTemplates: 'reviewer',
   intelligenceOverview: 'reviewer',
@@ -87,6 +91,11 @@ const docLinks = [
     title: 'README overview',
     path: '/README.md',
     description: 'High-level product overview, quick start, demo prompts, and capability boundaries.'
+  },
+  {
+    title: 'Phase 22 analyst research workspace',
+    path: '/docs/53-phase22-analyst-research-workspace.md',
+    description: 'Question packs, precedent comparison, notebooks, topic discovery, and reviewer operations cues.'
   },
   {
     title: 'Phase 11 collaboration workspace',
@@ -296,6 +305,16 @@ const workspaceResearchPacks = document.getElementById('workspaceResearchPacks')
 const workspaceSourceOperations = document.getElementById('workspaceSourceOperations');
 const workspaceConfigs = document.getElementById('workspaceConfigs');
 const workspaceIdentity = document.getElementById('workspaceIdentity');
+const workspaceQuestionPacks = document.getElementById('workspaceQuestionPacks');
+const workspaceScenarioTemplates = document.getElementById('workspaceScenarioTemplates');
+const workspacePersonaPresets = document.getElementById('workspacePersonaPresets');
+const workspacePrecedentComparisons = document.getElementById('workspacePrecedentComparisons');
+const workspaceDecisionPatterns = document.getElementById('workspaceDecisionPatterns');
+const workspaceThemeClusters = document.getElementById('workspaceThemeClusters');
+const workspaceTopics = document.getElementById('workspaceTopics');
+const workspaceSearchResults = document.getElementById('workspaceSearchResults');
+const workspaceResearchNotebooks = document.getElementById('workspaceResearchNotebooks');
+const workspaceReviewerOperations = document.getElementById('workspaceReviewerOperations');
 let currentBriefId = null;
 let workspaceOverviewState = null;
 let sourceOperationsState = null;
@@ -471,6 +490,8 @@ function refreshWorkspaceSelectors() {
   document.getElementById('linkProjectSelect').innerHTML = projectSelectOptions(false);
   document.getElementById('savedViewProject').innerHTML = projectSelectOptions(true);
   document.getElementById('researchPackProject').innerHTML = projectSelectOptions(true);
+  document.getElementById('questionPackProject').innerHTML = projectSelectOptions(true);
+  document.getElementById('researchNotebookProject').innerHTML = projectSelectOptions(true);
 }
 
 function projectCard(project) {
@@ -561,6 +582,176 @@ function researchPackCard(pack) {
   `;
 }
 
+function questionPackCard(pack) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(pack.name)}</h3>
+      <p>${esc(pack.summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(pack.persona)}</span>
+        <span class="pill">${esc(pack.template_kind)}</span>
+        ${pack.project_name ? `<span class="pill">${esc(pack.project_name)}</span>` : '<span class="pill">org-scoped</span>'}
+      </div>
+      <div class="helper">Starter: ${esc(pack.starter_question)}</div>
+      <ul class="stack-list">${(pack.question_prompts || []).map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+    </article>
+  `;
+}
+
+function scenarioTemplateCard(template) {
+  return `
+    <article class="doc-card">
+      <h3>${esc(template.title)}</h3>
+      <p>${esc(template.summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(template.persona)}</span>
+        <span class="pill">${esc(template.workflow_stage)}</span>
+      </div>
+      <ul class="stack-list">${(template.starting_points || []).map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+    </article>
+  `;
+}
+
+function personaPresetCard(preset) {
+  return `
+    <article class="doc-card">
+      <h3>${esc(preset.persona)}</h3>
+      <p>${esc(preset.summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(preset.recommended_role)}</span>
+        <span class="pill">${esc(preset.starting_view)}</span>
+      </div>
+      <ul class="stack-list">${(preset.focus_areas || []).map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+    </article>
+  `;
+}
+
+function precedentComparisonCard(item) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(item.overlap_theme)}</h3>
+      <p>${esc(item.advisory_summary)}</p>
+      <div class="helper"><b>${esc(item.primary_brief_id)}</b> · ${esc(item.primary_question)}</div>
+      <div class="helper"><b>${esc(item.related_brief_id)}</b> · ${esc(item.related_question)}</div>
+      <div class="meta-row">
+        ${(item.shared_signals || []).map((signal) => `<span class="pill">${esc(signal)}</span>`).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function decisionPatternCard(pattern) {
+  return `
+    <article class="doc-card">
+      <h3>${esc(pattern.title)}</h3>
+      <p>${esc(pattern.summary)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(pattern.pattern_type)}</span>
+      </div>
+      <ul class="stack-list">${(pattern.signals || []).map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+    </article>
+  `;
+}
+
+function themeClusterCard(cluster) {
+  return `
+    <article class="doc-card">
+      <h3>${esc(cluster.theme)}</h3>
+      <p>${esc(cluster.summary)}</p>
+      <div class="metric-grid">
+        ${renderMetricCard('briefs', cluster.brief_count)}
+        ${renderMetricCard('approved', cluster.approved_count)}
+      </div>
+      <ul class="stack-list">${(cluster.representative_questions || []).map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+    </article>
+  `;
+}
+
+function topicCard(topic) {
+  return `
+    <article class="doc-card">
+      <h3>${esc(topic.theme)}</h3>
+      <p>${esc(topic.summary)}</p>
+      <div class="metric-grid">
+        ${renderMetricCard('briefs', topic.related_briefs)}
+        ${renderMetricCard('findings', topic.related_findings)}
+        ${renderMetricCard('approvals', topic.approval_count)}
+      </div>
+    </article>
+  `;
+}
+
+function researchNotebookCard(notebook) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(notebook.title)}</h3>
+      <p>${esc(notebook.summary)}</p>
+      <div class="meta-row">
+        ${notebook.project_name ? `<span class="pill">${esc(notebook.project_name)}</span>` : '<span class="pill">org-scoped</span>'}
+        ${notebook.brief_id ? `<span class="pill">${esc(notebook.brief_id)}</span>` : ''}
+        <span class="pill">${esc(notebook.evidence_bundle_name)}</span>
+      </div>
+      ${notebook.brief_question ? `<div class="helper">${esc(notebook.brief_question)}</div>` : ''}
+      <ul class="stack-list">${(notebook.key_takeaways || []).map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+      <div class="helper"><b>Handoff:</b> ${esc(notebook.handoff_summary)}</div>
+      <div class="helper"><b>Continuity:</b> ${esc(notebook.continuity_note)}</div>
+    </article>
+  `;
+}
+
+function reviewerOperationsCard(ops) {
+  return `
+    <article class="demo-card">
+      <h3>Reviewer operations summary</h3>
+      <div class="metric-grid">
+        ${renderMetricCard('assignments', ops.total_assignments)}
+        ${renderMetricCard('due soon', ops.due_soon_assignments)}
+        ${renderMetricCard('stale', ops.stale_assignments)}
+        ${renderMetricCard('escalated', ops.escalated_assignments)}
+      </div>
+    </article>
+    ${(ops.sla_cues || []).map((cue) => `
+      <article class="demo-card">
+        <h3>${esc(cue.brief_question)}</h3>
+        <p>${esc(cue.recommendation)}</p>
+        <div class="meta-row">
+          <span class="pill">${esc(cue.queue_name)}</span>
+          <span class="pill">${esc(cue.urgency)}</span>
+          <span class="pill">${esc(cue.age_days)} days</span>
+        </div>
+        <div class="helper">${esc(cue.assignee_actor_id)} · ${esc(cue.brief_id)}</div>
+      </article>
+    `).join('')}
+    ${(ops.escalations || []).map((item) => `
+      <article class="demo-card">
+        <h3>${esc(item.brief_question)}</h3>
+        <p>${esc(item.escalation_reason)}</p>
+        <div class="meta-row">
+          <span class="pill">${esc(item.urgency)}</span>
+          <span class="pill">${esc(item.destination_queue)}</span>
+          <span class="pill">${esc(item.status)}</span>
+        </div>
+        <div class="helper">${esc(item.note)}</div>
+      </article>
+    `).join('')}
+  `;
+}
+
+function workspaceSearchResultCard(hit) {
+  return `
+    <article class="demo-card">
+      <h3>${esc(hit.title)}</h3>
+      <p>${esc(hit.excerpt)}</p>
+      <div class="meta-row">
+        <span class="pill">${esc(hit.hit_type)}</span>
+        <span class="pill">${esc(hit.topic)}</span>
+        <span class="pill">${esc(hit.status)}</span>
+      </div>
+      <div class="helper">${esc(hit.ref_id)}</div>
+    </article>
+  `;
+}
+
 function sourceOperationsCard(data) {
   return `
     <article class="demo-card">
@@ -643,6 +834,15 @@ function renderWorkspaceOverview(data) {
   workspaceSavedViews.innerHTML = data.saved_views.length ? data.saved_views.map(savedViewCard).join('') : '<div class="empty-state"><h3>No saved views yet</h3><p>Save a repeated query to preserve analysis paths.</p></div>';
   workspaceCollections.innerHTML = data.evidence_collections.length ? data.evidence_collections.map(collectionCard).join('') : '<div class="empty-state"><h3>No evidence workspaces yet</h3><p>Link briefs to projects to build reusable evidence collections.</p></div>';
   workspaceResearchPacks.innerHTML = data.research_packs.length ? data.research_packs.map(researchPackCard).join('') : '<div class="empty-state"><h3>No research packs yet</h3><p>Create one to preserve recurring analyst questions and evidence review paths.</p></div>';
+  workspaceQuestionPacks.innerHTML = data.question_packs.length ? data.question_packs.map(questionPackCard).join('') : '<div class="empty-state"><h3>No question packs yet</h3><p>Create a reusable starting point for repeated analyst research.</p></div>';
+  workspaceScenarioTemplates.innerHTML = data.scenario_templates.length ? data.scenario_templates.map(scenarioTemplateCard).join('') : '<div class="empty-state"><h3>No templates yet</h3><p>Scenario templates will appear here.</p></div>';
+  workspacePersonaPresets.innerHTML = data.persona_presets.length ? data.persona_presets.map(personaPresetCard).join('') : '<div class="empty-state"><h3>No persona presets yet</h3><p>Persona presets will appear here.</p></div>';
+  workspacePrecedentComparisons.innerHTML = data.precedent_comparisons.length ? data.precedent_comparisons.map(precedentComparisonCard).join('') : '<div class="empty-state"><h3>No precedent comparisons yet</h3><p>Related Brief comparisons will appear as the workspace grows.</p></div>';
+  workspaceDecisionPatterns.innerHTML = data.decision_patterns.length ? data.decision_patterns.map(decisionPatternCard).join('') : '<div class="empty-state"><h3>No decision patterns yet</h3><p>Review patterns will appear as more decisions are recorded.</p></div>';
+  workspaceThemeClusters.innerHTML = data.theme_clusters.length ? data.theme_clusters.map(themeClusterCard).join('') : '<div class="empty-state"><h3>No theme clusters yet</h3><p>Topic clusters will appear as more related work is created.</p></div>';
+  workspaceTopics.innerHTML = data.topic_browser.length ? data.topic_browser.map(topicCard).join('') : '<div class="empty-state"><h3>No topics yet</h3><p>Topic browsing will appear as more Briefs are created.</p></div>';
+  workspaceResearchNotebooks.innerHTML = data.research_notebooks.length ? data.research_notebooks.map(researchNotebookCard).join('') : '<div class="empty-state"><h3>No research notebooks yet</h3><p>Create a notebook to preserve continuity between review sessions.</p></div>';
+  workspaceReviewerOperations.innerHTML = data.reviewer_operations ? reviewerOperationsCard(data.reviewer_operations) : '<div class="empty-state"><h3>No reviewer operations summary yet</h3><p>Reviewer workload signals will appear here.</p></div>';
   workspaceConfigs.innerHTML = data.workflow_configurations.length ? data.workflow_configurations.map(configCard).join('') : '<div class="empty-state"><h3>No workflow configs yet</h3><p>Configuration profiles will appear here.</p></div>';
   workspaceIdentity.innerHTML = `
     <article class="doc-card">
@@ -656,6 +856,7 @@ function renderWorkspaceOverview(data) {
     ${data.auth_foundation.identity_providers.map(identityCard).join('')}
     ${data.auth_foundation.group_role_mappings.map(groupMappingCard).join('')}
   `;
+  workspaceSearchResults.innerHTML = '';
 }
 
 function renderSourceOperations(data) {
@@ -801,6 +1002,125 @@ async function createWorkspaceResearchPack() {
     await loadWorkspaceOverview(true);
   } catch (error) {
     alert(error.message);
+  }
+}
+
+async function createWorkspaceQuestionPack() {
+  if (!can('workspaceQuestionPack')) {
+    alert(permissionText('workspaceQuestionPack'));
+    return;
+  }
+  const payload = {
+    project_id: document.getElementById('questionPackProject').value,
+    name: document.getElementById('questionPackName').value.trim(),
+    summary: document.getElementById('questionPackSummary').value.trim(),
+    persona: document.getElementById('questionPackPersona').value.trim(),
+    template_kind: document.getElementById('questionPackTemplateKind').value.trim(),
+    starter_question: document.getElementById('questionPackStarterQuestion').value.trim(),
+    question_prompts: document.getElementById('questionPackPrompts').value.trim()
+  };
+  if (!payload.name || !payload.summary || !payload.starter_question || !payload.question_prompts) {
+    alert('Question pack name, summary, starter question, and prompts are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/workspace/question-packs', { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('questionPackName').value = '';
+    document.getElementById('questionPackSummary').value = '';
+    document.getElementById('questionPackStarterQuestion').value = '';
+    document.getElementById('questionPackPrompts').value = '';
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function createWorkspaceResearchNotebook() {
+  if (!can('workspaceResearchNotebook')) {
+    alert(permissionText('workspaceResearchNotebook'));
+    return;
+  }
+  const payload = {
+    project_id: document.getElementById('researchNotebookProject').value,
+    brief_id: currentBriefId,
+    title: document.getElementById('researchNotebookTitle').value.trim(),
+    summary: document.getElementById('researchNotebookSummary').value.trim(),
+    key_takeaways: document.getElementById('researchNotebookTakeaways').value.trim(),
+    evidence_bundle_name: document.getElementById('researchNotebookBundle').value.trim(),
+    handoff_summary: document.getElementById('researchNotebookHandoff').value.trim(),
+    continuity_note: document.getElementById('researchNotebookContinuity').value.trim()
+  };
+  if (!payload.title || !payload.summary || !payload.key_takeaways || !payload.evidence_bundle_name || !payload.handoff_summary || !payload.continuity_note) {
+    alert('Notebook title, summary, takeaways, evidence bundle, handoff summary, and continuity note are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/workspace/research-notebooks', { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('researchNotebookTitle').value = '';
+    document.getElementById('researchNotebookSummary').value = '';
+    document.getElementById('researchNotebookTakeaways').value = '';
+    document.getElementById('researchNotebookBundle').value = '';
+    document.getElementById('researchNotebookHandoff').value = '';
+    document.getElementById('researchNotebookContinuity').value = '';
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function createWorkspaceReviewEscalation() {
+  if (!can('workspaceReviewEscalation')) {
+    alert(permissionText('workspaceReviewEscalation'));
+    return;
+  }
+  if (!currentBriefId) {
+    alert('Open a brief first so we know which brief is being escalated.');
+    return;
+  }
+  const primaryAssignment = (workspaceOverviewState?.assignments || []).find((item) => item.brief_id === currentBriefId);
+  const payload = {
+    assignment_id: primaryAssignment?.assignment_id || '',
+    brief_id: currentBriefId,
+    escalation_reason: document.getElementById('reviewEscalationReason').value.trim(),
+    urgency: document.getElementById('reviewEscalationUrgency').value.trim(),
+    destination_queue: document.getElementById('reviewEscalationQueue').value.trim(),
+    note: document.getElementById('reviewEscalationNote').value.trim()
+  };
+  if (!payload.escalation_reason || !payload.destination_queue || !payload.note) {
+    alert('Escalation reason, destination queue, and note are required.');
+    return;
+  }
+  try {
+    await apiJson('/v1/workspace/review-escalations', { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('reviewEscalationReason').value = '';
+    document.getElementById('reviewEscalationNote').value = '';
+    await loadWorkspaceOverview(true);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function runWorkspaceSearch() {
+  if (!can('workspaceDiscoverySearch')) {
+    alert(permissionText('workspaceDiscoverySearch'));
+    return;
+  }
+  const payload = {
+    query: document.getElementById('workspaceSearchQuery').value.trim(),
+    facet: document.getElementById('workspaceSearchFacet').value.trim()
+  };
+  if (!payload.query) {
+    alert('Enter a search query first.');
+    return;
+  }
+  workspaceSearchResults.innerHTML = '<div class="alert warning">Searching local workspace data…</div>';
+  try {
+    const results = await apiJson('/v1/workspace/discovery/search', { method: 'POST', body: JSON.stringify(payload) });
+    workspaceSearchResults.innerHTML = results.hits.length
+      ? results.hits.map(workspaceSearchResultCard).join('')
+      : '<div class="empty-state"><h3>No matching workspace results</h3><p>Try a broader theme, a different facet, or create more related work first.</p></div>';
+  } catch (error) {
+    workspaceSearchResults.innerHTML = `<div class="alert error">${esc(error.message)}</div>`;
   }
 }
 
@@ -2357,6 +2677,10 @@ document.getElementById('linkBriefBtn').addEventListener('click', linkCurrentBri
 document.getElementById('createAssignmentBtn').addEventListener('click', createWorkspaceAssignment);
 document.getElementById('createSavedViewBtn').addEventListener('click', createWorkspaceSavedView);
 document.getElementById('createResearchPackBtn').addEventListener('click', createWorkspaceResearchPack);
+document.getElementById('createQuestionPackBtn').addEventListener('click', createWorkspaceQuestionPack);
+document.getElementById('createResearchNotebookBtn').addEventListener('click', createWorkspaceResearchNotebook);
+document.getElementById('createReviewEscalationBtn').addEventListener('click', createWorkspaceReviewEscalation);
+document.getElementById('runWorkspaceSearchBtn').addEventListener('click', runWorkspaceSearch);
 document.getElementById('createWatchlistBtn').addEventListener('click', createSourceWatchlist);
 actorId.addEventListener('change', refreshSessionUi);
 actorOrg.addEventListener('change', refreshSessionUi);

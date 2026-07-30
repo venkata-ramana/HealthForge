@@ -305,6 +305,128 @@
           <div id="workspaceIdentity" class="doc-grid"></div>
         </section>
       </div>
+
+      <div class="workspace-columns">
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Question packs, templates, and persona presets</h2>
+          </div>
+          <label>Question pack name
+            <input id="questionPackName" placeholder="Provider reviewer starter pack">
+          </label>
+          <label>Project (optional)
+            <select id="questionPackProject"></select>
+          </label>
+          <label>Persona
+            <select id="questionPackPersona">
+              <option value="reviewer">reviewer</option>
+              <option value="approver">approver</option>
+              <option value="auditor">auditor</option>
+              <option value="administrator">administrator</option>
+            </select>
+          </label>
+          <label>Template kind
+            <select id="questionPackTemplateKind">
+              <option value="analyst_starter">analyst_starter</option>
+              <option value="stakeholder_walkthrough">stakeholder_walkthrough</option>
+              <option value="precedent_reuse">precedent_reuse</option>
+            </select>
+          </label>
+          <label>Summary
+            <textarea id="questionPackSummary" placeholder="Reusable prompts for repeated analyst starts."></textarea>
+          </label>
+          <label>Starter question
+            <textarea id="questionPackStarterQuestion" placeholder="What changes do we need for CMS prior authorization workflows?"></textarea>
+          </label>
+          <label>Question prompts (one per line)
+            <textarea id="questionPackPrompts" placeholder="What changes do we need for CMS prior authorization workflows?&#10;Which passages directly affect provider documentation?"></textarea>
+          </label>
+          <div class="button-row">
+            <button id="createQuestionPackBtn">Create question pack</button>
+          </div>
+          <div id="workspaceQuestionPacks" class="demo-list"></div>
+          <div id="workspaceScenarioTemplates" class="doc-grid"></div>
+          <div id="workspacePersonaPresets" class="doc-grid"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Precedent and topic discovery</h2>
+          </div>
+          <label>Search the workspace
+            <input id="workspaceSearchQuery" placeholder="prior authorization">
+          </label>
+          <label>Facet
+            <select id="workspaceSearchFacet">
+              <option value="all">all</option>
+              <option value="briefs">briefs</option>
+              <option value="findings">findings</option>
+              <option value="approvals">approvals</option>
+              <option value="evidence">evidence</option>
+            </select>
+          </label>
+          <div class="button-row">
+            <button id="runWorkspaceSearchBtn">Run search</button>
+          </div>
+          <div id="workspacePrecedentComparisons" class="demo-list"></div>
+          <div id="workspaceDecisionPatterns" class="doc-grid"></div>
+          <div id="workspaceThemeClusters" class="doc-grid"></div>
+          <div id="workspaceTopics" class="doc-grid"></div>
+          <div id="workspaceSearchResults" class="demo-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Research notebooks and reviewer operations</h2>
+          </div>
+          <label>Notebook title
+            <input id="researchNotebookTitle" placeholder="Prior auth reviewer notebook">
+          </label>
+          <label>Project (optional)
+            <select id="researchNotebookProject"></select>
+          </label>
+          <label>Summary
+            <textarea id="researchNotebookSummary" placeholder="Bounded notebook for preserving analyst continuity."></textarea>
+          </label>
+          <label>Key takeaways (one per line)
+            <textarea id="researchNotebookTakeaways" placeholder="Capture the governing CMS requirement first.&#10;Flag stale evidence before approval."></textarea>
+          </label>
+          <label>Evidence bundle name
+            <input id="researchNotebookBundle" placeholder="CMS prior auth evidence bundle">
+          </label>
+          <label>Handoff summary
+            <textarea id="researchNotebookHandoff" placeholder="Use this notebook to hand current evidence posture to the approver."></textarea>
+          </label>
+          <label>Continuity note
+            <textarea id="researchNotebookContinuity" placeholder="Refresh when CMS rule evidence changes."></textarea>
+          </label>
+          <div class="button-row">
+            <button id="createResearchNotebookBtn">Create notebook</button>
+          </div>
+
+          <label>Escalation reason
+            <textarea id="reviewEscalationReason" placeholder="Evidence questions need reviewer follow-up before approver time is spent."></textarea>
+          </label>
+          <label>Urgency
+            <select id="reviewEscalationUrgency">
+              <option value="medium">medium</option>
+              <option value="high">high</option>
+              <option value="low">low</option>
+            </select>
+          </label>
+          <label>Destination queue
+            <input id="reviewEscalationQueue" value="reviewer-queue">
+          </label>
+          <label>Note
+            <textarea id="reviewEscalationNote" placeholder="Use escalation cues to surface aging research without turning this into a punitive queue."></textarea>
+          </label>
+          <div class="button-row">
+            <button id="createReviewEscalationBtn">Create escalation</button>
+          </div>
+          <div id="workspaceResearchNotebooks" class="demo-list"></div>
+          <div id="workspaceReviewerOperations" class="demo-list"></div>
+        </section>
+      </div>
     </section>
 
     <section id="view-testing" class="workspace-view">

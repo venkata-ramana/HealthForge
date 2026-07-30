@@ -94,10 +94,11 @@ HealthForge helps healthcare teams move from public regulations and standards re
 
 For internal planning, the project has been delivered through phased milestones. Those details are intentionally not the center of the main README, but they remain useful here as the historical record.
 
-As of Wednesday, July 29, 2026:
+As of Thursday, July 30, 2026:
 
 - Phase 21 is complete
-- the current open-phase backlog begins with Phase 22
+- Phase 22 is complete in the current release branch
+- the current open-phase backlog begins with Phase 23
 
 ## Suggested future release-note format
 

@@ -67,4 +67,36 @@ public class WorkspaceController {
     ) {
         return service.createResearchPack(researchPackRequest, actorResolver.requireReviewerOrAdministrator(request));
     }
+
+    @PostMapping("/question-packs")
+    public WorkspaceOverviewResponse.QuestionPackSummary createQuestionPack(
+            @Valid @RequestBody WorkspaceQuestionPackRequest questionPackRequest,
+            HttpServletRequest request
+    ) {
+        return service.createQuestionPack(questionPackRequest, actorResolver.requireReviewerOrAdministrator(request));
+    }
+
+    @PostMapping("/research-notebooks")
+    public WorkspaceOverviewResponse.ResearchNotebookSummary createResearchNotebook(
+            @Valid @RequestBody WorkspaceResearchNotebookRequest researchNotebookRequest,
+            HttpServletRequest request
+    ) {
+        return service.createResearchNotebook(researchNotebookRequest, actorResolver.requireReviewerOrAdministrator(request));
+    }
+
+    @PostMapping("/review-escalations")
+    public WorkspaceOverviewResponse.EscalationSummary createReviewEscalation(
+            @Valid @RequestBody WorkspaceReviewEscalationRequest reviewEscalationRequest,
+            HttpServletRequest request
+    ) {
+        return service.createReviewEscalation(reviewEscalationRequest, actorResolver.requireReviewerOrAdministrator(request));
+    }
+
+    @PostMapping("/discovery/search")
+    public WorkspaceSearchResponse search(
+            @Valid @RequestBody WorkspaceSearchRequest searchRequest,
+            HttpServletRequest request
+    ) {
+        return service.search(searchRequest, actorResolver.requireReviewerOrAdministrator(request));
+    }
 }
