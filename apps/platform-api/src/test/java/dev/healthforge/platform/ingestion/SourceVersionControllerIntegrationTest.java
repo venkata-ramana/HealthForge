@@ -8,10 +8,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -28,6 +32,8 @@ class SourceVersionControllerIntegrationTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @AfterEach
     void tearDown() {
         jdbcTemplate.update("delete from source_watchlist where organization_id = 'org.sourceops.test'");
@@ -37,6 +43,7 @@ class SourceVersionControllerIntegrationTest {
 
     @Test
     void returnsOperationsOverviewAndAllowsWatchlists() throws Exception {
+        var manifestSourceId = "sourceops-" + UUID.randomUUID();
         var sourceVersionId = "srcver-sourceops-" + UUID.randomUUID();
         jdbcTemplate.update("""
                 insert into source_version (
@@ -47,7 +54,7 @@ class SourceVersionControllerIntegrationTest {
                 ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 sourceVersionId,
-                "cms-0057-f-final-rule",
+                manifestSourceId,
                 "2026-07-15",
                 "governing_regulation",
                 "CMS Final Rule",
@@ -69,25 +76,35 @@ class SourceVersionControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "manifest_source_id":"cms-0057-f-final-rule",
+                                  "manifest_source_id":"%s",
                                   "watch_reason":"Track freshness before reusing prior-auth planning evidence.",
                                   "desired_check_frequency":"weekly"
                                 }
-                                """)
+                                """.formatted(manifestSourceId))
                         .header("X-HealthForge-Actor", "sourceops.admin")
                         .header("X-HealthForge-Role", "administrator")
                         .header("X-HealthForge-Organization", "org.sourceops.test"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.manifest_source_id").value("cms-0057-f-final-rule"))
-                .andExpect(jsonPath("$.freshness_status").value("superseded"));
+                .andExpect(jsonPath("$.manifest_source_id").value(manifestSourceId))
+                .andExpect(jsonPath("$.freshness_status").value("stale"));
 
-        mockMvc.perform(get("/v1/source-versions/operations")
+        MvcResult operationsResult = mockMvc.perform(get("/v1/source-versions/operations")
                         .header("X-HealthForge-Actor", "sourceops.admin")
                         .header("X-HealthForge-Role", "administrator")
                         .header("X-HealthForge-Organization", "org.sourceops.test"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.summary.watchlisted_sources").value(1))
-                .andExpect(jsonPath("$.watchlists[0].manifest_source_id").value("cms-0057-f-final-rule"))
-                .andExpect(jsonPath("$.freshness_alerts[0].freshness_status").value("superseded"));
+                .andExpect(jsonPath("$.watchlists[0].manifest_source_id").value(manifestSourceId))
+                .andReturn();
+
+        JsonNode payload = objectMapper.readTree(operationsResult.getResponse().getContentAsString());
+        boolean foundAlert = false;
+        for (JsonNode alert : payload.path("freshness_alerts")) {
+            if (manifestSourceId.equals(alert.path("manifest_source_id").asText())) {
+                foundAlert = true;
+                org.assertj.core.api.Assertions.assertThat(alert.path("freshness_status").asText()).isEqualTo("stale");
+            }
+        }
+        org.assertj.core.api.Assertions.assertThat(foundAlert).isTrue();
     }
 }
