@@ -41,6 +41,7 @@ const roleRequirements = {
   operationsUsage: 'auditor',
   operationsAttestations: 'administrator',
   pilotReadiness: 'auditor',
+  pilotAnalytics: 'auditor',
   solutionPacks: 'reviewer',
   stakeholderReport: 'auditor',
   futureRoadmap: 'auditor',
@@ -101,6 +102,11 @@ const docLinks = [
     title: 'Phase 23 governed delivery operationalization',
     path: '/docs/54-phase23-governed-delivery-operationalization.md',
     description: 'Connector governance checks, reconciliation, audit export, lineage, and grouped release packaging.'
+  },
+  {
+    title: 'Phase 25 pilot success analytics',
+    path: '/docs/55-phase25-pilot-success-and-expansion-analytics.md',
+    description: 'Usage funnel, workflow outcomes, stakeholder value evidence, structured feedback, and expansion-readiness scorecards.'
   },
   {
     title: 'Phase 11 collaboration workspace',
@@ -425,6 +431,7 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Usage', action: 'operationsUsage', className: 'secondary', onClick: 'openAdminPanel("operationsUsage")' }),
     buttonHtml({ label: 'Attestations', action: 'operationsAttestations', className: 'secondary', onClick: 'openAdminPanel("operationsAttestations")' }),
     buttonHtml({ label: 'Pilot readiness', action: 'pilotReadiness', className: 'secondary', onClick: 'openAdminPanel("pilotReadiness")' }),
+    buttonHtml({ label: 'Pilot analytics', action: 'pilotAnalytics', className: 'secondary', onClick: 'openAdminPanel("pilotAnalytics")' }),
     buttonHtml({ label: 'Solution packs', action: 'solutionPacks', className: 'secondary', onClick: 'openAdminPanel("solutionPacks")' }),
     buttonHtml({ label: 'Stakeholder report', action: 'stakeholderReport', className: 'secondary', onClick: 'openAdminPanel("stakeholderReport")' }),
     buttonHtml({ label: 'Future roadmap', action: 'futureRoadmap', className: 'secondary', onClick: 'openAdminPanel("futureRoadmap")' }),
@@ -1330,6 +1337,23 @@ async function recordRetrievalFeedback(briefId, findingId, sourceId) {
       })
     });
     alert('Retrieval feedback recorded.');
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function recordPilotFeedback(feedbackType) {
+  const rating = Number(prompt(`Rate ${feedbackType.replaceAll('_', ' ')} from 1 to 5`) || 0);
+  if (!rating) return;
+  const note = prompt('Optional feedback note') || '';
+  try {
+    await apiJson('/v1/pilot/analytics/feedback', {
+      method: 'POST',
+      headers: actorHeaders(false),
+      body: JSON.stringify({ feedback_type: feedbackType, rating, note })
+    });
+    alert('Pilot feedback recorded.');
+    await openAdminPanel('pilotAnalytics');
   } catch (error) {
     alert(error.message);
   }
@@ -2402,6 +2426,53 @@ async function openAdminPanel(panel) {
         <article class="admin-card">
           <h4>Milestones</h4>
           <ul class="stack-list">${success.checkpoints.map((item) => `<li><b>${esc(item.milestone_name)}</b> · ${esc(item.status)} · owner ${esc(item.owner_role)}<br><span class="helper">${esc(item.target_outcome)}</span><br><span class="helper">${esc(item.note)}</span></li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'pilotAnalytics') {
+      if (!can('pilotAnalytics')) throw new Error(permissionText('pilotAnalytics'));
+      const analytics = await apiJson('/v1/pilot/analytics', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Pilot analytics</h3>
+          <p class="helper">${esc(analytics.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('questions', analytics.funnel.question_starts)}
+            ${renderMetricCard('reviewed', analytics.funnel.briefs_reviewed)}
+            ${renderMetricCard('approved', analytics.funnel.briefs_approved)}
+            ${renderMetricCard('handoffs', analytics.funnel.implementation_handoffs)}
+            ${renderMetricCard('expansion score', `${analytics.expansion_readiness.score}/100`)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Workflow funnel</h4>
+          <ul class="stack-list">${analytics.funnel.stages.map((item) => `<li><b>${esc(item.stage)}</b> · ${esc(item.count)} · drop-off ${esc(item.drop_off_from_previous)}<br><span class="helper">${esc(item.interpretation)}</span></li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Stakeholder outcome summary</h4>
+          <p class="helper">${esc(analytics.stakeholder_summary.headline)}</p>
+          <div class="doc-grid">${analytics.stakeholder_summary.metrics.map((item) => `<article class="doc-card"><h3>${esc(item.name)}</h3><p>${esc(item.value)}</p><div class="helper">${esc(item.audience)} · ${esc(item.meaning)}</div></article>`).join('')}</div>
+          <h4>Value evidence</h4>
+          <ul class="stack-list">${analytics.stakeholder_summary.value_evidence.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+          <h4>Sponsor questions</h4>
+          <ul class="stack-list">${analytics.stakeholder_summary.sponsor_questions.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Expansion readiness</h4>
+          <p class="helper">${esc(analytics.expansion_readiness.current_stage)} → ${esc(analytics.expansion_readiness.next_stage)}</p>
+          <ul class="stack-list">${analytics.expansion_readiness.checks.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.status)}<br><span class="helper">${esc(item.evidence)}</span></li>`).join('')}</ul>
+          ${analytics.expansion_readiness.gaps.length ? `<h4>Gaps to close</h4><ul class="stack-list">${analytics.expansion_readiness.gaps.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>` : '<p class="helper">No readiness gaps are currently recorded.</p>'}
+        </article>
+        <article class="admin-card">
+          <h4>Feedback loop</h4>
+          <div class="button-row">
+            <button class="secondary" onclick="recordPilotFeedback('evidence_quality')">Evidence quality</button>
+            <button class="secondary" onclick="recordPilotFeedback('reviewer_confidence')">Reviewer confidence</button>
+            <button class="secondary" onclick="recordPilotFeedback('recommendation_usefulness')">Recommendation usefulness</button>
+          </div>
+          <ul class="stack-list">${analytics.feedback.by_type.map((item) => `<li><b>${esc(item.feedback_type)}</b> · ${esc(item.records)} records · average ${Number(item.average_rating).toFixed(1)}/5</li>`).join('') || '<li>No feedback captured yet.</li>'}</ul>
         </article>
       `;
       return;
