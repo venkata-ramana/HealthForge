@@ -27,6 +27,35 @@ HealthForge is built to close that gap without pretending an LLM should become t
 | Trust and governance | Exposes evaluation, safety, compliance, and operator-readiness views |
 | Implementation handoff | Prepares work-item exports, architecture guidance, solution packs, and starter artifacts |
 
+## Current implementation snapshot
+
+HealthForge is no longer only a retrieval demo. The current platform includes the complete evidence-to-handoff loop and the operating surfaces around it:
+
+| Capability area | Implemented today |
+| --- | --- |
+| Evidence foundation | Approved-source ingestion, provenance, versioned snapshots, citeable passages, freshness signals, and source governance |
+| Grounded answers | Retrieval, insufficient-evidence handling, unsupported-output safeguards, answer telemetry, and quality diagnostics |
+| Engineering Briefs | Structured Brief creation, findings, citations, reviewer decisions, approvals, corrections, and immutable audit history |
+| Research workspace | Projects, saved views, question packs, research notebooks, evidence collections, assignments, queues, and escalation paths |
+| Interoperability planning | FHIR validation, synthetic FHIR data, standards artifacts, prior-authorization journeys, PAS/CRD/DTR planning, and implementation bundles |
+| Governed delivery | Tracked work-item exports, documentation exports, collaboration notifications, inbound intake, retries, reconciliation, audit export, and delivery lineage |
+| Pilot productization | Audience solution packs, workflow presets, guided onboarding paths, stakeholder reporting, pilot success checkpoints, and pilot analytics |
+| Rollout governance | Production-readiness scorecards plus a controlled-rollout evidence registry with owners, statuses, evidence summaries, and next actions |
+| Developer tooling | Platform API, CLI, JavaScript SDK, VS Code prototype, synthetic labs, and contributor documentation |
+
+## Pilot and rollout controls
+
+The platform now has dedicated views for teams evaluating or operating a private pilot:
+
+- `GET /v1/pilot/readiness` — bounded private-pilot readiness checklist
+- `GET /v1/pilot/solution-packs` — provider, payer, standards, workflow, and implementation entry points
+- `GET /v1/pilot/analytics` — funnel, outcomes, stakeholder value evidence, feedback, and expansion score
+- `GET /v1/enterprise/production-readiness` — Phases 26–30 readiness scorecards
+- `GET /v1/enterprise/controlled-rollout` — Phases 31–35 execution scorecards
+- `POST /v1/enterprise/controlled-rollout/evidence` — administrator-owned rollout evidence and next actions
+
+These surfaces are designed to make gaps visible. A readiness result is not a certification, clinical validation, or guarantee that an external system completed a handoff.
+
 ## Product surfaces
 
 | Surface | What it is for |
@@ -133,6 +162,7 @@ mvn spring-boot:run
 - Want a meeting-friendly story? Read [the demo and release story guide](docs/50-demo-and-release-story.md).
 - Want the current product posture and next build recommendation? Read [the product readiness sweep](docs/51-product-readiness-sweep.md).
 - Want the latest evidence, analyst-workspace, and governed-delivery improvements? Read [the Phase 21 evidence operations guide](docs/52-phase21-evidence-operations-and-research-quality.md), [the Phase 22 analyst research workspace guide](docs/53-phase22-analyst-research-workspace.md), and [the Phase 23 governed delivery guide](docs/54-phase23-governed-delivery-operationalization.md).
+- Want the latest pilot and rollout controls? Read [the Phase 25 pilot success analytics guide](docs/55-phase25-pilot-success-and-expansion-analytics.md), [the Phases 26–30 readiness program](docs/56-phases26-30-production-readiness-program.md), and [the Phases 31–35 controlled rollout guide](docs/57-phases31-35-controlled-rollout.md).
 
 ## Documentation map
 
@@ -145,6 +175,10 @@ mvn spring-boot:run
 - [Phase 21 evidence operations and research quality](docs/52-phase21-evidence-operations-and-research-quality.md)
 - [Phase 22 analyst research workspace](docs/53-phase22-analyst-research-workspace.md)
 - [Phase 23 governed delivery operationalization](docs/54-phase23-governed-delivery-operationalization.md)
+- [Pilot readiness and solution packs](docs/44-phase15-pilot-readiness-and-solution-packs.md)
+- [Phase 25 pilot success analytics](docs/55-phase25-pilot-success-and-expansion-analytics.md)
+- [Phases 26–30 production-readiness program](docs/56-phases26-30-production-readiness-program.md)
+- [Phases 31–35 controlled rollout execution](docs/57-phases31-35-controlled-rollout.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Private deployment operator guide](docs/31-private-deployment-operator-guide.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
