@@ -42,6 +42,7 @@ const roleRequirements = {
   operationsAttestations: 'administrator',
   pilotReadiness: 'auditor',
   pilotAnalytics: 'auditor',
+  productionReadiness: 'auditor',
   solutionPacks: 'reviewer',
   stakeholderReport: 'auditor',
   futureRoadmap: 'auditor',
@@ -107,6 +108,11 @@ const docLinks = [
     title: 'Phase 25 pilot success analytics',
     path: '/docs/55-phase25-pilot-success-and-expansion-analytics.md',
     description: 'Usage funnel, workflow outcomes, stakeholder value evidence, structured feedback, and expansion-readiness scorecards.'
+  },
+  {
+    title: 'Phases 26–30 production-readiness program',
+    path: '/docs/56-phases26-30-production-readiness-program.md',
+    description: 'Secure deployment, reliable interoperability, evidence quality, pilot operations, and the rollout readiness gate.'
   },
   {
     title: 'Phase 11 collaboration workspace',
@@ -432,6 +438,7 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Attestations', action: 'operationsAttestations', className: 'secondary', onClick: 'openAdminPanel("operationsAttestations")' }),
     buttonHtml({ label: 'Pilot readiness', action: 'pilotReadiness', className: 'secondary', onClick: 'openAdminPanel("pilotReadiness")' }),
     buttonHtml({ label: 'Pilot analytics', action: 'pilotAnalytics', className: 'secondary', onClick: 'openAdminPanel("pilotAnalytics")' }),
+    buttonHtml({ label: 'Production readiness', action: 'productionReadiness', className: 'secondary', onClick: 'openAdminPanel("productionReadiness")' }),
     buttonHtml({ label: 'Solution packs', action: 'solutionPacks', className: 'secondary', onClick: 'openAdminPanel("solutionPacks")' }),
     buttonHtml({ label: 'Stakeholder report', action: 'stakeholderReport', className: 'secondary', onClick: 'openAdminPanel("stakeholderReport")' }),
     buttonHtml({ label: 'Future roadmap', action: 'futureRoadmap', className: 'secondary', onClick: 'openAdminPanel("futureRoadmap")' }),
@@ -2473,6 +2480,44 @@ async function openAdminPanel(panel) {
             <button class="secondary" onclick="recordPilotFeedback('recommendation_usefulness')">Recommendation usefulness</button>
           </div>
           <ul class="stack-list">${analytics.feedback.by_type.map((item) => `<li><b>${esc(item.feedback_type)}</b> · ${esc(item.records)} records · average ${Number(item.average_rating).toFixed(1)}/5</li>`).join('') || '<li>No feedback captured yet.</li>'}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'productionReadiness') {
+      if (!can('productionReadiness')) throw new Error(permissionText('productionReadiness'));
+      const readiness = await apiJson('/v1/enterprise/production-readiness', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Production-readiness gate</h3>
+          <p class="helper">${esc(readiness.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('decision', readiness.decision)}
+            ${renderMetricCard('overall score', `${readiness.overall_score}/100`)}
+            ${renderMetricCard('phases', readiness.phases.length)}
+            ${renderMetricCard('open gaps', readiness.gaps.length)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Phase scorecards</h4>
+          <div class="doc-grid">
+            ${readiness.phases.map((phase) => `
+              <article class="doc-card">
+                <h3>${esc(phase.phase_id)} · ${esc(phase.title)}</h3>
+                <div class="meta-row"><span class="pill">${esc(phase.status)}</span><span class="pill">${esc(phase.score)}/100</span></div>
+                <ul class="stack-list">${phase.checks.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.status)} · owner ${esc(item.owner_role)}<br><span class="helper">${esc(item.evidence)}</span></li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Open gaps</h4>
+          <ul class="stack-list">${readiness.gaps.map((item) => `<li><b>${esc(item.phase_id)} · ${esc(item.title)}</b> · owner ${esc(item.owner_role)}<br><span class="helper">${esc(item.next_action)}</span></li>`).join('') || '<li>No open gaps recorded.</li>'}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Boundaries</h4>
+          <ul class="stack-list">${readiness.bounded_statements.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
         </article>
       `;
       return;
