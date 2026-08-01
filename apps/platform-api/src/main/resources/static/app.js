@@ -43,6 +43,7 @@ const roleRequirements = {
   pilotReadiness: 'auditor',
   pilotAnalytics: 'auditor',
   productionReadiness: 'auditor',
+  controlledRollout: 'auditor',
   solutionPacks: 'reviewer',
   stakeholderReport: 'auditor',
   futureRoadmap: 'auditor',
@@ -113,6 +114,11 @@ const docLinks = [
     title: 'Phases 26–30 production-readiness program',
     path: '/docs/56-phases26-30-production-readiness-program.md',
     description: 'Secure deployment, reliable interoperability, evidence quality, pilot operations, and the rollout readiness gate.'
+  },
+  {
+    title: 'Phases 31–35 controlled rollout execution',
+    path: '/docs/57-phases31-35-controlled-rollout.md',
+    description: 'Record evidence and next actions for identity, connectors, quality, pilot operations, and controlled rollout.'
   },
   {
     title: 'Phase 11 collaboration workspace',
@@ -439,6 +445,7 @@ function refreshSessionUi() {
     buttonHtml({ label: 'Pilot readiness', action: 'pilotReadiness', className: 'secondary', onClick: 'openAdminPanel("pilotReadiness")' }),
     buttonHtml({ label: 'Pilot analytics', action: 'pilotAnalytics', className: 'secondary', onClick: 'openAdminPanel("pilotAnalytics")' }),
     buttonHtml({ label: 'Production readiness', action: 'productionReadiness', className: 'secondary', onClick: 'openAdminPanel("productionReadiness")' }),
+    buttonHtml({ label: 'Controlled rollout', action: 'controlledRollout', className: 'secondary', onClick: 'openAdminPanel("controlledRollout")' }),
     buttonHtml({ label: 'Solution packs', action: 'solutionPacks', className: 'secondary', onClick: 'openAdminPanel("solutionPacks")' }),
     buttonHtml({ label: 'Stakeholder report', action: 'stakeholderReport', className: 'secondary', onClick: 'openAdminPanel("stakeholderReport")' }),
     buttonHtml({ label: 'Future roadmap', action: 'futureRoadmap', className: 'secondary', onClick: 'openAdminPanel("futureRoadmap")' }),
@@ -2518,6 +2525,49 @@ async function openAdminPanel(panel) {
         <article class="admin-card">
           <h4>Boundaries</h4>
           <ul class="stack-list">${readiness.bounded_statements.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>
+        </article>
+      `;
+      return;
+    }
+
+    if (panel === 'controlledRollout') {
+      if (!can('controlledRollout')) throw new Error(permissionText('controlledRollout'));
+      const rollout = await apiJson('/v1/enterprise/controlled-rollout', { method: 'GET', headers: actorHeaders(false) });
+      enterprisePanel.innerHTML = `
+        <article class="admin-card">
+          <h3>Controlled rollout evidence</h3>
+          <p class="helper">${esc(rollout.summary)}</p>
+          <div class="metric-grid">
+            ${renderMetricCard('decision', rollout.decision)}
+            ${renderMetricCard('overall score', `${rollout.overall_score}/100`)}
+            ${renderMetricCard('phase scorecards', rollout.phases.length)}
+            ${renderMetricCard('open gaps', rollout.gaps.length)}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Execution scorecards</h4>
+          <div class="doc-grid">
+            ${rollout.phases.map((phase) => `
+              <article class="doc-card">
+                <h3>${esc(phase.phase_id)} · ${esc(phase.title)}</h3>
+                <div class="meta-row"><span class="pill">${esc(phase.status)}</span><span class="pill">${esc(phase.score)}/100</span></div>
+                <ul class="stack-list">${phase.checks.map((item) => `<li><b>${esc(item.title)}</b> · ${esc(item.status)} · owner ${esc(item.owner_role)}<br><span class="helper">${esc(item.evidence)}</span><br><span class="helper">Next: ${esc(item.next_action)}</span></li>`).join('')}</ul>
+              </article>
+            `).join('')}
+          </div>
+        </article>
+        <article class="admin-card">
+          <h4>Recorded evidence</h4>
+          <ul class="stack-list">${rollout.evidence.map((item) => `<li><b>${esc(item.phase_id)} · ${esc(item.check_id)}</b> · ${esc(item.status)} · ${esc(item.owner_role)}<br><span class="helper">${esc(item.evidence_summary)}</span><br><span class="helper">Updated by ${esc(item.actor_id)} · next: ${esc(item.next_action)}</span></li>`).join('') || '<li>No explicit rollout evidence recorded yet.</li>'}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Open gaps</h4>
+          <ul class="stack-list">${rollout.gaps.map((item) => `<li><b>${esc(item.phase_id)} · ${esc(item.title)}</b> · owner ${esc(item.owner_role)}<br><span class="helper">${esc(item.next_action)}</span></li>`).join('') || '<li>No open gaps recorded.</li>'}</ul>
+        </article>
+        <article class="admin-card">
+          <h4>Record evidence</h4>
+          <p class="helper">Use the API to record administrator-owned evidence for a phase/check pair. The registry is organization-scoped and editable.</p>
+          <pre>POST /v1/enterprise/controlled-rollout/evidence\n{\n  "phase_id": "phase_31",\n  "check_id": "identity_provider",\n  "status": "in_place",\n  "owner_role": "administrator",\n  "evidence_summary": "Trusted proxy configuration reviewed.",\n  "next_action": "Recheck during the next release review."\n}</pre>
         </article>
       `;
       return;
