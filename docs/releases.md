@@ -79,6 +79,13 @@ HealthForge is not yet claiming:
 - preserved local/demo ergonomics while documenting the stronger trusted-identity posture
 - added tenant-boundary unit and integration coverage
 
+### Phases 37–40 SaaS readiness and launch gates
+
+- added a unified SaaS-readiness API for identity, provisioning, usage, and launch controls
+- made the hosted/private deployment posture and remaining infrastructure work explicit
+- documented launch gates for identity assertions, tenant isolation, restore/rollback, retention, and ownership approval
+- added integration coverage for the Phase 37–40 readiness surface
+
 ### Evidence operations and research quality
 
 - added source watchlists, freshness alerts, and re-index recommendations
