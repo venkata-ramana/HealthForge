@@ -45,6 +45,7 @@ HealthForge is no longer only a retrieval demo. The current platform includes th
 | SaaS readiness | Unified Phase 37–40 identity, provisioning, usage, security, and launch-gate scorecard |
 | Enterprise launch program | Phases 41–45 pilot operations, go/no-go gates, and customer-operations readiness |
 | GA readiness | Phases 46–50 production identity, infrastructure, metering, assurance, and customer-success gates |
+| Production implementation | Phases 51–55 implementation contracts for identity, infrastructure, entitlements, assurance, and GA operations |
 | Developer tooling | Platform API, CLI, JavaScript SDK, VS Code prototype, synthetic labs, and contributor documentation |
 
 ## Pilot and rollout controls
@@ -171,6 +172,7 @@ mvn spring-boot:run
 - Want the SaaS launch-gate story? Read [the Phases 37–40 SaaS readiness guide](docs/59-phases37-40-saas-readiness-and-launch-gates.md).
 - Want the enterprise pilot launch program? Read [the Phases 41–45 launch program guide](docs/60-phases41-45-enterprise-launch-program.md).
 - Want the GA-readiness story? Read [the Phases 46–50 GA readiness guide](docs/61-phases46-50-general-availability-readiness.md).
+- Want the production implementation story? Read [the Phases 51–55 production implementation guide](docs/62-phases51-55-production-implementation-program.md).
 
 ## Documentation map
 
@@ -191,6 +193,7 @@ mvn spring-boot:run
 - [Phases 37–40 SaaS readiness and launch gates](docs/59-phases37-40-saas-readiness-and-launch-gates.md)
 - [Phases 41–45 enterprise launch program](docs/60-phases41-45-enterprise-launch-program.md)
 - [Phases 46–50 general availability readiness](docs/61-phases46-50-general-availability-readiness.md)
+- [Phases 51–55 production implementation program](docs/62-phases51-55-production-implementation-program.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Private deployment operator guide](docs/31-private-deployment-operator-guide.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
