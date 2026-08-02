@@ -93,6 +93,13 @@ HealthForge is not yet claiming:
 - documented the distinction between pilot operating readiness and production SaaS certification
 - added integration coverage for the five-phase launch program surface
 
+### Phases 46–50 general availability readiness
+
+- added a unified GA-readiness API for production identity, infrastructure, metering, assurance, and customer operations
+- added explicit GA gates and remaining deployment actions for each phase
+- documented the distinction between GA candidate posture and an approved production launch
+- added integration coverage for the GA-readiness surface
+
 ### Evidence operations and research quality
 
 - added source watchlists, freshness alerts, and re-index recommendations
