@@ -86,6 +86,13 @@ HealthForge is not yet claiming:
 - documented launch gates for identity assertions, tenant isolation, restore/rollback, retention, and ownership approval
 - added integration coverage for the Phase 37–40 readiness surface
 
+### Phases 41–45 enterprise launch program
+
+- added a unified enterprise launch-program API for identity, provisioning, usage, security, and customer operations
+- added explicit go/no-go gates and owner-facing remaining actions for bounded pilot expansion
+- documented the distinction between pilot operating readiness and production SaaS certification
+- added integration coverage for the five-phase launch program surface
+
 ### Evidence operations and research quality
 
 - added source watchlists, freshness alerts, and re-index recommendations
