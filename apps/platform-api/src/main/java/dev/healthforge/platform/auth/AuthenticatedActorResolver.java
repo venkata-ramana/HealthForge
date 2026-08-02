@@ -1,6 +1,7 @@
 package dev.healthforge.platform.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,14 +16,26 @@ public class AuthenticatedActorResolver {
 
     private final AuthenticatedActorProvider actorProvider;
     private final AuthenticatedActorRegistry actorRegistry;
+    private final AuthProperties authProperties;
 
     public AuthenticatedActorResolver(AuthenticatedActorProvider actorProvider, AuthenticatedActorRegistry actorRegistry) {
+        this(actorProvider, actorRegistry, new AuthProperties());
+    }
+
+    @Autowired
+    public AuthenticatedActorResolver(
+            AuthenticatedActorProvider actorProvider,
+            AuthenticatedActorRegistry actorRegistry,
+            AuthProperties authProperties
+    ) {
         this.actorProvider = actorProvider;
         this.actorRegistry = actorRegistry;
+        this.authProperties = authProperties;
     }
 
     public AuthenticatedActor requireWriteActor(HttpServletRequest request) {
         var actor = actorProvider.resolveRequiredActor(request);
+        requireActiveMembership(actor);
         actorRegistry.recordResolvedActor(actor);
         return actor;
     }
@@ -30,6 +43,7 @@ public class AuthenticatedActorResolver {
     public AuthenticatedActor resolveOptionalActor(HttpServletRequest request) {
         var actor = actorProvider.resolveOptionalActor(request);
         if (actor != null) {
+            requireActiveMembership(actor);
             actorRegistry.recordResolvedActor(actor);
         }
         return actor;
@@ -83,6 +97,13 @@ public class AuthenticatedActorResolver {
                     "Administrators can only access identity directory data for their own organization in this phase.");
         }
         return requestedOrganizationId;
+    }
+
+    private void requireActiveMembership(AuthenticatedActor actor) {
+        if (authProperties.isEnforceMembership() && !actorRegistry.hasActiveMembership(actor)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "The authenticated actor is not an active member of the requested organization.");
+        }
     }
 
 }

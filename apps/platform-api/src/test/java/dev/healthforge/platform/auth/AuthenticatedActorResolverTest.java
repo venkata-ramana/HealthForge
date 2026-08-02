@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class AuthenticatedActorResolverTest {
 
@@ -85,6 +86,30 @@ class AuthenticatedActorResolverTest {
         assertThatThrownBy(() -> resolver.requireAdministratorOrganizationScope(new MockHttpServletRequest(), "tenant.beta"))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("own organization");
+    }
+
+    @Test
+    void rejectsActorWithoutActiveMembershipWhenEnforcementIsEnabled() {
+        var registry = mock(AuthenticatedActorRegistry.class);
+        var properties = new AuthProperties();
+        properties.setEnforceMembership(true);
+        when(registry.hasActiveMembership(reviewer)).thenReturn(false);
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, null), registry, properties);
+
+        assertThatThrownBy(() -> resolver.requireWriteActor(new MockHttpServletRequest()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("not an active member");
+    }
+
+    @Test
+    void allowsActorWithActiveMembershipWhenEnforcementIsEnabled() {
+        var registry = mock(AuthenticatedActorRegistry.class);
+        var properties = new AuthProperties();
+        properties.setEnforceMembership(true);
+        when(registry.hasActiveMembership(reviewer)).thenReturn(true);
+        var resolver = new AuthenticatedActorResolver(new StubActorProvider(reviewer, null), registry, properties);
+
+        assertThat(resolver.requireWriteActor(new MockHttpServletRequest())).isEqualTo(reviewer);
     }
 
     private record StubActorProvider(AuthenticatedActor requiredActor, AuthenticatedActor optionalActor) implements AuthenticatedActorProvider {

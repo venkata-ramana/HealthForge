@@ -13,6 +13,7 @@ public class AuthProperties {
     private String trustedSubjectHeader = "X-HealthForge-Subject";
     private String trustedDisplayNameHeader = "X-HealthForge-Display-Name";
     private String trustedGroupsHeader = "X-HealthForge-Groups";
+    private boolean enforceMembership = false;
     private List<GroupRoleMapping> groupRoleMappings = new ArrayList<>();
 
     public String getMode() {
@@ -53,6 +54,14 @@ public class AuthProperties {
 
     public void setTrustedGroupsHeader(String trustedGroupsHeader) {
         this.trustedGroupsHeader = trustedGroupsHeader;
+    }
+
+    public boolean isEnforceMembership() {
+        return enforceMembership;
+    }
+
+    public void setEnforceMembership(boolean enforceMembership) {
+        this.enforceMembership = enforceMembership;
     }
 
     public List<GroupRoleMapping> getGroupRoleMappings() {

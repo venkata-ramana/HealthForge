@@ -80,5 +80,32 @@ class TenantAdministrationControllerIntegrationTest {
                 .andExpect(jsonPath("$.requested_organization_id").value("org.tenant.test"))
                 .andExpect(jsonPath("$.usage_summary.total_tenants").isNotEmpty())
                 .andExpect(jsonPath("$.product_packaging.length()").value(2));
+
+        mockMvc.perform(post("/v1/admin/tenants/member-invitations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "actor_user_id": "tenant.delta.reviewer",
+                                  "display_name": "Delta Reviewer",
+                                  "auth_subject": "delta.reviewer@example.test",
+                                  "identity_mode": "trusted_proxy",
+                                  "roles": ["reviewer"]
+                                }
+                                """)
+                        .header("X-HealthForge-Actor", "tenant.admin")
+                        .header("X-HealthForge-Role", "administrator")
+                        .header("X-HealthForge-Organization", "org.tenant.test"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.actor_user_id").value("tenant.delta.reviewer"))
+                .andExpect(jsonPath("$.membership_status").value("invited"))
+                .andExpect(jsonPath("$.roles[0]").value("reviewer"));
+
+        mockMvc.perform(get("/v1/admin/tenants/members")
+                        .header("X-HealthForge-Actor", "tenant.admin")
+                        .header("X-HealthForge-Role", "administrator")
+                        .header("X-HealthForge-Organization", "org.tenant.test"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.actor_user_id == 'tenant.delta.reviewer')].organization_id")
+                        .value(org.hamcrest.Matchers.contains("org.tenant.test")));
     }
 }

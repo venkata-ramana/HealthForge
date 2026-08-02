@@ -48,4 +48,17 @@ public class TenantAdministrationController {
     public List<TenantProvisioningResponse> listProvisioningRequests(HttpServletRequest request) {
         return service.listProvisioningRequests(actorResolver.requireAdministrator(request));
     }
+
+    @GetMapping("/members")
+    public List<TenantMemberResponse> members(HttpServletRequest request) {
+        return service.members(actorResolver.requireAdministrator(request));
+    }
+
+    @PostMapping("/member-invitations")
+    public TenantMemberResponse inviteMember(
+            @Valid @RequestBody TenantMemberInvitationRequest invitation,
+            HttpServletRequest request
+    ) {
+        return service.inviteMember(invitation, actorResolver.requireAdministrator(request));
+    }
 }

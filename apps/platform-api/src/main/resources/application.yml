@@ -49,6 +49,7 @@ healthforge:
     trusted-subject-header: ${HEALTHFORGE_TRUSTED_SUBJECT_HEADER:X-HealthForge-Subject}
     trusted-display-name-header: ${HEALTHFORGE_TRUSTED_DISPLAY_NAME_HEADER:X-HealthForge-Display-Name}
     trusted-groups-header: ${HEALTHFORGE_TRUSTED_GROUPS_HEADER:X-HealthForge-Groups}
+    enforce-membership: ${HEALTHFORGE_AUTH_ENFORCE_MEMBERSHIP:false}
     group-role-mappings:
       - group: reviewers
         role: reviewer
