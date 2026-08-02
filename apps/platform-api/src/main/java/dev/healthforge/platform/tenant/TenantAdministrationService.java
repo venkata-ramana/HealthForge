@@ -193,6 +193,72 @@ public class TenantAdministrationService {
         );
     }
 
+    public List<TenantMemberResponse> members(AuthenticatedActor actor) {
+        ensureDemoTenantLandscape(actor);
+        return jdbcTemplate.query("""
+                select u.actor_user_id, u.display_name, u.auth_subject, u.identity_mode,
+                       m.organization_id, m.status, m.joined_at, m.last_seen_at,
+                       coalesce(string_agg(r.actor_role, '|' order by r.actor_role), '') as roles
+                from actor_user u
+                join actor_organization_membership m on m.actor_user_id = u.actor_user_id
+                left join actor_role_assignment r
+                  on r.actor_user_id = m.actor_user_id
+                 and r.organization_id = m.organization_id
+                where m.organization_id = ?
+                group by u.actor_user_id, u.display_name, u.auth_subject, u.identity_mode,
+                         m.organization_id, m.status, m.joined_at, m.last_seen_at
+                order by u.display_name, u.actor_user_id
+                """, (rs, row) -> new TenantMemberResponse(
+                rs.getString("actor_user_id"),
+                rs.getString("display_name"),
+                rs.getString("auth_subject"),
+                rs.getString("identity_mode"),
+                rs.getString("organization_id"),
+                rs.getString("status"),
+                splitPipe(rs.getString("roles")),
+                rs.getTimestamp("joined_at").toInstant(),
+                rs.getTimestamp("last_seen_at").toInstant()
+        ), actor.organizationId());
+    }
+
+    public TenantMemberResponse inviteMember(TenantMemberInvitationRequest request, AuthenticatedActor actor) {
+        ensureDemoTenantLandscape(actor);
+        var now = Timestamp.from(Instant.now(clock));
+        var actorUserId = request.actorUserId().trim();
+        var organizationId = actor.organizationId();
+        jdbcTemplate.update("""
+                insert into actor_user (actor_user_id, display_name, auth_subject, identity_mode, created_at, last_seen_at)
+                values (?, ?, ?, ?, ?, ?)
+                on conflict (actor_user_id) do update
+                set display_name = excluded.display_name,
+                    auth_subject = excluded.auth_subject,
+                    identity_mode = excluded.identity_mode,
+                    last_seen_at = excluded.last_seen_at
+                """, actorUserId, request.displayName().trim(), request.authSubject().trim(),
+                request.identityMode().trim(), now, now);
+        jdbcTemplate.update("""
+                insert into actor_organization_membership
+                    (membership_id, actor_user_id, organization_id, status, joined_at, last_seen_at)
+                values (?, ?, ?, 'invited', ?, ?)
+                on conflict (actor_user_id, organization_id) do update
+                set status = 'invited', last_seen_at = excluded.last_seen_at
+                """, "membership_" + UUID.randomUUID(), actorUserId, organizationId, now, now);
+        for (var role : normalizedRoles(request.roles())) {
+            jdbcTemplate.update("""
+                    insert into actor_role_assignment
+                        (role_assignment_id, actor_user_id, organization_id, actor_role, granted_by, granted_at, last_seen_at)
+                    values (?, ?, ?, ?, ?, ?, ?)
+                    on conflict (actor_user_id, organization_id, actor_role) do update
+                    set granted_by = excluded.granted_by, last_seen_at = excluded.last_seen_at
+                    """, "role_" + UUID.randomUUID(), actorUserId, organizationId, role,
+                    actor.actorId(), now, now);
+        }
+        return members(actor).stream()
+                .filter(member -> member.actorUserId().equals(actorUserId))
+                .findFirst()
+                .orElseThrow();
+    }
+
     private TenantProvisioningResponse provisioningRequest(String provisioningRequestId) {
         return jdbcTemplate.query("""
                 select provisioning_request_id, organization_id, tenant_key, tenant_name, deployment_model,
@@ -452,6 +518,23 @@ public class TenantAdministrationService {
             if (capability != null && !capability.isBlank()) {
                 values.add(capability.trim());
             }
+        }
+        return values.stream().toList();
+    }
+
+    private List<String> normalizedRoles(List<String> roles) {
+        var values = new LinkedHashSet<String>();
+        for (var role : roles) {
+            if (role == null || role.isBlank()) {
+                continue;
+            }
+            var normalized = role.trim().toLowerCase(Locale.ROOT);
+            try {
+                dev.healthforge.platform.auth.ActorRole.parse(normalized);
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("Unsupported tenant member role: " + normalized);
+            }
+            values.add(normalized);
         }
         return values.stream().toList();
     }

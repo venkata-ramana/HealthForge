@@ -83,6 +83,23 @@ public class AuthenticatedActorRegistry {
         );
     }
 
+    public boolean hasActiveMembership(AuthenticatedActor actor) {
+        return jdbcTemplate.queryForObject("""
+                select exists(
+                    select 1
+                    from actor_organization_membership m
+                    join actor_role_assignment r
+                      on r.actor_user_id = m.actor_user_id
+                     and r.organization_id = m.organization_id
+                     and lower(r.actor_role) = ?
+                    where m.actor_user_id = ?
+                      and m.organization_id = ?
+                      and lower(m.status) = 'active'
+                )
+                """, Boolean.class,
+                actor.role().name().toLowerCase(), actor.actorId(), actor.organizationId());
+    }
+
     private String displayName(String value) {
         return value;
     }

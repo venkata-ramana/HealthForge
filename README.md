@@ -41,6 +41,7 @@ HealthForge is no longer only a retrieval demo. The current platform includes th
 | Governed delivery | Tracked work-item exports, documentation exports, collaboration notifications, inbound intake, retries, reconciliation, audit export, and delivery lineage |
 | Pilot productization | Audience solution packs, workflow presets, guided onboarding paths, stakeholder reporting, pilot success checkpoints, and pilot analytics |
 | Rollout governance | Production-readiness scorecards plus a controlled-rollout evidence registry with owners, statuses, evidence summaries, and next actions |
+| SaaS foundation | Tenant-scoped identity, membership enforcement, administrator invitations, and hosted/private deployment boundaries |
 | Developer tooling | Platform API, CLI, JavaScript SDK, VS Code prototype, synthetic labs, and contributor documentation |
 
 ## Pilot and rollout controls
@@ -163,6 +164,7 @@ mvn spring-boot:run
 - Want the current product posture and next build recommendation? Read [the product readiness sweep](docs/51-product-readiness-sweep.md).
 - Want the latest evidence, analyst-workspace, and governed-delivery improvements? Read [the Phase 21 evidence operations guide](docs/52-phase21-evidence-operations-and-research-quality.md), [the Phase 22 analyst research workspace guide](docs/53-phase22-analyst-research-workspace.md), and [the Phase 23 governed delivery guide](docs/54-phase23-governed-delivery-operationalization.md).
 - Want the latest pilot and rollout controls? Read [the Phase 25 pilot success analytics guide](docs/55-phase25-pilot-success-and-expansion-analytics.md), [the Phases 26–30 readiness program](docs/56-phases26-30-production-readiness-program.md), and [the Phases 31–35 controlled rollout guide](docs/57-phases31-35-controlled-rollout.md).
+- Want the SaaS-ready tenant boundary? Read [the Phase 36 tenant and identity hardening guide](docs/58-phase36-saas-tenant-identity-hardening.md).
 
 ## Documentation map
 
@@ -179,6 +181,7 @@ mvn spring-boot:run
 - [Phase 25 pilot success analytics](docs/55-phase25-pilot-success-and-expansion-analytics.md)
 - [Phases 26–30 production-readiness program](docs/56-phases26-30-production-readiness-program.md)
 - [Phases 31–35 controlled rollout execution](docs/57-phases31-35-controlled-rollout.md)
+- [Phase 36 SaaS tenant and identity hardening](docs/58-phase36-saas-tenant-identity-hardening.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Private deployment operator guide](docs/31-private-deployment-operator-guide.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)

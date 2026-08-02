@@ -72,6 +72,13 @@ HealthForge is not yet claiming:
 - added CLI, SDK, CI, and VS Code companion surfaces
 - added tenant administration, tenant analytics, and enterprise packaging views
 
+### SaaS tenant and identity hardening
+
+- added configurable active-membership and role-assignment enforcement for authenticated workflows
+- added tenant administrator member listing and invitation workflows
+- preserved local/demo ergonomics while documenting the stronger trusted-identity posture
+- added tenant-boundary unit and integration coverage
+
 ### Evidence operations and research quality
 
 - added source watchlists, freshness alerts, and re-index recommendations
