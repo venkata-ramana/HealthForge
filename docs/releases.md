@@ -114,6 +114,13 @@ HealthForge is not yet claiming:
 - documented the difference between product capability foundations and external-system or clinical guarantees
 - added integration coverage for the product-expansion surface
 
+### Phases 61–65 reusable scale program
+
+- added a unified scale-program API for connector reuse, quality automation, workflow orchestration, FHIR exchange, and customer outcomes
+- added scale gates, evidence, and remaining actions for each reusable track
+- documented the difference between scale foundations and external-system or clinical guarantees
+- added integration coverage for the scale-program surface
+
 ### Evidence operations and research quality
 
 - added source watchlists, freshness alerts, and re-index recommendations
