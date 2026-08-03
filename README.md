@@ -47,6 +47,7 @@ HealthForge is no longer only a retrieval demo. The current platform includes th
 | GA readiness | Phases 46–50 production identity, infrastructure, metering, assurance, and customer-success gates |
 | Production implementation | Phases 51–55 implementation contracts for identity, infrastructure, entitlements, assurance, and GA operations |
 | Product expansion | Phases 56–60 governed integrations, evidence quality, collaboration, FHIR handoff, and customer outcomes |
+| Reusable scale | Phases 61–65 connector reuse, quality automation, workflow orchestration, FHIR exchange, and outcome-led scale |
 | Developer tooling | Platform API, CLI, JavaScript SDK, VS Code prototype, synthetic labs, and contributor documentation |
 
 ## Pilot and rollout controls
@@ -175,6 +176,7 @@ mvn spring-boot:run
 - Want the GA-readiness story? Read [the Phases 46–50 GA readiness guide](docs/61-phases46-50-general-availability-readiness.md).
 - Want the production implementation story? Read [the Phases 51–55 production implementation guide](docs/62-phases51-55-production-implementation-program.md).
 - Want the product expansion story? Read [the Phases 56–60 product expansion guide](docs/63-phases56-60-product-expansion-program.md).
+- Want the reusable scale story? Read [the Phases 61–65 scale program guide](docs/64-phases61-65-scale-program.md).
 
 ## Documentation map
 
@@ -197,6 +199,7 @@ mvn spring-boot:run
 - [Phases 46–50 general availability readiness](docs/61-phases46-50-general-availability-readiness.md)
 - [Phases 51–55 production implementation program](docs/62-phases51-55-production-implementation-program.md)
 - [Phases 56–60 product expansion program](docs/63-phases56-60-product-expansion-program.md)
+- [Phases 61–65 reusable scale program](docs/64-phases61-65-scale-program.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Private deployment operator guide](docs/31-private-deployment-operator-guide.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
