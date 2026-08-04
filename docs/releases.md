@@ -121,6 +121,13 @@ HealthForge is not yet claiming:
 - documented the difference between scale foundations and external-system or clinical guarantees
 - added integration coverage for the scale-program surface
 
+### Phases 66–70 product-depth program
+
+- added a unified product-depth API for connector certification, quality gates, workflow orchestration, FHIR exchange, and expansion intelligence
+- added depth gates, evidence, and remaining actions for each product track
+- documented the difference between product-depth foundations and external-system or clinical guarantees
+- added integration coverage for the product-depth surface
+
 ### Evidence operations and research quality
 
 - added source watchlists, freshness alerts, and re-index recommendations
