@@ -128,6 +128,13 @@ HealthForge is not yet claiming:
 - documented the difference between product-depth foundations and external-system or clinical guarantees
 - added integration coverage for the product-depth surface
 
+### Phases 71–75 operational runtime program
+
+- added a unified operational-runtime API for connector certification, quality jobs, workflow configuration, FHIR registry operations, and outcome reviews
+- added runtime gates, evidence, and remaining actions for each operating track
+- documented the difference between runtime foundations and external-system or clinical guarantees
+- added integration coverage for the operational-runtime surface
+
 ### Evidence operations and research quality
 
 - added source watchlists, freshness alerts, and re-index recommendations
