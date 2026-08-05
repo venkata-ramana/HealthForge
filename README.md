@@ -49,6 +49,7 @@ HealthForge is no longer only a retrieval demo. The current platform includes th
 | Product expansion | Phases 56–60 governed integrations, evidence quality, collaboration, FHIR handoff, and customer outcomes |
 | Reusable scale | Phases 61–65 connector reuse, quality automation, workflow orchestration, FHIR exchange, and outcome-led scale |
 | Product depth | Phases 66–70 certification, quality gates, orchestration, FHIR registry, and expansion intelligence |
+| Operational runtime | Phases 71–75 connector operations, quality jobs, workflow studio, FHIR registry runtime, and outcome reviews |
 | Developer tooling | Platform API, CLI, JavaScript SDK, VS Code prototype, synthetic labs, and contributor documentation |
 
 ## Pilot and rollout controls
@@ -179,6 +180,7 @@ mvn spring-boot:run
 - Want the product expansion story? Read [the Phases 56–60 product expansion guide](docs/63-phases56-60-product-expansion-program.md).
 - Want the reusable scale story? Read [the Phases 61–65 scale program guide](docs/64-phases61-65-scale-program.md).
 - Want the product-depth story? Read [the Phases 66–70 product-depth guide](docs/65-phases66-70-product-depth-program.md).
+- Want the operational runtime story? Read [the Phases 71–75 runtime program guide](docs/66-phases71-75-operational-runtime-program.md).
 
 ## Documentation map
 
@@ -203,6 +205,7 @@ mvn spring-boot:run
 - [Phases 56–60 product expansion program](docs/63-phases56-60-product-expansion-program.md)
 - [Phases 61–65 reusable scale program](docs/64-phases61-65-scale-program.md)
 - [Phases 66–70 product-depth program](docs/65-phases66-70-product-depth-program.md)
+- [Phases 71–75 operational runtime program](docs/66-phases71-75-operational-runtime-program.md)
 - [Deployable editions and capability boundaries](docs/37-deployable-editions-and-capability-boundaries.md)
 - [Private deployment operator guide](docs/31-private-deployment-operator-guide.md)
 - [VS Code extension prototype](apps/vscode-extension/README.md)
