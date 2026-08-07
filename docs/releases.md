@@ -135,6 +135,13 @@ HealthForge is not yet claiming:
 - documented the difference between runtime foundations and external-system or clinical guarantees
 - added integration coverage for the operational-runtime surface
 
+### Phases 76–80 platform maturity program
+
+- added a unified maturity-program API for API/SDK stability, AI safety, privacy operations, partners, and market readiness
+- added maturity gates, evidence, and remaining actions for each platform track
+- documented the difference between maturity foundations and compliance, clinical, or market guarantees
+- added integration coverage for the maturity-program surface
+
 ### Evidence operations and research quality
 
 - added source watchlists, freshness alerts, and re-index recommendations
